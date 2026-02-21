@@ -24,7 +24,9 @@ checklist: {
         columns: [
             { key: 'id', label: 'ID', type: 'readonly' },
             { key: 'item', label: 'Elemento', type: 'text', required: true },
-            { key: 'imagen_url', label: 'URL Imagen', type: 'text' } // NUEVA COLUMNA
+            { key: 'imagen_url', label: 'URL Imagen', type: 'text' },
+            { key: 'lat', label: 'Latitud', type: 'number' },
+            { key: 'lng', label: 'Longitud', type: 'number' }
         ]
     },
     supermercados: {
@@ -219,7 +221,7 @@ async function loadTimeline(diaId) {
     container.innerHTML = '<div class="text-center py-6"><i class="fas fa-spinner fa-spin text-3xl text-[var(--gold)]"></i></div>';
     
     const { data: links, error } = await sb.from('dia_actividad')
-        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto)`)
+        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto, imagen_url)`)
         .eq('dia_id', diaId)
         .order('hora', { ascending: true });
 

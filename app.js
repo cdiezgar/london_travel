@@ -626,6 +626,7 @@ function renderFood() {
 // ==========================================
 // --- CHECKLIST CONECTADO A SUPABASE ---
 // ==========================================
+// En app.js
 function renderExtras() {
     setActiveNav('nav-extra');
     
@@ -639,46 +640,84 @@ function renderExtras() {
                 <h3 class="magic-font text-xl font-bold mb-4 text-center decoration-wavy underline decoration-[var(--gold)]">Checklist</h3>
                 <div class="bg-white p-5 rounded-lg shadow-md border border-stone-200">
                     <ul class="space-y-3" id="checklist-container">
-    `;
-
-    organizadorViaje.checklist.forEach(item => {
-        const isChecked = item.completado ? 'checked' : '';
-        const textStyle = item.completado ? 'line-through text-gray-400' : 'text-stone-800';
-
-        html += `
-            <li class="flex items-start gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
-                <input type="checkbox" id="check-${item.id}" onchange="toggleChecklist(${item.id}, ${item.completado})" ${isChecked} class="w-6 h-6 mt-1 accent-[var(--gryffindor-red)] cursor-pointer shrink-0">
-                <label for="check-${item.id}" class="text-lg handwritten leading-tight flex-1 cursor-pointer select-none transition-all ${textStyle}">${item.item}</label>
-            </li>
-        `;
-    });
-
-    html += `
-                </ul>
+                        ${organizadorViaje.checklist.map(item => {
+                            const isChecked = item.completado ? 'checked' : '';
+                            const textStyle = item.completado ? 'line-through text-gray-400' : 'text-stone-800';
+                            return `
+                                <li class="flex items-start gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                                    <input type="checkbox" id="check-${item.id}" onchange="toggleChecklist(${item.id}, ${item.completado})" ${isChecked} class="w-6 h-6 mt-1 accent-[var(--gryffindor-red)] cursor-pointer shrink-0">
+                                    <label for="check-${item.id}" class="text-lg handwritten leading-tight flex-1 cursor-pointer select-none transition-all ${textStyle}">${item.item}</label>
+                                </li>`;
+                        }).join('')}
+                    </ul>
                 </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="magic-font text-xl font-bold mb-4 text-center">Mapa del Merodeador</h3>
+                <div class="parchment-box p-2 rounded-lg shadow-md h-[400px] relative">
+                    <div id="london-map" class="w-full h-full z-0"></div>
+                </div>
+                <p class="text-center text-xs italic mt-2">"Juro solemnemente que mis intenciones no son buenas"</p>
             </div>
 
             <div>
                 <h3 class="magic-font text-xl font-bold mb-4 text-center">Secretos</h3>
                 <div class="space-y-4">
-    `;
-
-    organizadorViaje.curiosidades_extra.forEach(curio => {
-        html += `
-            <div class="parchment-box p-5 rounded-lg transform active:scale-[0.99] transition-transform">
-                <h4 class="font-bold text-[var(--gryffindor-red)] mb-2 flex items-center gap-2"><i class="fas fa-star text-sm text-[var(--gold)]"></i> ${curio.titulo}</h4>
-                <p class="text-base leading-relaxed text-stone-800">${curio.texto}</p>
-            </div>
-        `;
-    });
-
-    html += `
+                    ${organizadorViaje.curiosidades_extra.map(curio => `
+                        <div class="parchment-box p-5 rounded-lg">
+                            <h4 class="font-bold text-[var(--gryffindor-red)] mb-2 flex items-center gap-2"><i class="fas fa-star text-sm text-[var(--gold)]"></i> ${curio.titulo}</h4>
+                            <p class="text-base leading-relaxed text-stone-800">${curio.texto}</p>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
-            
         </div>
     `;
     appContent.innerHTML = html;
+
+    // Ejecutamos la lógica del mapa después de insertar el HTML
+    initMapaDinamico(); 
+}
+
+// Nueva función para el mapa dinámico
+function initMapaDinamico() {
+    setTimeout(() => {
+        if (window.londonMap) { window.londonMap.remove(); }
+        
+        window.londonMap = L.map('london-map').setView([51.5074, -0.1278], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.londonMap);
+
+        organizadorViaje.checklist.forEach(item => {
+            // Solo dibujamos marcadores que tengan latitud y longitud en la tabla checklist
+            if (item.lat && item.long) {
+                const isDone = item.completado;
+                
+                const customIcon = L.divIcon({
+                    className: 'clear-leaflet-style',
+                    html: `
+                        <div class="pin-container" style="${isDone ? 'filter: grayscale(100%) opacity(0.5);' : ''}">
+                            <i class="fas fa-map-marker-alt text-[28px] text-[var(--gryffindor-red)] drop-shadow-md"></i>
+                            <span class="pin-text">${isDone ? '<s>Visto</s>' : 'Aquí'}</span>
+                        </div>`,
+                    iconSize: [30, 50],
+                    iconAnchor: [15, 50]
+                });
+
+                // POPUP: Ahora carga la imagen dinámicamente si existe en el checklist
+                const popupContent = `
+                    <div class="text-center" style="min-width: 150px">
+                        ${item.imagen_url ? `<img src="${item.imagen_url}" class="w-full h-24 object-cover rounded border border-[var(--gold)] mb-2">` : ''}
+                        <strong style="font-family: 'Cinzel', serif; color: #740001;">${item.item}</strong>
+                    </div>`;
+
+                L.marker([item.lat, item.long], { icon: customIcon })
+                    .addTo(window.londonMap)
+                    .bindPopup(popupContent);
+            }
+        });
+    }, 100);
 }
 
 // --- ACTUALIZAR CHECKLIST SIN REFRESCO FEO ---
@@ -778,113 +817,8 @@ function renderGastos() {
 // ==========================================
 let londonMap = null; // Variable para guardar el mapa
 
-function renderMapa() {
-    setActiveNav('nav-mapa');
-    
-    let html = `
-        <div class="fade-in pb-10 flex flex-col h-full">
-            <h2 class="text-2xl font-bold text-center mb-4 text-[var(--gryffindor-red)]">
-                <i class="fas fa-shoe-prints"></i> Mapa del Merodeador
-            </h2>
-            <p class="text-center text-sm italic font-bold text-stone-600 mb-4">"Juro solemnemente que mis intenciones no son buenas"</p>
-            
-            <div class="parchment-box p-2 rounded-lg shadow-md flex-1 relative min-h-[500px]">
-                <div id="london-map" class="w-full h-full z-0"></div>
-            </div>
-        </div>
-    `;
-    appContent.innerHTML = html;
 
-    // Coordenadas mágicas de los lugares de tu checklist
-    const coordenadasFamosas = {
-        "british museum": [51.5194, -0.1269],
-        "tower bridge": [51.5055, -0.0754],
-        "tower of london": [51.5081, -0.0759],
-        "historia natural": [51.4967, -0.1764],
-        "ciencias": [51.4978, -0.1745],
-        "london eye": [51.5033, -0.1195],
-        "camden": [51.5416, -0.1462],
-        "little venice": [51.5230, -0.1836],
-        "portobello": [51.5161, -0.2048],
-        "warner bros": [51.6933, -0.4196],
-        "abadía": [51.4993, -0.1273],
-        "sky garden": [51.5113, -0.0835]
-    };
 
-    // Inicializar el mapa (centrado en el centro de Londres)
-    setTimeout(() => {
-        if (londonMap) {
-            londonMap.remove(); // Limpiar mapa anterior si existe
-        }
-        
-        londonMap = L.map('london-map').setView([51.5074, -0.1278], 12);
-
-        // Añadir capa de OpenStreetMap (luego CSS le aplica el filtro pergamino)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(londonMap);
-
-        // Crear icono personalizado
-        const magicIcon = L.divIcon({
-            className: 'magic-pin',
-            html: `<i class="fas fa-map-marker-alt"></i><span class="pin-text"></span>`,
-            iconSize: [30, 42],
-            iconAnchor: [15, 42]
-        });
-
-// Buscar puntos del checklist y ponerlos en el mapa
-        organizadorViaje.checklist.forEach(item => {
-            let texto = item.item.toLowerCase();
-            let coordsEncontradas = null;
-
-            // Buscar si alguna palabra clave coincide con el checklist
-            for (const [clave, coords] of Object.entries(coordenadasFamosas)) {
-                if (texto.includes(clave)) {
-                    coordsEncontradas = coords;
-                    break;
-                }
-            }
-
-            if (coordsEncontradas) {
-                // Filtro para cuando ya está tachado en el checklist
-                const filtroGris = item.completado ? 'filter: grayscale(100%) opacity(0.5);' : '';
-                const textoPin = item.completado ? '<s>Visto</s>' : 'Aquí';
-                
-                let htmlIcono;
-
-                // Si hemos puesto una URL de imagen en el admin...
-                if (item.imagen_url) {
-                    htmlIcono = `
-                        <div class="pin-container" style="${filtroGris}">
-                            <img src="${item.imagen_url}" class="magic-photo-pin" alt="Foto">
-                            <span class="pin-text">${textoPin}</span>
-                        </div>
-                    `;
-                } else {
-                    // Si no tiene imagen, usamos el pin mágico de FontAwesome (por defecto)
-                    htmlIcono = `
-                        <div class="pin-container" style="${filtroGris}">
-                            <i class="fas fa-map-marker-alt text-[28px] text-[var(--gryffindor-red)] drop-shadow-md"></i>
-                            <span class="pin-text">${textoPin}</span>
-                        </div>
-                    `;
-                }
-
-                // Generar el marcador de Leaflet sin clases por defecto
-                const customIcon = L.divIcon({
-                    className: 'clear-leaflet-style', // Clase vacía para que no ponga fondos blancos
-                    html: htmlIcono,
-                    iconSize: [30, 50],
-                    iconAnchor: [15, 50] // El punto exacto que ancla al mapa (abajo al centro)
-                });
-
-                L.marker(coordsEncontradas, { icon: customIcon })
-                    .addTo(londonMap)
-                    .bindPopup(`<strong style="font-family: 'Cinzel', serif; color: #740001; font-size: 16px;">${item.item}</strong>`);
-            }
-        });
-    }, 100); // Pequeño retraso para que el HTML se dibuje antes de cargar el mapa
-}
 
 // --- AÑADIR GASTO SIN REFRESCO FEO ---
 window.addGasto = async function(event) {
@@ -1020,4 +954,3 @@ window.renderGastos = renderGastos;
 window.addGasto = addGasto;
 window.deleteGasto = deleteGasto;
 window.toggleChecklist = toggleChecklist;
-window.renderMapa = renderMapa;
