@@ -15,51 +15,59 @@
 <body class="h-screen flex flex-col overflow-hidden text-base">
 
     <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center pointer-events-none">
-        <div class="magic-font text-[var(--gryffindor-red)] font-bold text-lg bg-white/40 backdrop-blur-sm px-3 py-1 rounded-lg border border-[var(--gold)]/30 pointer-events-auto">
+        <button onclick="toggleMenu()" id="hamburger-btn" class="hidden pointer-events-auto bg-[#2b1b17] text-[var(--gold)] w-10 h-10 rounded-lg shadow-lg border border-[var(--gold)] flex items-center justify-center active:scale-95 transition-all">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+
+        <div class="magic-font text-[var(--gryffindor-red)] font-bold text-lg bg-white/40 backdrop-blur-sm px-3 py-1 rounded-lg border border-[var(--gold)]/30 pointer-events-auto absolute left-1/2 transform -translate-x-1/2">
             LND 2026
         </div>
+
         <button onclick="logout()" id="global-logout" class="hidden pointer-events-auto bg-white/60 backdrop-blur-md text-[var(--gryffindor-red)] w-10 h-10 rounded-full shadow-lg border border-[var(--gold)] flex items-center justify-center active:scale-95 transition-all">
             <i class="fas fa-sign-out-alt"></i>
         </button>
     </header>
-    <main id="app-content" class="flex-1 overflow-y-auto p-4 pb-32 relative scroll-smooth overscroll-contain">
-        </main>
 
-<nav id="bottom-nav" class="bottom-nav fixed bottom-0 w-full flex flex-nowrap items-center pt-3 pb-3 sm:pb-3 text-gray-400 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] overflow-x-auto hide-scrollbar px-2 gap-1 touch-pan-x">
+    <main id="app-content" class="flex-1 overflow-y-auto p-4 pb-10 relative scroll-smooth overscroll-contain">
+    </main>
+
+    <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/60 z-[60] hidden backdrop-blur-sm transition-opacity opacity-0 duration-300"></div>
+
+    <nav id="sidebar-nav" class="fixed top-0 left-0 h-full w-64 bg-[#2b1b17] border-r-2 border-[var(--gold)] z-[70] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col pt-20 pb-6 px-4 gap-2 shadow-[4px_0_15px_rgba(0,0,0,0.5)] overflow-y-auto">
         
-        <button onclick="renderHome()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-home">
-            <i class="fas fa-hat-wizard text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Inicio</span>
+        <button onclick="renderHome(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-home">
+            <i class="fas fa-hat-wizard text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Inicio</span>
         </button>
 
-        <button onclick="renderItineraryList()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-itin">
-            <i class="fas fa-scroll text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Diario</span>
+        <button onclick="renderItineraryList(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-itin">
+            <i class="fas fa-scroll text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Diario de Viaje</span>
         </button>
 
-        <button onclick="renderTransport()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-trans">
-            <i class="fas fa-train-subway text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Viaje</span>
+        <button onclick="renderTransport(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-trans">
+            <i class="fas fa-train-subway text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Transporte</span>
         </button>
 
-        <button onclick="renderFood()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-food">
-            <i class="fas fa-utensils text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Comer</span>
+        <button onclick="renderFood(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-food">
+            <i class="fas fa-utensils text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Comedor Mágico</span>
         </button>
 
-        <button onclick="renderGastos()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-gastos">
-            <i class="fas fa-coins text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Gastos</span>
+        <button onclick="renderGastos(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-gastos">
+            <i class="fas fa-coins text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Gringotts</span>
         </button>
 
-        <button onclick="renderExplorerPass()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none" id="nav-pass">
-            <i class="fas fa-ticket-alt text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Pase</span>
+        <button onclick="renderExplorerPass(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-pass">
+            <i class="fas fa-ticket-alt text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Pase de Explorador.</span>
         </button>
 
-        <button onclick="renderExtras()" class="nav-item min-w-[75px] flex-shrink-0 flex flex-col items-center focus:outline-none pr-4" id="nav-extra">
-            <i class="fas fa-bolt text-xl mb-1"></i>
-            <span class="text-[10px] magic-font tracking-wide">Secretos</span>
+        <button onclick="renderExtras(); toggleMenu()" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:bg-white/5 active:bg-white/10 transition-all text-left" id="nav-extra">
+            <i class="fas fa-bolt text-xl w-6 text-center"></i>
+            <span class="text-base magic-font tracking-wide">Sala de Menesteres</span>
         </button>
 
     </nav>

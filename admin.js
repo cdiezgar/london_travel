@@ -25,8 +25,8 @@ checklist: {
             { key: 'id', label: 'ID', type: 'readonly' },
             { key: 'item', label: 'Elemento', type: 'text', required: true },
             { key: 'imagen_url', label: 'URL Imagen', type: 'text' },
-            { key: 'lat', label: 'Latitud', type: 'number' },
-            { key: 'lng', label: 'Longitud', type: 'number' }
+            { key: 'lat', label: 'Latitud', type: 'float' },
+            { key: 'long', label: 'Longitud', type: 'float' }
         ]
     },
     supermercados: {

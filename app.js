@@ -4,14 +4,13 @@ const supabaseUrl = "https://zephobibrftatzmagjta.supabase.co";
 const supabaseKey = "sb_publishable_WFqb8AOLj0GAUq3UJ364kA_vU9tIAXL";
 const sb = createClient(supabaseUrl, supabaseKey);
 
-// Variables globales que asignaremos al cargar
+// Variables globales
 let organizadorViaje = null;
-let appContent, navBar, navItems;
+let appContent, hamburgerBtn, navItems;
 
 async function checkAuthAndInit() {
-    // 1. Asignamos los elementos aquí para evitar el error de "null"
     appContent = document.getElementById('app-content');
-    navBar = document.getElementById('bottom-nav');
+    hamburgerBtn = document.getElementById('hamburger-btn');
     navItems = document.querySelectorAll('.nav-item');
 
     const { data: { session } } = await sb.auth.getSession();
@@ -26,17 +25,13 @@ async function checkAuthAndInit() {
 // Escuchar cambios de estado
 sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
-        if(navBar) {
-            navBar.classList.remove('flex');
-            navBar.classList.add('hidden');
-        }
+        if(hamburgerBtn) hamburgerBtn.classList.add('hidden');
         renderLogin();
     }
 });
 
 function renderLogin() {
-    navBar.classList.add('hidden');
-    navBar.classList.remove('flex');
+    if(hamburgerBtn) hamburgerBtn.classList.add('hidden');
     
     appContent.innerHTML = `
         <div class="fade-in h-full flex flex-col items-center justify-center mt-10">
@@ -62,7 +57,6 @@ function renderLogin() {
         </div>
     `;
 
-    // Añadimos el listener al formulario
     document.getElementById('login-form').addEventListener('submit', handleLogin);
 }
 
@@ -237,10 +231,10 @@ async function fetchTravelData() {
         // Guardar en caché para la próxima vez
         localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
 
-        navBar.classList.remove('hidden');
-        navBar.classList.add('flex');
+        // MOSTRAMOS EL BOTÓN HAMBURGUESA EN VEZ DE LA ANTIGUA BARRA
+        if(hamburgerBtn) hamburgerBtn.classList.remove('hidden');
         toggleLogoutButton(true);
-        if (!cached) renderHome();
+        if (!cached) renderHome();  
 
     } catch (error) {
         console.error("Error:", error);
@@ -252,9 +246,15 @@ async function fetchTravelData() {
 }
 
 function setActiveNav(id) {
-    navItems.forEach(item => item.classList.remove('active', 'text-yellow-500'));
+    navItems.forEach(item => {
+        item.classList.remove('active', 'text-[var(--gold)]', 'bg-white/10');
+        item.classList.add('text-gray-400');
+    });
     const activeItem = document.getElementById(id);
-    if(activeItem) activeItem.classList.add('active', 'text-yellow-500');
+    if(activeItem) {
+        activeItem.classList.remove('text-gray-400');
+        activeItem.classList.add('active', 'text-[var(--gold)]', 'bg-white/10');
+    }
 }
 
 
@@ -646,8 +646,17 @@ function renderExtras() {
                 <i class="fas fa-key"></i> Sala de Menesteres
             </h2>
 
+            <div class="mb-8 text-center px-4">
+                <h3 class="magic-font text-xl font-bold mb-4 underline decoration-[var(--gold)]">Mapa del Merodeador</h3>
+                <button onclick="openFullscreenMap()" class="parchment-box p-6 rounded-lg shadow-md w-full flex flex-col items-center justify-center active:scale-95 transition border-2 border-[var(--gold)] hover:bg-yellow-50 group">
+                    <i class="fas fa-map text-6xl text-[var(--gryffindor-red)] mb-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-lg text-[var(--ink)] magic-font">Revelar Mapa</span>
+                    <p class="text-center text-xs italic mt-3 font-bold text-stone-600">"Juro solemnemente que mis intenciones no son buenas"</p>
+                </button>
+            </div>
+
             <div class="mb-8">
-                <h3 class="magic-font text-xl font-bold mb-4 text-center decoration-wavy underline decoration-[var(--gold)]">Checklist</h3>
+                <h3 class="magic-font text-xl font-bold mb-4 text-center underline decoration-[var(--gold)]">Misiones del Ministerio</h3>
                 <div class="bg-white p-5 rounded-lg shadow-md border border-stone-200">
                     <ul class="space-y-3" id="checklist-container">
                         ${organizadorViaje.checklist.map(item => {
@@ -663,17 +672,13 @@ function renderExtras() {
                 </div>
             </div>
 
-            <div class="mb-8">
-                <h3 class="magic-font text-xl font-bold mb-4 text-center">Mapa del Merodeador</h3>
-                <div class="parchment-box p-2 rounded-lg shadow-md h-[400px] relative">
-                    <div id="london-map" class="w-full h-full z-0"></div>
-                </div>
-                <p class="text-center text-xs italic mt-2">"Juro solemnemente que mis intenciones no son buenas"</p>
-            </div>
-
-            <div>
-                <h3 class="magic-font text-xl font-bold mb-4 text-center">Secretos</h3>
-                <div class="space-y-4">
+            <div class="mb-8 px-4">
+                <button onclick="toggleSecretos()" class="w-full parchment-box p-4 rounded-lg shadow-md flex items-center justify-between active:scale-95 transition border border-[var(--gold)] hover:bg-yellow-50 focus:outline-none">
+                    <span class="font-bold text-lg text-[var(--gryffindor-red)] magic-font"><i class="fas fa-wand-sparkles mr-2 text-[var(--gold)]"></i> Revela tus secretos</span>
+                    <i id="secretos-chevron" class="fas fa-chevron-down text-[var(--gryffindor-red)] transition-transform duration-300"></i>
+                </button>
+                
+                <div id="secretos-content" class="hidden mt-4 space-y-4 fade-in">
                     ${organizadorViaje.curiosidades_extra.map(curio => `
                         <div class="parchment-box p-5 rounded-lg">
                             <h4 class="font-bold text-[var(--gryffindor-red)] mb-2 flex items-center gap-2"><i class="fas fa-star text-sm text-[var(--gold)]"></i> ${curio.titulo}</h4>
@@ -683,11 +688,42 @@ function renderExtras() {
                 </div>
             </div>
         </div>
+
+        <div id="fullscreen-map-container" class="fixed inset-0 z-[100] hidden bg-[var(--parchment)] flex-col">
+            <div class="p-4 bg-[#2b1b17] text-[var(--gold)] flex justify-between items-center z-10 border-b-2 border-[var(--gold)] shadow-md shrink-0">
+                <span class="magic-font text-xl"><i class="fas fa-shoe-prints mr-2"></i>Mapa Activo</span>
+                <button onclick="closeFullscreenMap()" class="text-white bg-[var(--gryffindor-red)] px-4 py-2 rounded shadow-md border border-[var(--gold)] hover:bg-red-900 transition active:scale-95 flex items-center gap-2 font-bold magic-font tracking-wide">
+                    <i class="fas fa-map-pin"></i> Cerrar
+                </button>
+            </div>
+            <div id="london-map" class="flex-1 w-full relative z-0 bg-[var(--parchment)]"></div>
+            <div class="p-3 bg-[#2b1b17] text-center z-10 border-t-2 border-[var(--gold)] shrink-0">
+                <span class="text-sm font-bold italic text-[var(--gold)] opacity-80">"Travesura realizada"</span>
+            </div>
+        </div>
     `;
     appContent.innerHTML = html;
+}
 
-    // Ejecutamos la lógica del mapa después de insertar el HTML
-    initMapaDinamico(); 
+window.openFullscreenMap = function() {
+    const mapContainer = document.getElementById('fullscreen-map-container');
+    if(mapContainer) {
+        // Mostramos el contenedor con flexbox
+        mapContainer.classList.remove('hidden');
+        mapContainer.classList.add('flex');
+        
+        // Inicializamos el mapa con un pequeño retraso para que Leaflet detecte el alto y ancho de la pantalla completa
+        setTimeout(initMapaDinamico, 150);
+    }
+}
+
+window.closeFullscreenMap = function() {
+    const mapContainer = document.getElementById('fullscreen-map-container');
+    if(mapContainer) {
+        // Ocultamos el contenedor
+        mapContainer.classList.add('hidden');
+        mapContainer.classList.remove('flex');
+    }
 }
 
 // Nueva función para el mapa dinámico
@@ -887,9 +923,6 @@ function renderExplorerPass() {
             </h2>
 
             <div class="parchment-box p-5 rounded-lg mb-6 shadow-md relative overflow-hidden border-l-4 border-green-600">
-                <div class="absolute top-0 right-0 bg-green-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl shadow-sm uppercase tracking-wide">
-                    Ahorro Garantizado
-                </div>
                 <h3 class="font-bold text-xl mb-1 text-[var(--ink)]">${organizadorViaje.explorer_pass.subtitulo}</h3>
                 <p class="text-[var(--gryffindor-red)] font-bold text-sm mb-3">${organizadorViaje.explorer_pass.precio_total}</p>
                 <p class="text-stone-700 text-sm italic font-medium leading-relaxed bg-white/50 p-3 rounded border border-stone-200">
@@ -925,8 +958,9 @@ function renderExplorerPass() {
 
 window.renderExplorerPass = renderExplorerPass;
 
-function openMap(destination) {
+window.openMap = function(destination) {
     const query = encodeURIComponent(destination);
+    // Usamos la URL oficial de búsqueda de Google Maps
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
 }
 
@@ -948,6 +982,38 @@ function toggleLogoutButton(show) {
     }
 }
 
+window.toggleSecretos = function() {
+    const content = document.getElementById('secretos-content');
+    const chevron = document.getElementById('secretos-chevron');
+    
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        chevron.classList.add('rotate-180'); // Gira la flechita hacia arriba
+    } else {
+        content.classList.add('hidden');
+        chevron.classList.remove('rotate-180'); // Vuelve a la posición original
+    }
+}
+
+window.toggleMenu = function() {
+    const sidebar = document.getElementById('sidebar-nav');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar.classList.contains('-translate-x-full')) {
+        // Abrir menú
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        // Pequeño retardo para que la transición de opacidad se vea suave
+        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+    } else {
+        // Cerrar menú
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('opacity-0');
+        // Esperamos a que termine la animación css para ocultarlo del todo
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+}
+
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
 window.renderHome = renderHome;
 window.renderItineraryList = renderItineraryList;
@@ -964,3 +1030,5 @@ window.renderGastos = renderGastos;
 window.addGasto = addGasto;
 window.deleteGasto = deleteGasto;
 window.toggleChecklist = toggleChecklist;
+window.toggleSecretos = toggleSecretos;
+indow.toggleMenu = toggleMenu;
