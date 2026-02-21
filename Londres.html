@@ -18,32 +18,37 @@
 
     <nav class="bottom-nav fixed bottom-0 w-full flex justify-around items-center pt-3 pb-3 sm:pb-3 text-gray-400 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
         
-        <button onclick="renderHome()" class="nav-item flex flex-col items-center w-1/5 focus:outline-none" id="nav-home">
+        <button onclick="renderHome()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-home">
             <i class="fas fa-hat-wizard text-xl mb-1"></i>
             <span class="text-[10px] magic-font tracking-wide">Inicio</span>
         </button>
 
-        <button onclick="renderItineraryList()" class="nav-item flex flex-col items-center w-1/5 focus:outline-none" id="nav-itin">
+        <button onclick="renderItineraryList()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-itin">
             <i class="fas fa-scroll text-xl mb-1"></i>
             <span class="text-[10px] magic-font tracking-wide">Diario</span>
         </button>
 
-        <button onclick="renderTransport()" class="nav-item flex flex-col items-center w-1/5 focus:outline-none" id="nav-trans">
+        <button onclick="renderTransport()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-trans">
             <i class="fas fa-train-subway text-xl mb-1"></i>
             <span class="text-[10px] magic-font tracking-wide">Viaje</span>
         </button>
 
-        <button onclick="renderFood()" class="nav-item flex flex-col items-center w-1/5 focus:outline-none" id="nav-food">
+        <button onclick="renderFood()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-food">
             <i class="fas fa-utensils text-xl mb-1"></i>
             <span class="text-[10px] magic-font tracking-wide">Comer</span>
         </button>
 
-        <button onclick="renderExtras()" class="nav-item flex flex-col items-center w-1/5 focus:outline-none" id="nav-extra">
+        <button onclick="renderExplorerPass()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-pass">
+            <i class="fas fa-ticket-alt text-xl mb-1"></i>
+            <span class="text-[10px] magic-font tracking-wide">Pase</span>
+        </button>
+
+        <button onclick="renderExtras()" class="nav-item flex flex-col items-center w-1/6 focus:outline-none" id="nav-extra">
             <i class="fas fa-bolt text-xl mb-1"></i>
             <span class="text-[10px] magic-font tracking-wide">Secretos</span>
         </button>
 
-    </nav>   
+    </nav>
 
     <script src="app.js" defer></script>
 </body>

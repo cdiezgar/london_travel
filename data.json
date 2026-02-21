@@ -82,132 +82,61 @@
       ],
       "nota_dia": "Día de relax y logística. Cena ligera en casa."
     },
-    {
+{
       "id": 2,
       "fecha": "Martes 31 Marzo",
-      "titulo": "V&A y Portobello",
-      "icono": "fa-landmark",
-      "resumen": "Casas de colores, parque japonés y el museo V&A.",
-      "curiosidad_hp": "Kensington Gardens se utilizó como referencia paisajística para recrear espacios de paseo mágico, aunque la mayoría de escenas se rodaron en estudio o con CGI.",
-      "historia_dia": "La zona de Kensington y Notting Hill refleja la expansión residencial burguesa del oeste de Londres durante el siglo XIX. Portobello Road pasó de mercado de alimentos victorianos a uno de los principales mercados de antigüedades del mundo. El Victoria and Albert Museum abrió en 1852 tras la Gran Exposición de 1851 con el objetivo de mejorar el diseño industrial británico.",
+      "titulo": "Notting Hill y Ciencias",
+      "icono": "fa-flask",
+      "resumen": "Portobello Road, Historia Natural y Museo de Ciencias.",
+      "curiosidad_hp": "Kensington Gardens, muy cerca de los museos, se utilizó como referencia paisajística para recrear espacios de paseo mágico.",
+      "historia_dia": "Hoy combinamos el encanto de las calles de colores con la ciencia más espectacular. Empezaremos paseando por Portobello Road antes de que se llene de gente. Después, bajaremos a South Kensington, el barrio de los museos, para ver el esqueleto de la ballena azul gigante y naves espaciales reales. ¡Y todo gratis!",
       "timeline": [
         {
           "hora": "09:30",
-          "actividad": "Holland Park",
-          "desc": "Visitar el Kyoto Garden.",
-          "tipo": "visita",
-          "direccion": "Holland Park",
-          "detalles": {
-            "contexto": "Holland Park ocupa los terrenos de la antigua Holland House, una mansión jacobea construida en 1605 por Sir Walter Cope, diplomático y alto funcionario de la corte de Jacobo I. La casa pasó posteriormente a la familia Rich, condes de Holland, de donde deriva el nombre actual del parque.\nDurante los siglos XVII y XVIII, Holland House fue un importante salón político e intelectual. Por sus estancias pasaron figuras clave de la vida británica como Joseph Addison, Charles James Fox o incluso Benjamin Franklin durante sus estancias en Londres. Era un espacio de debate liberal y cultural en plena era georgiana.\nEn el siglo XIX, los terrenos comenzaron a urbanizarse parcialmente, dando lugar al elegante barrio residencial que hoy rodea el parque, caracterizado por arquitectura victoriana de alto nivel.\nEl momento más crítico llegó durante la Segunda Guerra Mundial: en 1940, los bombardeos del Blitz dañaron gravemente Holland House, dejando gran parte de la estructura en ruinas. En lugar de reconstruirla por completo, se decidió conservar los restos como memoria histórica integrada en el parque.\nEl parque público, tal como se conoce hoy, se desarrolló progresivamente a partir de mediados del siglo XX, combinando jardines formales europeos con espacios paisajísticos más libres.\nEl Kyoto Garden, inaugurado en 1991, fue un regalo oficial de la ciudad de Kioto para conmemorar la relación cultural entre Japón y Reino Unido. Diseñado por maestros paisajistas japoneses, sigue los principios clásicos del jardín zen: equilibrio, agua, piedra y contemplación. En 2012 se añadió el Fukushima Memorial Garden como símbolo de solidaridad tras el desastre nuclear japonés.",
-            "lista_ver": [
-              "Cascada y estanque de carpas koi del Kyoto Garden",
-              "Pavos reales en libertad (residentes históricos del parque)",
-              "Fukushima Memorial Garden",
-              "Ruinas de Holland House (huellas visibles del Blitz en la 2ª guerra mundial)",
-              "La Orangerie (antiguo invernadero hoy reconvertido en cafetería)",
-              "Jardín holandés formal con parterres geométricos"
-            ],
-            "duracion_recomendada": "1h – 1h 30m",
-            "entrada": "Gratuita",
-            "horario_aprox": "Desde 07:30"
-          }
-        },
-        {
-          "hora": "11:00",
           "actividad": "Portobello Road",
-          "desc": "Mercado de Portobello y paseo entre las emblemáticas casas victorianas de Notting Hill.",
+          "desc": "Paseo entre las emblemáticas casas victorianas de Notting Hill y tiendas de antigüedades.",
           "tipo": "caminar",
-          "direccion": "Portobello Road",
-          "detalles": {
-            "contexto": "Portobello Road se articula sobre el antiguo trazado rural que conectaba granjas y huertos al oeste de Londres antes de la expansión urbana victoriana. Su desarrollo como mercado comenzó en el siglo XIX, cuando Notting Hill se urbanizó rápidamente para alojar a clases trabajadoras vinculadas a la industria y al servicio doméstico. Durante la posguerra del siglo XX, el área sufrió un fuerte deterioro socioeconómico y se convirtió en punto de asentamiento de comunidades migrantes, especialmente caribeñas llegadas con la generación Windrush. Este mestizaje cultural transformó la identidad del barrio, visible aún hoy en su oferta gastronómica, musical y comercial. A partir de los años 60, artistas, anticuarios y comerciantes comenzaron a instalarse atraídos por los bajos alquileres, impulsando la conversión de Portobello en mercado de antigüedades de referencia internacional. La posterior gentrificación elevó el valor inmobiliario, pero mantuvo el carácter visual del barrio: fachadas victorianas de colores, comercios independientes y un tejido comercial híbrido entre lo histórico y lo alternativo.",
-            "lista_ver": [
-              "Casas victorianas de colores",
-              "Alice’s Antique Market",
-              "Electric Cinema (1910)",
-              "Tiendas de vinilos",
-              "Street art local"
-            ],
-            "mejor_tramo": "Westbourne Grove → Elgin Crescent",
-            "duracion_recomendada": "1h – 2h"
-          }
+          "direccion": "Portobello Road"
         },
         {
-          "hora": "13:00",
-          "actividad": "Golborne Road",
-          "desc": "Zona multicultural con influencia luso-marroquí.",
-          "tipo": "comida",
-          "direccion": "Golborne Road",
+          "hora": "12:00",
+          "actividad": "Museo de Historia Natural",
+          "desc": "Ver la Ballena Azul (Hope), la sala de Dinosaurios y la zona de terremotos. (Reservar entrada gratis online).",
+          "tipo": "museo",
+          "direccion": "Natural History Museum",
           "detalles": {
-            "contexto": "Área históricamente vinculada a comunidades portuguesa, española y marroquí.",
+            "contexto": "Este edificio parece una catedral gótica, pero es el templo de la naturaleza. Alberga más de 80 millones de especímenes, incluidos muchos recolectados por Charles Darwin.",
             "lista_ver": [
-              "Lisboa Patisserie",
-              "Tiendas de azulejos portugueses",
-              "Ultramarinos ibéricos",
-              "Puestos de especias marroquíes"
-            ],
-            "duracion_recomendada": "45m – 1h"
+              "El esqueleto de la Ballena Azul gigante suspendido en el hall principal",
+              "El T-Rex animatrónico en la zona de dinosaurios",
+              "El simulador de terremotos en la zona roja de geología"
+            ]
           }
         },
         {
           "hora": "14:30",
-          "actividad": "V&A Museum",
-          "desc": "Salas 46a (Cast Courts). Ver el David a escala 1:1.",
+          "actividad": "Museo de Ciencias",
+          "desc": "Justo al lado. Ver el módulo de mando original del Apolo 10 y los primeros aviones y locomotoras.",
           "tipo": "museo",
-          "direccion": "Victoria and Albert Museum",
-          "detalles": {
-            "contexto": "El Victoria and Albert Museum no es solo un museo, sino la gran institución británica dedicada al arte aplicado, el diseño y la cultura material. Fue fundado en 1852 tras el impacto de la Gran Exposición de 1851, cuando el Imperio Británico entendió que debía mejorar la calidad estética de sus productos industriales para competir globalmente. Desde entonces, el V&A se concibió como un museo educativo para diseñadores, artesanos e ingenieros. Su colección supera los 2,3 millones de piezas y abarca más de 5.000 años de historia: escultura, moda, arquitectura, joyería, mobiliario, cerámica, fotografía y artes decorativas de Europa, Asia, África y Oriente Medio. El edificio en sí es también parte de la experiencia: galerías monumentales, patios interiores y salas de yesos arquitectónicos que permiten recorrer la historia del arte a escala real. Es un museo para explorar sin prisa, donde cada sala funciona como un viaje autónomo entre épocas, materiales y civilizaciones.",
-            "lista_ver": [
-              "<b>David de Miguel Ángel (réplica)</b> (Cast Courts – Sala 46a)",
-              "<b>Columna de Trajano (sección a escala)</b> (Cast Courts – Sala 46b)",
-              "<b>Portadas y fachadas renacentistas en yeso</b> (Cast Courts)",
-              "<b>Galería de Escultura Medieval Europea</b> (Salas 50–52)",
-              "<b>Retablos góticos y sepulcros tallados</b> (Medieval & Renaissance)",
-              "<b>Galerías de Moda Histórica</b> (Fashion Gallery – Sala 40)",
-              "<b>Vestidos victorianos y eduardianos</b> (Fashion Collection)",
-              "<b>Joyas históricas europeas</b> (Jewellery Gallery – Sala 91)",
-              "<b>Diseño británico del siglo XVIII</b> (British Galleries)",
-              "<b>Mobiliario georgiano y victoriano</b> (British Design 1700–1900)",
-              "<b>Cerámica y porcelana europea</b> (Ceramics Galleries)",
-              "<b>Arte islámico</b> (Jameel Gallery – Sala 42)",
-              "<b>Alfombras persas monumentales</b> (Islamic Middle East)",
-              "<b>Armaduras y armas ceremoniales</b> (Arms & Armour)",
-              "<b>Tipu’s Tiger (autómata mecánico)</b> (South Asia Gallery – Sala 41)",
-              "<b>Escultura del sur de Asia</b> (South Asia Collection)",
-              "<b>Fotografía histórica</b> (Photography Centre)",
-              "<b>Vidrieras medievales</b> (Sacred Silver & Stained Glass)",
-              "<b>Diseño contemporáneo internacional</b> (Design 1900–Now)",
-              "<b>Tipografía y arte gráfico</b> (Prints & Drawings Study Rooms)"
-            ],
-            "duracion_recomendada": "2h – 3h",
-            "entrada": "Gratuita",
-            "horario_aprox": "10:00 – 17:45"
-          }
+          "direccion": "Science Museum"
+        },
+        {
+          "hora": "17:00",
+          "actividad": "V&A Museum (Opcional)",
+          "desc": "Si aún hay energía, está puerta con puerta. Entrad solo a ver la gigantesca réplica del David de Miguel Ángel.",
+          "tipo": "museo",
+          "direccion": "Victoria and Albert Museum"
         }
       ],
       "restaurantes": [
         {
-          "nombre": "Lisboa Patisserie",
-          "desc": "Pastelería portuguesa famosa por los pastéis de nata.",
-          "precio": "£5-10",
-          "loc": "Golborne Road",
-          "fundacion": 1983,
-          "recomendacion": "Pastel de nata + café"
+          "nombre": "Comida en South Ken",
+          "desc": "Por la zona de los museos hay muchos Pret A Manger y pequeños cafés perfectos para un parón rápido.",
+          "precio": "£8-10",
+          "loc": "Exhibition Road"
         }
       ],
-      "que_ver_extra": [
-        "Kensington Gardens",
-        "Estatua de Peter Pan",
-        "Albert Memorial",
-        "Royal Albert Hall (exterior)",
-        "Exhibition Road"
-      ],
-      "transporte_util": {
-        "metro_manana": "Holland Park (Central Line)",
-        "metro_portobello": "Notting Hill Gate / Ladbroke Grove",
-        "metro_museo": "South Kensington",
-        "zonas": "Travelcard Zona 1–2"
-      },
-      "nota_dia": "No os perdáis la estatua de Peter Pan en Kensington Gardens de camino al museo."
+      "nota_dia": "Los museos son gratis pero es MUY recomendable reservar la entrada 'Free' en sus webs oficiales para saltarse la fila general."
     },
     {
       "id": 3,
@@ -254,127 +183,119 @@
       ],
       "nota_dia": "Cargar bien los móviles, vais a hacer muchas fotos."
     },
-    {
+ {
       "id": 4,
       "fecha": "Jueves 2 Abril",
-      "titulo": "La City y Jardines",
-      "icono": "fa-building",
-      "resumen": "Rascacielos, ruinas y el callejón Diagon.",
+      "titulo": "La Torre, la City y el Bus",
+      "icono": "fa-chess-rook",
+      "resumen": "Créditos 1 y 2: Torre de Londres y primer día de Bus Turístico.",
       "curiosidad_hp": "Leadenhall Market: Busca el Bull's Head Passage nº 42. Esa puerta azul es la entrada al 'Caldero Chorreante'.",
+      "historia_dia": "Hoy empezamos a fundir la Explorer Pass. Nos adentraremos en los casi 1000 años de historia de la Torre de Londres. Luego nos mezclaremos con los ejecutivos de la City y veremos Londres desde las nubes en el Sky Garden. Para rematar, cuando ya nos duelan los pies, activaremos el bus turístico para dar un paseo panorámico de relax al atardecer.",
       "timeline": [
         {
-          "hora": "10:00",
-          "actividad": "Tower Hill",
-          "desc": "Vistas Torre de Londres y Puente.",
+          "hora": "09:30",
+          "actividad": "Tower of London",
+          "desc": "¡CRÉDITO 1! Ir directos a ver las Joyas de la Corona antes de que haya mucha cola.",
           "tipo": "visita",
-          "direccion": "Tower Bridge"
+          "direccion": "Tower of London"
         },
         {
-          "hora": "11:30",
+          "hora": "12:30",
           "actividad": "Leadenhall Market",
-          "desc": "Arquitectura victoriana espectacular.",
+          "desc": "Arquitectura victoriana espectacular. Paseo y buscar el Caldero Chorreante.",
           "tipo": "caminar",
-          "direccion": "Leadenhall Market",
-          "detalles": {
-            "contexto": "Este mercado cubierto data del siglo XIV y es uno de los más antiguos de Londres. Su techo ornamentado victoriano de color granate y crema fue la inspiración directa para el Callejón Diagon en las películas.",
-            "lista_ver": [
-              "La tienda de óptica azul (Entrada al Caldero Chorreante en la peli)",
-              "Los ganchos de carne antiguos en las tiendas",
-              "Los dragones plateados que sostienen el techo"
-            ]
-          }
+          "direccion": "Leadenhall Market"
         },
         {
-          "hora": "13:00",
+          "hora": "14:00",
           "actividad": "Sky Garden",
           "desc": "Vistas 360º (Reserva previa obligatoria).",
           "tipo": "visita",
           "direccion": "Sky Garden"
         },
         {
-          "hora": "15:00",
+          "hora": "15:30",
           "actividad": "St Dunstan in the East",
-          "desc": "Iglesia bombardeada hecha jardín.",
+          "desc": "Iglesia bombardeada hecha jardín. Paz en medio del caos de la City.",
           "tipo": "relax",
           "direccion": "St Dunstan in the East"
+        },
+        {
+          "hora": "16:30",
+          "actividad": "Hop-On Hop-Off Bus (Día 1)",
+          "desc": "¡CRÉDITO 2! Coger el bus en la parada de Tower Hill. Subir al piso de arriba y disfrutar de una ruta panorámica (ej. Ruta Roja) descansando las piernas mientras anochece.",
+          "tipo": "transporte"
         }
       ],
       "restaurantes": [
         {
           "nombre": "Pizza Union",
-          "desc": "Pizzas romanas finas",
+          "desc": "Pizzas romanas finas cerca de la City.",
           "precio": "£6-8",
           "loc": "Cerca de Aldgate"
-        },
-        {
-          "nombre": "Pret A Manger",
-          "desc": "Sandwiches rápidos",
-          "precio": "£5",
-          "loc": "Cualquier esquina"
         }
       ],
-      "nota_dia": "Día de contrastes entre lo antiguo y lo moderno."
+      "nota_dia": "La ruta del bus desde la Torre os puede dejar en el centro (West End/Piccadilly) ideal para cenar o dar un paseo antes de volver a casa."
     },
     {
       "id": 5,
       "fecha": "Viernes 3 Abril",
-      "titulo": "South Bank y Tate",
-      "icono": "fa-palette",
-      "resumen": "Paseo por el río, grafitis y arte moderno.",
+      "titulo": "Westminster, Noria y South Bank",
+      "icono": "fa-eye",
+      "resumen": "Créditos 3 y 4: Abadía, London Eye y segundo día de Bus.",
       "curiosidad_hp": "El Millennium Bridge (frente a la Tate) es el puente que destruyen los Mortífagos al inicio de 'El Príncipe Mestizo'.",
+      "historia_dia": "Día fuerte de la Explorer Pass. A primera hora nos quitamos la Abadía de Westminster. Cruzamos el puente y subimos al London Eye. Al bajar, aprovecharemos que nuestro billete de bus sigue activo para que nos acerque a Borough Market a comer. Por la tarde, paseo artístico y alternativo.",
       "timeline": [
         {
-          "hora": "10:30",
-          "actividad": "Westminster",
-          "desc": "Big Ben y Abadía (Vistas puente).",
+          "hora": "09:30",
+          "actividad": "Abadía de Westminster",
+          "desc": "¡CRÉDITO 3! Lugar de coronaciones y bodas reales.",
           "tipo": "visita",
-          "direccion": "Westminster Bridge"
+          "direccion": "Westminster Abbey"
         },
         {
           "hora": "11:30",
-          "actividad": "Leake St Tunnel",
-          "desc": "Túnel de grafiti (Banksy).",
+          "actividad": "The London Eye",
+          "desc": "¡CRÉDITO 4! Cruzar el puente de Westminster para subir a la noria más famosa de Europa.",
           "tipo": "visita",
-          "direccion": "Leake Street Arches",
-          "detalles": {
-            "contexto": "Conocido como el 'Túnel de Banksy', este paso subterráneo bajo la estación de Waterloo es una zona de grafiti legal. El arte cambia a diario. Es ruidoso, huele a spray y es absolutamente auténtico.",
-            "lista_ver": [
-              "Artistas pintando en directo",
-              "El techo completamente cubierto de capas de pintura",
-              "El bar de juegos de mesa 'Draughts' dentro del túnel"
-            ]
-          }
+          "direccion": "London Eye"
         },
         {
           "hora": "13:00",
-          "actividad": "South Bank Walk",
-          "desc": "Paseo fluvial hasta Tate Modern.",
-          "tipo": "caminar",
-          "direccion": "Queen's Walk London"
+          "actividad": "Hop-On Hop-Off Bus (Día 2)",
+          "desc": "Usar el bus (sigue activo) desde la zona del London Eye / Waterloo para acercarnos hacia London Bridge y evitar coger el metro.",
+          "tipo": "transporte"
         },
         {
-          "hora": "14:30",
-          "actividad": "Tate Modern",
-          "desc": "Turbine Hall y vistas Nivel 10.",
-          "tipo": "museo",
+          "hora": "14:00",
+          "actividad": "Borough Market",
+          "desc": "Para a comer. Street food variada de todo el mundo.",
+          "tipo": "comida",
+          "direccion": "Borough Market"
+        },
+        {
+          "hora": "15:30",
+          "actividad": "Leake St Tunnel y Tate Modern",
+          "desc": "Pasear por el South Bank, ver el túnel de grafitis de Banksy y entrar a la Tate Modern (gratis).",
+          "tipo": "caminar",
           "direccion": "Tate Modern"
         }
       ],
       "restaurantes": [
         {
-          "nombre": "Padella",
-          "desc": "Pasta fresca increíble (cola virtual)",
-          "precio": "£10-14",
-          "loc": "Borough Market"
-        },
-        {
           "nombre": "Borough Market",
-          "desc": "Street food variada",
+          "desc": "Street food espectacular.",
           "precio": "£8-12",
           "loc": "London Bridge"
+        },
+        {
+          "nombre": "Padella",
+          "desc": "Pasta fresca increíble (cola virtual).",
+          "precio": "£10-14",
+          "loc": "Borough Market"
         }
       ],
-      "nota_dia": "Viernes Santo: puede haber más gente en zonas turísticas."
+      "nota_dia": "Viernes Santo: intentad comer pronto en Borough Market para evitar multitudes."
     },
     {
       "id": 6,
@@ -428,103 +349,114 @@
       ],
       "nota_dia": "Atención al DLR: Si está cerrado usar Jubilee a Canary Wharf."
     },
-    {
+{
       "id": 7,
       "fecha": "Domingo 5 Abril",
-      "titulo": "British & Canals",
-      "icono": "fa-book-open",
-      "resumen": "El museo del mundo y la pequeña Venecia.",
-      "curiosidad_hp": "Cerca de King's Cross (cerca de donde estaremos) está el andén 9 3/4, aunque suele haber demasiada cola para la foto.",
+      "titulo": "Parques, Canales y Camden",
+      "icono": "fa-tree",
+      "resumen": "Ruta lineal: Hyde Park, Little Venice, Regent's Park y Camden.",
+      "curiosidad_hp": "El zoo de Londres, situado dentro de Regent's Park (por donde pasearéis hoy), es donde Harry hace desaparecer el cristal del terrario de la serpiente en la primera película.",
+      "historia_dia": "Hoy haremos una de las rutas a pie más bonitas y menos conocidas por los turistas clásicos. Tras un paseo matutino por Hyde Park, iremos a Little Venice para empezar a caminar bordeando el Regent's Canal. Este camino del agua nos llevará a través de los jardines de Regent's Park y Primrose Hill, hasta desembocar directamente en el corazón del bullicio punk y la comida callejera de Camden Town.",
       "timeline": [
         {
           "hora": "10:00",
-          "actividad": "British Museum",
-          "desc": "Piedra Rosetta, Momias, Partenón.",
+          "actividad": "Hyde Park & Kensington Gardens",
+          "desc": "Paseo matutino. Ver los cisnes, la Estatua de Peter Pan y los mágicos Italian Gardens.",
+          "tipo": "relax",
+          "direccion": "Hyde Park"
+        },
+        {
+          "hora": "12:00",
+          "actividad": "Little Venice",
+          "desc": "Coger el metro hasta Warwick Avenue. Ver los barcos pintorescos y empezar la ruta a pie por el Regent's Canal.",
+          "tipo": "caminar",
+          "direccion": "Little Venice"
+        },
+        {
+          "hora": "13:30",
+          "actividad": "Regent's Park & Primrose Hill",
+          "desc": "El canal nos deja aquí. Subir a Primrose Hill para ver el skyline de Londres desde la colina.",
+          "tipo": "relax",
+          "direccion": "Primrose Hill"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "Camden Town",
+          "desc": "Llegada por el canal. Caos alternativo, tiendas locas y el paraíso de la comida callejera.",
+          "tipo": "visita",
+          "direccion": "Camden Market",
+          "detalles": {
+            "contexto": "El barrio más ecléctico de Londres. Lo que empezó como un mercado de artesanía en los 70 es hoy un laberinto gigante de contracultura, música, comida de todo el mundo y fachadas decoradas con figuras gigantes 3D.",
+            "lista_ver": [
+              "La extravagante tienda futurista Cyberdog (con DJ's en directo y estética neón)",
+              "La inmensa zona de comida en las antiguas caballerizas (Stables Market)",
+              "La estatua tributo a Amy Winehouse"
+            ]
+          }
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Camden Market Food",
+          "desc": "El mejor día para comer en puestos de cualquier país del mundo. ¡Caminad por The Stables antes de decidir!",
+          "precio": "£10-15",
+          "loc": "Camden Lock"
+        }
+      ],
+      "nota_dia": "Llevad calzado muy cómodo, la ruta por el canal es preciosa pero se hacen bastantes kilómetros."
+    },
+{
+      "id": 8,
+      "fecha": "Lunes 6 Abril",
+      "titulo": "Museo Británico y Magia",
+      "icono": "fa-wand-magic-sparkles",
+      "resumen": "British Museum, comida en Covent Garden y Tour de Harry Potter.",
+      "curiosidad_hp": "Gran parte de lo que veréis en el tour de esta tarde inspiró el Callejón Diagon. En el British Museum buscad el 'Ajedrez de la isla de Lewis' (Sala 40)... ¡es el ajedrez mágico de la primera película!",
+      "historia_dia": "Último día en Londres. Empezaremos la mañana culturizándonos en el inmenso British Museum. Al salir, bajaremos paseando hacia Covent Garden para comer y disfrutar de su ambientazo callejero. Y como gran broche final, a las 16:00 haremos el Free Tour de Harry Potter para despedirnos de la ciudad con un toque de magia antes de volver a casa.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Llegada al British Museum",
+          "desc": "El museo abre a las 10:00. Desayuno rápido por Bloomsbury y listos para entrar de los primeros (Piedra Rosetta, Momias, Partenón...).",
           "tipo": "museo",
           "direccion": "British Museum"
         },
         {
           "hora": "13:30",
-          "actividad": "Comida Bloomsbury",
-          "desc": "Ramen o asiático.",
-          "tipo": "comida"
-        },
-        {
-          "hora": "15:00",
-          "actividad": "Little Venice",
-          "desc": "Paseo por el canal hasta Camden.",
-          "tipo": "caminar",
-          "direccion": "Little Venice"
-        },
-        {
-          "hora": "17:00",
-          "actividad": "Camden Town",
-          "desc": "Caos alternativo y compras.",
-          "tipo": "visita",
-          "direccion": "Camden Market"
-        }
-      ],
-      "restaurantes": [
-        {
-          "nombre": "Chang's Noodle",
-          "desc": "Fideos caseros",
-          "precio": "£15",
-          "loc": "Bloomsbury"
-        },
-        {
-          "nombre": "Shoryu",
-          "desc": "Ramen",
-          "precio": "£16",
-          "loc": "Bloomsbury"
-        }
-      ],
-      "nota_dia": "British Museum: Reservar entrada gratis online antes."
-    },
-    {
-      "id": 8,
-      "fecha": "Lunes 6 Abril",
-      "titulo": "Arte y Despedida",
-      "icono": "fa-paintbrush",
-      "resumen": "National Gallery y Covent Garden.",
-      "curiosidad_hp": "Goodwin's Court (cerca de Covent Garden) se cree que fue la inspiración real para el Callejón Knockturn.",
-      "timeline": [
-        {
-          "hora": "10:00",
-          "actividad": "Trafalgar Square",
-          "desc": "Leones y National Gallery.",
-          "tipo": "visita",
-          "direccion": "Trafalgar Square"
-        },
-        {
-          "hora": "10:30",
-          "actividad": "National Gallery",
-          "desc": "Van Gogh, Seurat, Van Eyck.",
-          "tipo": "museo",
-          "direccion": "National Gallery"
-        },
-        {
-          "hora": "13:00",
-          "actividad": "Covent Garden",
-          "desc": "Músicos, Neal's Yard, Seven Dials.",
-          "tipo": "caminar",
+          "actividad": "Covent Garden & Neal's Yard",
+          "desc": "Paseo bajando desde el museo. Ver los músicos callejeros, la plaza empedrada y comer tranquilamente.",
+          "tipo": "comida",
           "direccion": "Covent Garden"
         },
         {
-          "hora": "17:00",
-          "actividad": "Regreso",
-          "desc": "Maletas y preparación.",
+          "hora": "16:00",
+          "actividad": "Free Tour Harry Potter",
+          "desc": "Recorrido mágico por el centro de Londres (Reservar en Civitatis u otra plataforma). Durará un par de horas.",
+          "tipo": "caminar",
+          "direccion": "Trafalgar Square"
+        },
+        {
+          "hora": "18:30",
+          "actividad": "Regreso al Mundo Muggle",
+          "desc": "Fin del tour mágico. Recoger maletas en la base y rumbo al aeropuerto.",
           "tipo": "check"
         }
       ],
       "restaurantes": [
         {
-          "nombre": "Restos de nevera",
-          "desc": "Acabar provisiones",
-          "precio": "£0",
-          "loc": "Casa"
+          "nombre": "Seven Dials Market",
+          "desc": "Mercado de comida callejera cubierto súper chulo y animado, pegado a Covent Garden.",
+          "precio": "£12-15",
+          "loc": "Seven Dials"
+        },
+        {
+          "nombre": "Dishoom Covent Garden",
+          "desc": "Un clásico indio espectacular si queréis un homenaje de despedida.",
+          "precio": "£25",
+          "loc": "Covent Garden"
         }
       ],
-      "nota_dia": "Último día. Revisar pasaportes y billetes."
+      "nota_dia": "¡Revisad bien desde dónde sale exactamente el Free Tour para ir caminando con tiempo desde Covent Garden!"
     }
   ],
   "transporte": {
@@ -547,14 +479,14 @@
       "desc": "Más caro, solo para emergencias nocturnas."
     }
   ],
-  "checklist": [
+"checklist": [
     "British Museum (Piedra Rosetta)",
     "Tower Bridge & Tower of London",
-    "Paseo South Bank",
-    "V&A Museum (Cast Courts)",
+    "Historia Natural & Museo de Ciencias",
+    "Paseo en Uber Boat al atardecer",
     "Sky Garden (Vistas)",
-    "Andén 9 3/4 (King's Cross)",
-    "Camden Town",
+    "Subir al London Eye",
+    "Camden Town & Little Venice",
     "Portobello Road",
     "Warner Bros Studios"
   ],
@@ -601,5 +533,43 @@
       "precio": "£7-8",
       "nota": "El mejor de Shepherd's Bush."
     }
-  ]
+  ],
+
+  "explorer_pass": {
+    "titulo": "London Explorer Pass",
+    "subtitulo": "Pase de 4 Actividades",
+    "precio_total": "£198 (2 personas)",
+    "precio_pp": "£99 por persona",
+    "info": "Este pase va por créditos, no por días. La clave maestra es usar los 4 créditos SÓLO en las atracciones más caras (London Eye, Torre, Abadía y Bus). El viaje en Uber Boat lo pagaremos suelto con Contactless (£8) porque no compensa gastar un crédito en él.",
+    "actividades": [
+      {
+        "nombre": "Tower of London",
+        "precio_taquilla": 34.80,
+        "dia_sugerido": "Día 4 (Jueves)",
+        "icono": "fa-chess-rook",
+        "usado": false
+      },
+      {
+        "nombre": "Abadía de Westminster",
+        "precio_taquilla": 29.00,
+        "dia_sugerido": "Día 5 (Viernes)",
+        "icono": "fa-church",
+        "usado": false
+      },
+      {
+        "nombre": "The London Eye",
+        "precio_taquilla": 40.00,
+        "dia_sugerido": "Día 5 (Viernes)",
+        "icono": "fa-eye",
+        "usado": false
+      },
+      {
+        "nombre": "Bus Turístico (2 Días)",
+        "precio_taquilla": 45.00,
+        "dia_sugerido": "Día 4 y 5 (Jueves y Viernes)",
+        "icono": "fa-bus",
+        "usado": false
+      }
+    ]
+  }
 }
