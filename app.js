@@ -130,7 +130,7 @@ async function fetchTravelData() {
                         direccion,
                         precio,
                         contexto,
-                        imagen_url,
+                        checklist_id,
                         actividad_items (
                             item_texto
                         )
@@ -172,7 +172,17 @@ async function fetchTravelData() {
                 timeline: (dia.dia_actividad || []).map(relacion => {
                     const act = relacion.actividades || {};
                     const listaItems = act.actividad_items || [];
-                    
+
+                    // --- 1. NUEVA LÓGICA: BUSCAR IMAGEN ASOCIADA ---
+                    let finalImgUrl = act.imagen_url || null; // Coge la de la actividad por defecto
+                    if (act.checklist_id && checkData) {
+                        // Buscamos el ítem del checklist correspondiente
+                        const checklistAsociado = checkData.find(c => c.id === act.checklist_id);
+                        if (checklistAsociado && checklistAsociado.imagen_url) {
+                            finalImgUrl = checklistAsociado.imagen_url; // Sobrescribimos con la del checklist
+                        }
+                    }        
+
                     let detallesObj = null;
                     if (act.contexto || listaItems.length > 0) {
                         detallesObj = {
@@ -187,7 +197,7 @@ async function fetchTravelData() {
                         desc: act.desc_texto || null,
                         tipo: act.tipo || 'visita',
                         direccion: act.direccion || null,
-                        imagen_url: act.imagen_url || null, // NUEVO
+                        imagen_url: finalImgUrl, // <--- 2. USAMOS LA NUEVA VARIABLE AQUÍ
                         precio: act.precio || null,
                         detalles: detallesObj
                     };

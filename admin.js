@@ -221,7 +221,7 @@ async function loadTimeline(diaId) {
     container.innerHTML = '<div class="text-center py-6"><i class="fas fa-spinner fa-spin text-3xl text-[var(--gold)]"></i></div>';
     
     const { data: links, error } = await sb.from('dia_actividad')
-        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto, imagen_url)`)
+        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto, imagen_url, checklist_id)`)
         .eq('dia_id', diaId)
         .order('hora', { ascending: true });
 
@@ -250,7 +250,8 @@ async function loadTimeline(diaId) {
             linkId: link.id, hora: link.hora, actId: act.id, nombre: act.nombre,
             desc: act.desc_texto || '', tipo: act.tipo || 'visita',
             direccion: act.direccion || '', precio: act.precio || '', contexto: act.contexto || '',
-            imagen_url: act.imagen_url || '' // NUEVO
+            imagen_url: act.imagen_url || '', // NUEVO
+            checklist_id: act.checklist_id || '' // <-- AÑADE ESTA LÍNEA
         }).replace(/'/g, "&#39;");
 
         html += `
@@ -282,14 +283,27 @@ async function loadTimeline(diaId) {
 }
 
 // --- GESTIÓN DE LA ACTIVIDAD INDIVIDUAL Y SUS ITEMS ---
-window.openActivityModal = function(actData = null) {
+window.openActivityModal = async function(actData = null) {
     const form = document.getElementById('activity-form');
     form.reset(); 
+
+    // NUEVO: Cargar los elementos del checklist dinámicamente
+    const { data: checklistItems } = await sb.from('checklist').select('id, item').order('item', { ascending: true });
+    const checklistSelect = document.getElementById('act-checklist');
+    
+    let options = `<option value="">-- Sin vincular --</option>`;
+    if (checklistItems) {
+        options += checklistItems.map(c => `<option value="${c.id}">${c.item}</option>`).join('');
+    }
+    checklistSelect.innerHTML = options;
+    // FIN NUEVO
     
     if (actData) {
         document.getElementById('activity-modal-title').innerHTML = '<i class="fas fa-magic text-[var(--gold)] mr-2"></i> Editar Actividad';
         editingLinkId = actData.linkId;
         editingActivityId = actData.actId;
+
+
         
         document.getElementById('act-hora').value = actData.hora;
         document.getElementById('act-nombre').value = actData.nombre;
@@ -299,6 +313,7 @@ window.openActivityModal = function(actData = null) {
         document.getElementById('act-desc').value = actData.desc;
         document.getElementById('act-contexto').value = actData.contexto;
         document.getElementById('act-img').value = actData.imagen_url || ''; // NUEVO
+        document.getElementById('act-checklist').value = actData.checklist_id || ''; // <-- AÑADE ESTA LÍNEA
 
         // Mostrar sección de items
         document.getElementById('activity-items-wrapper').classList.remove('hidden');
@@ -328,6 +343,8 @@ window.saveActivity = async function() {
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
     const hora = document.getElementById('act-hora').value;
+    const checklistVal = document.getElementById('act-checklist').value; // <-- AÑADE ESTA LÍNEA
+
     const actData = {
         nombre: document.getElementById('act-nombre').value,
         tipo: document.getElementById('act-tipo').value,
@@ -335,7 +352,8 @@ window.saveActivity = async function() {
         precio: document.getElementById('act-precio').value || null,
         desc_texto: document.getElementById('act-desc').value || null,
         imagen_url: document.getElementById('act-img').value || null, // NUEVO
-        contexto: document.getElementById('act-contexto').value || null
+        contexto: document.getElementById('act-contexto').value || null,
+        checklist_id: checklistVal ? parseInt(checklistVal) : null // <-- AÑADE ESTA LÍNEA
         
     };
 
