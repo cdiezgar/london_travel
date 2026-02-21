@@ -19,11 +19,12 @@ const schemaMap = {
             { key: 'nota_dia', label: 'Nota en rojo', type: 'text' }
         ]
     },
-    checklist: {
+checklist: {
         label: "Checklist", icon: "fa-check-square",
         columns: [
             { key: 'id', label: 'ID', type: 'readonly' },
-            { key: 'item', label: 'Elemento', type: 'text', required: true }
+            { key: 'item', label: 'Elemento', type: 'text', required: true },
+            { key: 'imagen_url', label: 'URL Imagen', type: 'text' } // NUEVA COLUMNA
         ]
     },
     supermercados: {
@@ -246,7 +247,8 @@ async function loadTimeline(diaId) {
         const actJson = JSON.stringify({
             linkId: link.id, hora: link.hora, actId: act.id, nombre: act.nombre,
             desc: act.desc_texto || '', tipo: act.tipo || 'visita',
-            direccion: act.direccion || '', precio: act.precio || '', contexto: act.contexto || ''
+            direccion: act.direccion || '', precio: act.precio || '', contexto: act.contexto || '',
+            imagen_url: act.imagen_url || '' // NUEVO
         }).replace(/'/g, "&#39;");
 
         html += `
@@ -294,6 +296,7 @@ window.openActivityModal = function(actData = null) {
         document.getElementById('act-precio').value = actData.precio;
         document.getElementById('act-desc').value = actData.desc;
         document.getElementById('act-contexto').value = actData.contexto;
+        document.getElementById('act-img').value = actData.imagen_url || ''; // NUEVO
 
         // Mostrar sección de items
         document.getElementById('activity-items-wrapper').classList.remove('hidden');
@@ -329,7 +332,9 @@ window.saveActivity = async function() {
         direccion: document.getElementById('act-direccion').value || null,
         precio: document.getElementById('act-precio').value || null,
         desc_texto: document.getElementById('act-desc').value || null,
+        imagen_url: document.getElementById('act-img').value || null, // NUEVO
         contexto: document.getElementById('act-contexto').value || null
+        
     };
 
     if (editingActivityId) {

@@ -114,7 +114,8 @@ async function fetchTravelData() {
             { data: superData },
             { data: secretosData },
             { data: restTopData },
-            { data: checkData }
+            { data: checkData },
+            { data: gastosData } // NUEVO: Capturamos los gastos
         ] = await Promise.all([
             sb.from('configuracion').select('*').single(),
             // JOIN PROFUNDO: Trae días -> relación -> actividades -> items
@@ -129,6 +130,7 @@ async function fetchTravelData() {
                         direccion,
                         precio,
                         contexto,
+                        imagen_url,
                         actividad_items (
                             item_texto
                         )
@@ -139,7 +141,8 @@ async function fetchTravelData() {
             sb.from('supermercados').select('*'),
             sb.from('secretos').select('*'),
             sb.from('restaurantes_top').select('*'),
-            sb.from('checklist').select('*')
+            sb.from('checklist').select('*').order('id', { ascending: true }), // Modificado para el orden
+            sb.from('gastos').select('*').order('created_at', { ascending: true }) // NUEVO: Llamada a gastos
         ]);
 
         if (configErr || diasErr) throw new Error("Fallo al leer datos");
@@ -184,6 +187,7 @@ async function fetchTravelData() {
                         desc: act.desc_texto || null,
                         tipo: act.tipo || 'visita',
                         direccion: act.direccion || null,
+                        imagen_url: act.imagen_url || null, // NUEVO
                         precio: act.precio || null,
                         detalles: detallesObj
                     };
@@ -196,8 +200,9 @@ async function fetchTravelData() {
             supermercados: superData || [],
             curiosidades_extra: secretosData || [],
             restaurantes_lista: restTopData || [],
-            checklist: (checkData || []).map(c => c.item || ''),
-            
+            // NUEVO: Ahora guardamos el objeto completo del checklist y los gastos
+            checklist: checkData || [], 
+            gastos: gastosData || [],
             // Textos estáticos (no los pasamos a tabla porque son constantes)
             transporte: {
                 consejo_oro: "¡Usa Contactless (Móvil/Tarjeta)! No compres Oyster física.",
@@ -465,17 +470,32 @@ function renderSecretDetails(diaId, itemIndex) {
 
     document.getElementById('app-content').scrollTo(0,0);
 
+    // Si tiene imagen, le aplicamos un diseño tipo marco antiguo
+    const imagenPortada = item.imagen_url ? `
+        <div class="mb-6 relative rounded-lg overflow-hidden border-4 border-double border-[var(--gold)] shadow-lg">
+            <img src="${item.imagen_url}" class="w-full h-48 sm:h-64 object-cover filter contrast-110 sepia-[0.2]" alt="${item.actividad}">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#2b1b17] via-transparent to-transparent opacity-80"></div>
+            <h2 class="absolute bottom-4 left-0 w-full text-center text-3xl font-bold text-white magic-font drop-shadow-lg px-4">${item.actividad}</h2>
+        </div>
+    ` : `
+        <div class="text-center mb-6">
+            <i class="fas fa-star text-3xl text-[var(--gold)] mb-2 animate-pulse"></i>
+            <h2 class="text-3xl font-bold text-[var(--gryffindor-red)] magic-font leading-tight">${item.actividad}</h2>
+        </div>
+    `;
+
     let html = `
         <div class="fade-in pb-10">
-            <button onclick="renderDayDetail(${diaId})" class="mb-6 text-sm font-bold text-[var(--gryffindor-red)] flex items-center gap-2 bg-white/50 px-3 py-2 rounded-full border border-red-100 shadow-sm active:bg-red-50">
+            <button onclick="renderDayDetail(${diaId})" class="mb-6 text-sm font-bold text-[var(--gryffindor-red)] flex items-center gap-2 bg-white/50 px-3 py-2 rounded-full border border-red-100 shadow-sm active:bg-red-50 relative z-10">
                 <i class="fas fa-arrow-left"></i> Volver al Día
             </button>
             
             <div class="secret-page-border mb-6">
+                
+                ${imagenPortada}
+
                 <div class="text-center mb-6">
-                    <i class="fas fa-star text-3xl text-[var(--gold)] mb-2 animate-pulse"></i>
-                    <h2 class="text-3xl font-bold text-[var(--gryffindor-red)] magic-font leading-tight">${item.actividad}</h2>
-                    <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mt-2">Archivo Secreto</p>
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Archivo Secreto</p>
                 </div>
 
                 <div class="mb-8">
@@ -484,7 +504,7 @@ function renderSecretDetails(diaId, itemIndex) {
                         <i class="fas fa-quote-left text-[var(--gryffindor-red)] text-xl mr-2"></i>
                         ${item.detalles.contexto}
                     </p>
-                </div>
+                </div>      
 
                 ${item.detalles.lista_ver.length > 0 ? `
                 <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-200 shadow-inner">
@@ -571,7 +591,7 @@ function renderFood() {
                 <div class="flex justify-between items-start">
                     <h4 class="font-bold text-green-800 text-lg">${superm.nombre}</h4>
                 </div>
-                <p class="text-sm text-gray-700 mt-1">${superm.desc}</p>
+                <p class="text-sm text-gray-700 mt-1">${superm.desc_texto}</p>
                 ${superm.estrategia ? `<p class="text-sm italic mt-2 text-gray-600 bg-green-50 p-2 rounded border border-green-100"><i class="fas fa-lightbulb text-yellow-500"></i> ${superm.estrategia}</p>` : ''}
             </div>
         `;
@@ -603,10 +623,14 @@ function renderFood() {
     appContent.innerHTML = html;
 }
 
+// ==========================================
+// --- CHECKLIST CONECTADO A SUPABASE ---
+// ==========================================
 function renderExtras() {
     setActiveNav('nav-extra');
+    
     let html = `
-        <div class="fade-in">
+        <div class="fade-in pb-10">
             <h2 class="text-2xl font-bold text-center mb-6 text-[var(--gryffindor-red)]">
                 <i class="fas fa-key"></i> Sala de Menesteres
             </h2>
@@ -614,14 +638,17 @@ function renderExtras() {
             <div class="mb-8">
                 <h3 class="magic-font text-xl font-bold mb-4 text-center decoration-wavy underline decoration-[var(--gold)]">Checklist</h3>
                 <div class="bg-white p-5 rounded-lg shadow-md border border-stone-200">
-                    <ul class="space-y-3">
+                    <ul class="space-y-3" id="checklist-container">
     `;
 
     organizadorViaje.checklist.forEach(item => {
+        const isChecked = item.completado ? 'checked' : '';
+        const textStyle = item.completado ? 'line-through text-gray-400' : 'text-stone-800';
+
         html += `
             <li class="flex items-start gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
-                <input type="checkbox" class="w-6 h-6 mt-1 accent-[var(--gryffindor-red)] cursor-pointer shrink-0">
-                <span class="text-lg handwritten leading-tight">${item}</span>
+                <input type="checkbox" id="check-${item.id}" onchange="toggleChecklist(${item.id}, ${item.completado})" ${isChecked} class="w-6 h-6 mt-1 accent-[var(--gryffindor-red)] cursor-pointer shrink-0">
+                <label for="check-${item.id}" class="text-lg handwritten leading-tight flex-1 cursor-pointer select-none transition-all ${textStyle}">${item.item}</label>
             </li>
         `;
     });
@@ -649,12 +676,261 @@ function renderExtras() {
                 </div>
             </div>
             
-            <button onclick="logout()" class="w-full mt-10 bg-stone-300 text-stone-700 py-3 rounded font-bold shadow-sm active:bg-stone-400 transition">
-                <i class="fas fa-sign-out-alt"></i> Salir del Mapa Merodeador
-            </button>
         </div>
     `;
     appContent.innerHTML = html;
+}
+
+// --- ACTUALIZAR CHECKLIST SIN REFRESCO FEO ---
+window.toggleChecklist = async function(id, estadoActual) {
+    // 1. Cambio visual instantáneo (Optimistic UI)
+    const itemIndex = organizadorViaje.checklist.findIndex(item => item.id === id);
+    if (itemIndex > -1) {
+        organizadorViaje.checklist[itemIndex].completado = !estadoActual;
+        renderExtras(); // Refrescamos solo la vista actual instantáneamente
+    }
+
+    // 2. Guardamos en Supabase en segundo plano
+    const { error } = await sb.from('checklist').update({ completado: !estadoActual }).eq('id', id);
+    
+    if (error) {
+        // Si hay error, deshacemos el cambio y avisamos
+        alert("Maldición rebotada al guardar en la nube: " + error.message);
+        organizadorViaje.checklist[itemIndex].completado = estadoActual;
+        renderExtras();
+    } else {
+        // Si va bien, actualizamos la caché local por si cierras la app de golpe
+        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+    }
+}
+
+// ==========================================
+// --- BANCO GRINGOTTS CONECTADO A SUPABASE ---
+// ==========================================
+function renderGastos() {
+    setActiveNav('nav-gastos');
+    
+    const TASA_CAMBIO = 1.17; // Modifica según el cambio actual
+    let gastos = organizadorViaje.gastos || [];
+    
+    let totalGBP = gastos.reduce((sum, g) => sum + parseFloat(g.cantidad), 0);
+    let totalEUR = totalGBP * TASA_CAMBIO;
+
+    let html = `
+        <div class="fade-in pb-10">
+            <h2 class="text-2xl font-bold text-center mb-6 text-[var(--gryffindor-red)]">
+                <i class="fas fa-coins"></i> Banco Gringotts
+            </h2>
+
+            <div class="parchment-box p-5 rounded-lg mb-6 shadow-md text-center border-l-4 border-yellow-500 bg-yellow-50">
+                <h3 class="font-bold text-lg mb-1 text-[var(--ink)]">Gasto Acumulado</h3>
+                <p class="text-4xl font-bold text-[var(--gryffindor-red)] mb-1 tracking-wider">£${totalGBP.toFixed(2)}</p>
+                <p class="text-sm font-bold text-stone-600 bg-white/60 inline-block px-4 py-1.5 rounded-full border border-stone-300 shadow-sm mt-1">
+                    <i class="fas fa-exchange-alt mr-1"></i> ≈ €${totalEUR.toFixed(2)}
+                </p>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200 mb-6">
+                <h3 class="font-bold mb-3 border-b border-gray-200 pb-2 text-[var(--gryffindor-red)]">
+                    <i class="fas fa-plus-circle text-[var(--gold)]"></i> Registrar Gasto
+                </h3>
+                <div class="flex gap-2">
+                    <input type="text" id="gasto-concepto" placeholder="Ej: Pintas pub" class="flex-1 p-2 border-b-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-[var(--gold)] focus:bg-white transition">
+                    <input type="number" step="0.01" id="gasto-cantidad" placeholder="£" class="w-20 p-2 border-b-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-[var(--gold)] focus:bg-white transition text-center font-bold">
+                    <button onclick="addGasto(event)" class="bg-[var(--gryffindor-red)] text-white px-4 py-2 rounded shadow hover:bg-red-900 transition active:scale-95">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h3 class="font-bold mb-3 px-1 text-lg text-[var(--ink)] border-b-2 border-[var(--gold)] inline-block">Bóveda</h3>
+            <div class="space-y-3 mt-2">
+    `;
+
+    if (gastos.length === 0) {
+        html += `<p class="text-center italic text-stone-500 text-sm py-4">Aún no hay movimientos en la bóveda...</p>`;
+    } else {
+        gastos.slice().reverse().forEach(g => {
+            let eur = g.cantidad * TASA_CAMBIO;
+            html += `
+                <div class="bg-white/80 p-3 rounded-lg shadow-sm border border-[#e2d1aa] flex justify-between items-center group">
+                    <span class="font-medium text-stone-800 text-lg leading-tight w-1/2">${g.concepto}</span>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <span class="block font-bold text-[var(--gryffindor-red)] text-lg">£${parseFloat(g.cantidad).toFixed(2)}</span>
+                            <span class="block text-xs font-bold text-stone-500">€${eur.toFixed(2)}</span>
+                        </div>
+                        <button onclick="deleteGasto(${g.id})" class="text-red-300 hover:text-red-600 p-2 transition active:scale-95" title="Eliminar gasto">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    html += `</div></div>`;
+    appContent.innerHTML = html;
+}
+
+// ==========================================
+// --- MAPA DEL MERODEADOR ---
+// ==========================================
+let londonMap = null; // Variable para guardar el mapa
+
+function renderMapa() {
+    setActiveNav('nav-mapa');
+    
+    let html = `
+        <div class="fade-in pb-10 flex flex-col h-full">
+            <h2 class="text-2xl font-bold text-center mb-4 text-[var(--gryffindor-red)]">
+                <i class="fas fa-shoe-prints"></i> Mapa del Merodeador
+            </h2>
+            <p class="text-center text-sm italic font-bold text-stone-600 mb-4">"Juro solemnemente que mis intenciones no son buenas"</p>
+            
+            <div class="parchment-box p-2 rounded-lg shadow-md flex-1 relative min-h-[500px]">
+                <div id="london-map" class="w-full h-full z-0"></div>
+            </div>
+        </div>
+    `;
+    appContent.innerHTML = html;
+
+    // Coordenadas mágicas de los lugares de tu checklist
+    const coordenadasFamosas = {
+        "british museum": [51.5194, -0.1269],
+        "tower bridge": [51.5055, -0.0754],
+        "tower of london": [51.5081, -0.0759],
+        "historia natural": [51.4967, -0.1764],
+        "ciencias": [51.4978, -0.1745],
+        "london eye": [51.5033, -0.1195],
+        "camden": [51.5416, -0.1462],
+        "little venice": [51.5230, -0.1836],
+        "portobello": [51.5161, -0.2048],
+        "warner bros": [51.6933, -0.4196],
+        "abadía": [51.4993, -0.1273],
+        "sky garden": [51.5113, -0.0835]
+    };
+
+    // Inicializar el mapa (centrado en el centro de Londres)
+    setTimeout(() => {
+        if (londonMap) {
+            londonMap.remove(); // Limpiar mapa anterior si existe
+        }
+        
+        londonMap = L.map('london-map').setView([51.5074, -0.1278], 12);
+
+        // Añadir capa de OpenStreetMap (luego CSS le aplica el filtro pergamino)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(londonMap);
+
+        // Crear icono personalizado
+        const magicIcon = L.divIcon({
+            className: 'magic-pin',
+            html: `<i class="fas fa-map-marker-alt"></i><span class="pin-text"></span>`,
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+
+// Buscar puntos del checklist y ponerlos en el mapa
+        organizadorViaje.checklist.forEach(item => {
+            let texto = item.item.toLowerCase();
+            let coordsEncontradas = null;
+
+            // Buscar si alguna palabra clave coincide con el checklist
+            for (const [clave, coords] of Object.entries(coordenadasFamosas)) {
+                if (texto.includes(clave)) {
+                    coordsEncontradas = coords;
+                    break;
+                }
+            }
+
+            if (coordsEncontradas) {
+                // Filtro para cuando ya está tachado en el checklist
+                const filtroGris = item.completado ? 'filter: grayscale(100%) opacity(0.5);' : '';
+                const textoPin = item.completado ? '<s>Visto</s>' : 'Aquí';
+                
+                let htmlIcono;
+
+                // Si hemos puesto una URL de imagen en el admin...
+                if (item.imagen_url) {
+                    htmlIcono = `
+                        <div class="pin-container" style="${filtroGris}">
+                            <img src="${item.imagen_url}" class="magic-photo-pin" alt="Foto">
+                            <span class="pin-text">${textoPin}</span>
+                        </div>
+                    `;
+                } else {
+                    // Si no tiene imagen, usamos el pin mágico de FontAwesome (por defecto)
+                    htmlIcono = `
+                        <div class="pin-container" style="${filtroGris}">
+                            <i class="fas fa-map-marker-alt text-[28px] text-[var(--gryffindor-red)] drop-shadow-md"></i>
+                            <span class="pin-text">${textoPin}</span>
+                        </div>
+                    `;
+                }
+
+                // Generar el marcador de Leaflet sin clases por defecto
+                const customIcon = L.divIcon({
+                    className: 'clear-leaflet-style', // Clase vacía para que no ponga fondos blancos
+                    html: htmlIcono,
+                    iconSize: [30, 50],
+                    iconAnchor: [15, 50] // El punto exacto que ancla al mapa (abajo al centro)
+                });
+
+                L.marker(coordsEncontradas, { icon: customIcon })
+                    .addTo(londonMap)
+                    .bindPopup(`<strong style="font-family: 'Cinzel', serif; color: #740001; font-size: 16px;">${item.item}</strong>`);
+            }
+        });
+    }, 100); // Pequeño retraso para que el HTML se dibuje antes de cargar el mapa
+}
+
+// --- AÑADIR GASTO SIN REFRESCO FEO ---
+window.addGasto = async function(event) {
+    const concepto = document.getElementById('gasto-concepto').value.trim();
+    const cantidad = document.getElementById('gasto-cantidad').value;
+    if(!concepto || !cantidad || cantidad <= 0) return;
+
+    // Efecto de carga en el botón
+    const btn = event.currentTarget;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+
+    // Mandamos a Supabase pidiendo que nos devuelva el registro creado (.select())
+    const { data, error } = await sb.from('gastos').insert([{ concepto: concepto, cantidad: parseFloat(cantidad) }]).select();
+    
+    if (error) {
+        alert("Los duendes reportan un error: " + error.message);
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.disabled = false;
+    } else {
+        // Añadimos el nuevo gasto a nuestra lista local
+        if (!organizadorViaje.gastos) organizadorViaje.gastos = [];
+        organizadorViaje.gastos.push(data[0]); // Metemos el dato real de la BBDD (con su ID)
+        
+        // Guardamos caché y redibujamos solo la pantalla de gastos
+        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+        renderGastos();
+    }
+}
+// --- BORRAR GASTO SIN REFRESCO FEO ---
+window.deleteGasto = async function(id) {
+    if(confirm("¿Seguro que quieres borrar este gasto de la bóveda?")) {
+        // Borramos de Supabase
+        const { error } = await sb.from('gastos').delete().eq('id', id);
+        
+        if (error) {
+            alert("Error al borrar: " + error.message);
+        } else {
+            // Filtramos la lista local para quitar el borrado
+            organizadorViaje.gastos = organizadorViaje.gastos.filter(g => g.id !== id);
+            
+            // Actualizamos caché y redibujamos
+            localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+            renderGastos();
+        }
+    }
 }
 
 function renderExplorerPass() {
@@ -739,3 +1015,9 @@ window.renderExplorerPass = renderExplorerPass;
 window.logout = logout;
 window.handleLogin = handleLogin;
 window.renderSecretDetails = renderSecretDetails;
+// Añadidos para Gringotts y el Checklist
+window.renderGastos = renderGastos;
+window.addGasto = addGasto;
+window.deleteGasto = deleteGasto;
+window.toggleChecklist = toggleChecklist;
+window.renderMapa = renderMapa;
