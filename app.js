@@ -1,20 +1,221 @@
-// Variable global para almacenar los datos una vez cargados
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabaseUrl = "https://zephobibrftatzmagjta.supabase.co";
+const supabaseKey = "sb_publishable_WFqb8AOLj0GAUq3UJ364kA_vU9tIAXL";
+const sb = createClient(supabaseUrl, supabaseKey);
+
+// Variables globales que asignaremos al cargar
 let organizadorViaje = null;
+let appContent, navBar, navItems;
 
-const appContent = document.getElementById('app-content');
-const navItems = document.querySelectorAll('.nav-item');
+async function checkAuthAndInit() {
+    // 1. Asignamos los elementos aquí para evitar el error de "null"
+    appContent = document.getElementById('app-content');
+    navBar = document.getElementById('bottom-nav');
+    navItems = document.querySelectorAll('.nav-item');
 
-// Función para cargar los datos e inicializar la app
-async function initApp() {
+    const { data: { session } } = await sb.auth.getSession();
+    
+    if (session) {
+        await fetchTravelData();
+    } else {
+        renderLogin();
+    }
+}
+
+// Escuchar cambios de estado
+sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+        if(navBar) {
+            navBar.classList.remove('flex');
+            navBar.classList.add('hidden');
+        }
+        renderLogin();
+    }
+});
+
+function renderLogin() {
+    navBar.classList.add('hidden');
+    navBar.classList.remove('flex');
+    
+    appContent.innerHTML = `
+        <div class="fade-in h-full flex flex-col items-center justify-center mt-10">
+            <i class="fas fa-lock text-5xl text-[var(--gryffindor-red)] mb-6 filter drop-shadow-md"></i>
+            <h1 class="text-3xl font-bold text-center magic-font mb-8">El Andén 9 ¾</h1>
+            
+            <div class="parchment-box p-8 rounded-lg w-full max-w-sm text-center">
+                <p class="text-sm italic text-stone-700 mb-6 font-bold">Identifícate, joven mago, para entrar.</p>
+                
+                <form id="login-form" class="space-y-4">
+                    <input type="email" id="magic-email" placeholder="Correo mágico..." required
+                        class="w-full p-3 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg">
+                    
+                    <input type="password" id="magic-password" placeholder="Contraseña..." required
+                        class="w-full p-3 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg tracking-widest">
+                    
+                    <button type="submit" id="login-btn" class="w-full bg-[var(--gryffindor-red)] text-white font-bold py-3 rounded shadow-md active:scale-95 transition mt-4">
+                        <i class="fas fa-wand-magic-sparkles mr-2"></i> Alohomora
+                    </button>
+                    <p id="login-error" class="text-red-600 text-sm hidden font-bold mt-2"></p>
+                </form>
+            </div>
+        </div>
+    `;
+
+    // Añadimos el listener al formulario
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('magic-email').value; // Captura email
+    const passwordInput = document.getElementById('magic-password').value;
+    const errorMsg = document.getElementById('login-error');
+    const btn = document.getElementById('login-btn');
+    
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Revelando...`;
+    btn.disabled = true;
+
+    const { error } = await sb.auth.signInWithPassword({
+        email: emailInput,
+        password: passwordInput,
+    });
+
+    if (error) {
+        errorMsg.textContent = "Credenciales incorrectas. ¡Muggle detectado!";
+        errorMsg.classList.remove('hidden');
+        btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i> Alohomora`;
+        btn.disabled = false;
+    } else {
+        appContent.innerHTML = `<div class="h-full flex items-center justify-center mt-20"><i class="fas fa-spinner fa-spin text-4xl text-[var(--gold)]"></i></div>`;
+        await fetchTravelData();
+    }
+}
+
+// Iniciar la app
+document.addEventListener('DOMContentLoaded', checkAuthAndInit);
+
+// --- FETCH DE DATOS DESDE SUPABASE (MAGIA RELACIONAL 3FN) ---
+async function fetchTravelData() {
     try {
-        const response = await fetch('data.json');
-        organizadorViaje = await response.json();
-        
-        // Una vez tenemos los datos, pintamos la pantalla de inicio
+        const [
+            { data: configData, error: configErr },
+            { data: diasData, error: diasErr },
+            { data: superData },
+            { data: secretosData },
+            { data: restTopData },
+            { data: checkData }
+        ] = await Promise.all([
+            sb.from('configuracion').select('*').single(),
+            // JOIN PROFUNDO: Trae días -> relación -> actividades -> items
+            sb.from('dias').select(`
+                *,
+                dia_actividad (
+                    hora,
+                    actividades (
+                        nombre,
+                        desc_texto,
+                        tipo,
+                        direccion,
+                        precio,
+                        contexto,
+                        actividad_items (
+                            item_texto
+                        )
+                    )
+                ),
+                restaurantes_dia (*)
+            `).order('id', { ascending: true }),
+            sb.from('supermercados').select('*'),
+            sb.from('secretos').select('*'),
+            sb.from('restaurantes_top').select('*'),
+            sb.from('checklist').select('*')
+        ]);
+
+        if (configErr || diasErr) throw new Error("Fallo al leer datos");
+
+        // RECONSTRUCCIÓN (ADAPTADOR PATTERN)
+        organizadorViaje = {
+            config: {
+                titulo: configData?.titulo || '', 
+                subtitulo: configData?.subtitulo || '',
+                presupuesto: configData?.presupuesto || '', 
+                base: configData?.base || ''
+            },
+            intro: {
+                texto: configData?.intro_texto || '', 
+                alojamiento: configData?.intro_alojamiento || ''
+            },
+            dias: (diasData || []).map(dia => ({
+                id: dia.id, 
+                fecha: dia.fecha || '', 
+                titulo: dia.titulo || '', 
+                icono: dia.icono || 'fa-circle',
+                resumen: dia.resumen || '', 
+                curiosidad_hp: dia.curiosidad_hp || null,
+                historia_dia: dia.historia_dia || null, 
+                nota_dia: dia.nota_dia || null,
+                
+                timeline: (dia.dia_actividad || []).map(relacion => {
+                    const act = relacion.actividades || {};
+                    const listaItems = act.actividad_items || [];
+                    
+                    let detallesObj = null;
+                    if (act.contexto || listaItems.length > 0) {
+                        detallesObj = {
+                            contexto: act.contexto || "",
+                            lista_ver: listaItems.map(item => item.item_texto || "")
+                        };
+                    }
+
+                    return {
+                        hora: relacion.hora || '',
+                        actividad: act.nombre || 'Actividad desconocida',
+                        desc: act.desc_texto || null,
+                        tipo: act.tipo || 'visita',
+                        direccion: act.direccion || null,
+                        precio: act.precio || null,
+                        detalles: detallesObj
+                    };
+                }).sort((a, b) => (a.hora || "").localeCompare(b.hora || "")),
+                
+                restaurantes: (dia.restaurantes_dia || []).map(r => ({
+                    nombre: r.nombre || '', desc: r.desc_texto || '', precio: r.precio || '', loc: r.loc || null
+                }))
+            })),
+            supermercados: superData || [],
+            curiosidades_extra: secretosData || [],
+            restaurantes_lista: restTopData || [],
+            checklist: (checkData || []).map(c => c.item || ''),
+            
+            // Textos estáticos (no los pasamos a tabla porque son constantes)
+            transporte: {
+                consejo_oro: "¡Usa Contactless (Móvil/Tarjeta)! No compres Oyster física.",
+                detalle: "Zonas 1-2. Tope diario £8.90. Tope semanal £44.70.",
+                apps: ["Citymapper (Vital)", "Google Maps", "TfL Go"]
+            },
+            explorer_pass: {
+                titulo: "London Explorer Pass",
+                subtitulo: "Pase de 4 Actividades",
+                precio_total: "£198 (2 personas)",
+                precio_pp: "£99 por persona",
+                info: "Este pase va por créditos, no por días. La clave maestra es usar los 4 créditos SÓLO en las atracciones más caras. El viaje en Uber Boat lo pagaremos suelto (£8).",
+                actividades: [
+                    { nombre: "Tower of London", precio_taquilla: 34.80, dia_sugerido: "Día 4 (Jueves)", icono: "fa-chess-rook" },
+                    { nombre: "Abadía de Westminster", precio_taquilla: 29.00, dia_sugerido: "Día 5 (Viernes)", icono: "fa-church" },
+                    { nombre: "The London Eye", precio_taquilla: 40.00, dia_sugerido: "Día 5 (Viernes)", icono: "fa-eye" },
+                    { nombre: "Bus Turístico (2 Días)", precio_taquilla: 45.00, dia_sugerido: "Día 4 y 5", icono: "fa-bus" }
+                ]
+            }
+        };
+
+        navBar.classList.remove('hidden');
+        navBar.classList.add('flex');
         renderHome();
+
     } catch (error) {
-        console.error("Error cargando los datos del viaje:", error);
-        appContent.innerHTML = `<p class="p-5 text-red-600">Error mágico: No se pudo cargar el pergamino de datos.</p>`;
+        console.error("Error cargando BBDD:", error);
+        appContent.innerHTML = `<div class="p-8 text-center mt-10"><p class="text-red-600 font-bold">Error 500: Fallo de conexión o sesión caducada.</p><button onclick="logout()" class="mt-4 border border-red-500 px-4 py-2 rounded text-red-700">Reiniciar App</button></div>`;
     }
 }
 
@@ -24,7 +225,13 @@ function setActiveNav(id) {
     if(activeItem) activeItem.classList.add('active', 'text-yellow-500');
 }
 
-// --- RENDERIZADO: HOME ---
+document.addEventListener('DOMContentLoaded', checkAuthAndInit);
+
+
+// ==========================================
+// --- FUNCIONES DE RENDERIZADO VISUAL ---
+// ==========================================
+
 function renderHome() {
     setActiveNav('nav-home');
     appContent.innerHTML = `
@@ -80,7 +287,6 @@ function renderHome() {
     `;
 }
 
-// --- RENDERIZADO: LISTA ITINERARIO ---
 function renderItineraryList() {
     setActiveNav('nav-itin');
     let html = `
@@ -113,12 +319,10 @@ function renderItineraryList() {
     appContent.innerHTML = html;
 }
 
-// --- RENDERIZADO: DETALLE DÍA ---
 function renderDayDetail(id) {
     const dia = organizadorViaje.dias.find(d => d.id === id);
     if (!dia) return;
 
-    // Scroll al top al entrar
     document.getElementById('app-content').scrollTo(0,0);
 
     let html = `
@@ -159,8 +363,6 @@ function renderDayDetail(id) {
                 </div>
             </div>` : ''}
 
-
-
             <div class="relative ml-2 space-y-8 timeline-line pl-6 mb-8">
     `;
 
@@ -173,18 +375,15 @@ function renderDayDetail(id) {
         if(item.tipo === 'check') icon = 'fa-check-double';
         if(item.tipo === 'caminar') icon = 'fa-walking';
         if(item.tipo === 'relax') icon = 'fa-leaf';
-        console.log(item.precio)
 
         const hasDetails = item.detalles ? true : false;
 
         html += `
             <div class="relative group">
-                <!-- Icono Timeline -->
                 <div class="absolute -left-[35px] bg-[var(--parchment)] border-2 border-[var(--gryffindor-red)] rounded-full w-9 h-9 flex items-center justify-center text-[var(--gryffindor-red)] text-sm z-10 shadow-sm">
                     <i class="fas ${icon}"></i>
                 </div>
                 
-                <!-- Tarjeta Contenido -->
                 <div class="bg-white/80 p-4 rounded-lg shadow-sm border border-stone-200">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="font-bold text-lg leading-tight text-[var(--ink)] pr-2">${item.actividad}</h4>
@@ -193,9 +392,7 @@ function renderDayDetail(id) {
                             ${item.precio ? `<span class="bg-green-100 text-green-800 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-green-200 shadow-sm">${item.precio}</span>` : ''}
                         </div>
                     </div>
-                    <p class="text-stone-700 text-base mb-3 leading-relaxed">${item.desc}</p>
-                    
-                    ${item.imgBase64 ? `<img src="${item.imgBase64}" class="w-full h-40 object-cover rounded mb-3 border border-stone-300 shadow-sm">` : ''}
+                    <p class="text-stone-700 text-base mb-3 leading-relaxed">${item.desc || ''}</p>
 
                     <div class="flex flex-wrap gap-2 mt-2">
                         ${item.direccion ? `
@@ -214,9 +411,8 @@ function renderDayDetail(id) {
         `;
     });
 
-    html += `</div>`; // Cierre timeline
+    html += `</div>`;
 
-    // Sección Comer Hoy
     if (dia.restaurantes && dia.restaurantes.length > 0) {
         html += `
             <div class="mt-8 pt-6 border-t border-[var(--gryffindor-red)] mb-4">
@@ -246,7 +442,6 @@ function renderDayDetail(id) {
     appContent.innerHTML = html;
 }
 
-// --- RENDERIZADO: DETALLE SECRETO (PANTALLA COMPLETA) ---
 function renderSecretDetails(diaId, itemIndex) {
     const dia = organizadorViaje.dias.find(d => d.id === diaId);
     if (!dia) return;
@@ -276,6 +471,7 @@ function renderSecretDetails(diaId, itemIndex) {
                     </p>
                 </div>
 
+                ${item.detalles.lista_ver.length > 0 ? `
                 <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-200 shadow-inner">
                     <h3 class="magic-font text-lg font-bold mb-4 flex items-center gap-2 text-[var(--ink)]">
                         <i class="fas fa-eye text-[var(--gryffindor-red)]"></i> Lo que no te puedes perder
@@ -288,16 +484,14 @@ function renderSecretDetails(diaId, itemIndex) {
                             </li>
                         `).join('')}
                     </ul>
-                </div>
+                </div>` : ''}
             </div>
-            
         </div>
     `;
     
     appContent.innerHTML = html;
 }
 
-// --- RENDERIZADO: TRANSPORTE ---
 function renderTransport() {
     setActiveNav('nav-trans');
     appContent.innerHTML = `
@@ -334,7 +528,7 @@ function renderTransport() {
             <div class="parchment-box p-5 rounded-lg">
                 <h4 class="font-bold mb-3 text-sm uppercase tracking-wider text-[var(--ink)]">Transporte Especial</h4>
                 <ul class="text-sm space-y-3">
-                    <li class="flex gap-3"><i class="fas fa-ship text-blue-600 mt-1"></i> <div><strong>Uber Boat:</strong> Se paga igual (Contactless). Genial al atardecer para ver Londres iluminado.</div></li>
+                    <li class="flex gap-3"><i class="fas fa-ship text-blue-600 mt-1"></i> <div><strong>Uber Boat:</strong> Se paga igual (Contactless). Genial al atardecer.</div></li>
                     <li class="flex gap-3"><i class="fas fa-train text-purple-600 mt-1"></i> <div><strong>Elizabeth Line:</strong> Súper rápida, moderna y con aire acondicionado.</div></li>
                     <li class="flex gap-3"><i class="fas fa-bus text-red-600 mt-1"></i> <div><strong>Bus Rojo:</strong> £1.75 el viaje. Si coges otro antes de 1h es gratis (Hopper Fare).</div></li>
                 </ul>
@@ -343,7 +537,6 @@ function renderTransport() {
     `;
 }
 
-// --- RENDERIZADO: COMIDA ---
 function renderFood() {
     setActiveNav('nav-food');
     let html = `
@@ -395,7 +588,6 @@ function renderFood() {
     appContent.innerHTML = html;
 }
 
-// --- RENDERIZADO: EXTRAS ---
 function renderExtras() {
     setActiveNav('nav-extra');
     let html = `
@@ -438,19 +630,21 @@ function renderExtras() {
         `;
     });
 
-    html += `</div></div></div>`;
+    html += `
+                </div>
+            </div>
+            
+            <button onclick="logout()" class="w-full mt-10 bg-stone-300 text-stone-700 py-3 rounded font-bold shadow-sm active:bg-stone-400 transition">
+                <i class="fas fa-sign-out-alt"></i> Salir del Mapa Merodeador
+            </button>
+        </div>
+    `;
     appContent.innerHTML = html;
 }
 
-// --- RENDERIZADO: EXPLORER PASS ---
 function renderExplorerPass() {
     setActiveNav('nav-pass');
     
-    // Calculamos el valor real de las atracciones
-    const valorReal = organizadorViaje.explorer_pass.actividades.reduce((sum, act) => sum + act.precio_taquilla, 0);
-    const costePase = parseFloat(organizadorViaje.explorer_pass.precio_pp.replace('£', ''));
-    const ahorroPorPersona = valorReal - costePase;
-
     let html = `
         <div class="fade-in pb-8">
             <h2 class="text-2xl font-bold text-center mb-6 text-[var(--gryffindor-red)]">
@@ -459,7 +653,7 @@ function renderExplorerPass() {
 
             <div class="parchment-box p-5 rounded-lg mb-6 shadow-md relative overflow-hidden border-l-4 border-green-600">
                 <div class="absolute top-0 right-0 bg-green-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl shadow-sm uppercase tracking-wide">
-                    Ahorro: £${ahorroPorPersona.toFixed(2)} pp
+                    Ahorro Garantizado
                 </div>
                 <h3 class="font-bold text-xl mb-1 text-[var(--ink)]">${organizadorViaje.explorer_pass.subtitulo}</h3>
                 <p class="text-[var(--gryffindor-red)] font-bold text-sm mb-3">${organizadorViaje.explorer_pass.precio_total}</p>
@@ -472,7 +666,7 @@ function renderExplorerPass() {
             <div class="space-y-4">
     `;
 
-    organizadorViaje.explorer_pass.actividades.forEach((act, index) => {
+    organizadorViaje.explorer_pass.actividades.forEach(act => {
         html += `
             <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200 flex items-center gap-4">
                 <div class="bg-[var(--parchment)] w-12 h-12 rounded-full flex items-center justify-center border border-[var(--gold)] shrink-0 shadow-sm">
@@ -490,23 +684,29 @@ function renderExplorerPass() {
         `;
     });
 
-    html += `
-            </div>
-        </div>
-    `;
-
+    html += `</div></div>`;
     appContent.innerHTML = html;
 }
 
-// Si tuviste que añadir el "window.renderHome..." en el paso anterior, añade también esta:
 window.renderExplorerPass = renderExplorerPass;
-
 
 function openMap(destination) {
     const query = encodeURIComponent(destination);
-    window.open(`https://googleusercontent.com/maps.google.com/0${query}&travelmode=transit`, '_blank');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
 }
 
-// Inicialización cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', initApp);
+async function logout() {
+        await supabase.auth.signOut();
+}
 
+// --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
+window.renderHome = renderHome;
+window.renderItineraryList = renderItineraryList;
+window.renderDayDetail = renderDayDetail;
+window.renderTransport = renderTransport;
+window.renderFood = renderFood;
+window.renderExtras = renderExtras;
+window.renderExplorerPass = renderExplorerPass;
+window.logout = logout;
+window.handleLogin = handleLogin;
+window.renderSecretDetails = renderSecretDetails;
