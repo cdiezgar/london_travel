@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Expedición a Londres 2026</title>
-    
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Homemade+Apple&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,6 +13,14 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-base">
 
+    <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center pointer-events-none">
+        <div class="magic-font text-[var(--gryffindor-red)] font-bold text-lg bg-white/40 backdrop-blur-sm px-3 py-1 rounded-lg border border-[var(--gold)]/30 pointer-events-auto">
+            LND 2026
+        </div>
+        <button onclick="logout()" id="global-logout" class="hidden pointer-events-auto bg-white/60 backdrop-blur-md text-[var(--gryffindor-red)] w-10 h-10 rounded-full shadow-lg border border-[var(--gold)] flex items-center justify-center active:scale-95 transition-all">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </header>
     <main id="app-content" class="flex-1 overflow-y-auto p-4 pb-32 relative scroll-smooth overscroll-contain">
         </main>
 

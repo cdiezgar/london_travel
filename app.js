@@ -98,6 +98,16 @@ document.addEventListener('DOMContentLoaded', checkAuthAndInit);
 // --- FETCH DE DATOS DESDE SUPABASE (MAGIA RELACIONAL 3FN) ---
 async function fetchTravelData() {
     try {
+
+    // 1. Intentar cargar de caché primero
+        const cached = localStorage.getItem('travel_data_cache');
+        if (cached) {
+            organizadorViaje = JSON.parse(cached);
+            renderHome();
+            toggleLogoutButton(true);
+            // Seguimos descargando en segundo plano para actualizar por si hubo cambios
+        }
+
         const [
             { data: configData, error: configErr },
             { data: diasData, error: diasErr },
@@ -209,13 +219,20 @@ async function fetchTravelData() {
             }
         };
 
+        // Guardar en caché para la próxima vez
+        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+
         navBar.classList.remove('hidden');
         navBar.classList.add('flex');
-        renderHome();
+        toggleLogoutButton(true);
+        if (!cached) renderHome();
 
     } catch (error) {
-        console.error("Error cargando BBDD:", error);
-        appContent.innerHTML = `<div class="p-8 text-center mt-10"><p class="text-red-600 font-bold">Error 500: Fallo de conexión o sesión caducada.</p><button onclick="logout()" class="mt-4 border border-red-500 px-4 py-2 rounded text-red-700">Reiniciar App</button></div>`;
+        console.error("Error:", error);
+        appContent.innerHTML = `...`;
+        // Si el botón de login sigue ahí, hay que resetearlo
+        const btn = document.getElementById('login-btn');
+        if(btn) btn.disabled = false;       
     }
 }
 
@@ -224,8 +241,6 @@ function setActiveNav(id) {
     const activeItem = document.getElementById(id);
     if(activeItem) activeItem.classList.add('active', 'text-yellow-500');
 }
-
-document.addEventListener('DOMContentLoaded', checkAuthAndInit);
 
 
 // ==========================================
@@ -695,8 +710,22 @@ function openMap(destination) {
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
 }
 
+// --- CORRECCIÓN 1: El cliente es 'sb' ---
 async function logout() {
-        await supabase.auth.signOut();
+    const { error } = await sb.auth.signOut();
+    if (!error) {
+        localStorage.removeItem('travel_data_cache'); // Limpiar caché al salir
+        location.reload();
+    }
+}
+
+// --- CORRECCIÓN 2: Mostrar/Ocultar botón de salir ---
+function toggleLogoutButton(show) {
+    const btn = document.getElementById('global-logout');
+    if (btn) {
+        if (show) btn.classList.remove('hidden');
+        else btn.classList.add('hidden');
+    }
 }
 
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---

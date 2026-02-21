@@ -11,7 +11,6 @@ body {
     background-color: var(--parchment);
     color: var(--ink);
     font-family: 'Crimson Text', serif;
-    background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');
     -webkit-tap-highlight-color: transparent; /* Quita el flash azul al tocar en móviles */
 }
 
@@ -99,4 +98,13 @@ h1, h2, h3, .magic-font {
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.4);
     border-radius: 8px;
+}
+
+#app-content {
+    padding-top: 4rem; /* Espacio para que el botón de salir no tape el título */
+}
+
+#global-logout:hover {
+    background-color: var(--gryffindor-red);
+    color: white;
 }
