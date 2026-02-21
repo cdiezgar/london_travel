@@ -1,0 +1,590 @@
+{
+  "config": {
+    "titulo": "Expedición Londres",
+    "subtitulo": "Marzo-Abril 2026",
+    "presupuesto": "520€ / £445",
+    "base": "Shepherd's Bush (W12)"
+  },
+  "intro": {
+    "texto": "Bienvenido a Londres, viajero. O quizá debería decir… bienvenido, mago. Has llegado a una ciudad donde lo extraordinario siempre ha convivido con lo cotidiano. Donde las estaciones victorianas esconden andenes imposibles, los callejones parecen curvarse sobre sí mismos y las farolas de hierro iluminan la niebla como si guardaran secretos antiguos. Desde tu base en Shepherd’s Bush, cada trayecto hacia el corazón de la ciudad será algo más que un desplazamiento: será una transición entre mundos. El bullicio muggle quedará atrás mientras te adentras en avenidas monumentales, patios de piedra y mercados cubiertos que podrían ocultar, tras cualquier escaparate, el acceso a un callejón comercial muy particular. Esta guía no es solo un itinerario. Es tu mapa de exploración mágica: museos que parecen ministerios, bibliotecas que recuerdan a Hogwarts y parques donde el silencio invita a imaginar el batir de alas sobre los árboles. Prepárate. Ajusta tu capa —o tu abrigo londinense— y mantén la varita… o el móvil… a mano. La ciudad está lista para revelarte sus secretos.",
+    "alojamiento": "Stylish Studios by Luxestays Shepherds Bush"
+  },
+  "dias": [
+    {
+      "id": 1,
+      "fecha": "Lunes 30 Marzo",
+      "titulo": "Llegada y Despliegue",
+      "icono": "fa-plane-arrival",
+      "resumen": "Aterrizaje, check-in y exploración del barrio.",
+      "curiosidad_hp": "Aunque no sale en las pelis, el mercado de telas de Shepherd's Bush ha suministrado materiales para vestuarios de Harry Potter.",
+      "historia_dia": "Día 1 es de aterrizaje y ajuste de ritmo: llegas a Londres y atraviesas la ciudad como quien cruza un umbral. No es un día para acumular hitos, sino para desplegarse: instalarte en Shepherd’s Bush, aprovisionarte y hacer un primer paseo de reconocimiento. La misión es simple: descansar, orientarte y empezar a leer la ciudad con calma, porque Londres se disfruta mejor cuando no se corre.",
+      "timeline": [
+        {
+          "hora": "09:40",
+          "actividad": "Aterrizaje LCY",
+          "desc": "Trámite rápido. Aeropuerto pequeño.",
+          "tipo": "transporte"
+        },
+        {
+          "hora": "10:30",
+          "actividad": "Traslado a W12",
+          "desc": "DLR a Bank + Central Line.",
+          "tipo": "transporte",
+          "detalles": {
+            "contexto": "El trayecto desde el aeropuerto no es solo logístico, es tu primera lectura de Londres. El DLR te introduce por los Docklands, antiguos muelles transformados en el skyline moderno de Canary Wharf, donde cristal y acero dominan el horizonte. Desde la cabina frontal —si consigues asiento— verás cómo el tren elevado serpentea entre rascacielos. El intercambio en Bank, profundo y laberíntico, marca el paso al metro clásico londinense. Desde ahí, la Central Line te proyecta hacia el oeste hasta Shepherd’s Bush, dejando atrás la ciudad financiera para entrar en el Londres cotidiano donde vivirás estos días.",
+            "lista_ver": [
+              "Vistas de los rascacielos de Canary Wharf",
+              "Túnel profundo bajo el banco de Inglaterra (Bank)",
+              "Los antiguos muelles reconvertidos"
+            ]
+          }
+        },
+        {
+          "hora": "12:00",
+          "actividad": "Check-in / Drop-off",
+          "desc": "Dejar maletas. Si no, usar Bounce (£4.50).",
+          "tipo": "check",
+          "direccion": "Shepherd's Bush Station"
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Aprovisionamiento",
+          "desc": "Compra táctica en Lidl/Aldi para desayunos.",
+          "tipo": "comida"
+        },
+        {
+          "hora": "16:00",
+          "actividad": "Shepherd's Bush Market",
+          "desc": "Ver Classic Textiles y ambiente local.",
+          "tipo": "visita",
+          "direccion": "Shepherd's Bush Market",
+          "detalles": {
+            "contexto": "Shepherd’s Bush Market se despliega a lo largo de Uxbridge Road como una franja comercial que parece suspendida entre épocas. Caminas bajo los arcos del ferrocarril y el entorno cambia: menos escaparate moderno y más mercado vivido. Los puestos mezclan fruta tropical, especias, tejidos africanos y comida callejera que perfuma el aire por tramos. Es un espacio profundamente migrante, donde conviven acentos caribeños, árabes y africanos en la misma línea de tenderetes. El estruendo ocasional del tren sobre tu cabeza recuerda que el mercado creció adherido a la infraestructura victoriana. No es un lugar monumental ni escenográfico; su valor está en lo cotidiano. Más que visitarlo, se atraviesa como un corredor cultural del oeste londinense.",
+            "lista_ver": [
+              "Arcos ferroviarios victorianos que cubren el mercado",
+              "Puestos de fruta tropical y productos caribeños",
+              "Tiendas de especias, tejidos africanos y ropa tradicional",
+              "Locales familiares bajo los arcos (carnicerías halal, peluquerías, telefonía)",
+              "Comida callejera multicultural a lo largo del recorrido",
+              "Contraste entre el mercado y el tráfico de Uxbridge Road",
+              "El paso del tren sobre el viaducto mientras recorres los puestos"
+            ]
+          }
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Mr Falafel",
+          "desc": "Wrap deluxe coliflor",
+          "precio": "£8",
+          "loc": "Shepherd's Bush Market"
+        }
+      ],
+      "nota_dia": "Día de relax y logística. Cena ligera en casa."
+    },
+{
+      "id": 2,
+      "fecha": "Martes 31 Marzo",
+      "titulo": "Notting Hill y Ciencias",
+      "icono": "fa-flask",
+      "resumen": "Portobello Road, Historia Natural y Museo de Ciencias.",
+      "curiosidad_hp": "Kensington Gardens, muy cerca de los museos, se utilizó como referencia paisajística para recrear espacios de paseo mágico.",
+      "historia_dia": "Hoy combinamos el encanto de las calles de colores con la ciencia más espectacular. Empezaremos paseando por Portobello Road antes de que se llene de gente. Después, bajaremos a South Kensington, el barrio de los museos, para ver el esqueleto de la ballena azul gigante y naves espaciales reales. ¡Y todo gratis!",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Portobello Road",
+          "desc": "Paseo entre las emblemáticas casas victorianas de Notting Hill y tiendas de antigüedades.",
+          "tipo": "caminar",
+          "direccion": "Portobello Road"
+        },
+        {
+          "hora": "12:00",
+          "actividad": "Museo de Historia Natural",
+          "desc": "Ver la Ballena Azul (Hope), la sala de Dinosaurios y la zona de terremotos. (Reservar entrada gratis online).",
+          "tipo": "museo",
+          "direccion": "Natural History Museum",
+          "detalles": {
+            "contexto": "Este edificio parece una catedral gótica, pero es el templo de la naturaleza. Alberga más de 80 millones de especímenes, incluidos muchos recolectados por Charles Darwin.",
+            "lista_ver": [
+              "El esqueleto de la Ballena Azul gigante suspendido en el hall principal",
+              "El T-Rex animatrónico en la zona de dinosaurios",
+              "El simulador de terremotos en la zona roja de geología"
+            ]
+          }
+        },
+        {
+          "hora": "14:30",
+          "actividad": "Museo de Ciencias",
+          "desc": "Justo al lado. Ver el módulo de mando original del Apolo 10 y los primeros aviones y locomotoras.",
+          "tipo": "museo",
+          "direccion": "Science Museum"
+        },
+        {
+          "hora": "17:00",
+          "actividad": "V&A Museum (Opcional)",
+          "desc": "Si aún hay energía, está puerta con puerta. Entrad solo a ver la gigantesca réplica del David de Miguel Ángel.",
+          "tipo": "museo",
+          "direccion": "Victoria and Albert Museum"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Comida en South Ken",
+          "desc": "Por la zona de los museos hay muchos Pret A Manger y pequeños cafés perfectos para un parón rápido.",
+          "precio": "£8-10",
+          "loc": "Exhibition Road"
+        }
+      ],
+      "nota_dia": "Los museos son gratis pero es MUY recomendable reservar la entrada 'Free' en sus webs oficiales para saltarse la fila general."
+    },
+    {
+      "id": 3,
+      "fecha": "Miércoles 1 Abril",
+      "titulo": "Warner Bros Studios",
+      "icono": "fa-wand-sparkles",
+      "resumen": "Día completo dedicado al mundo mágico.",
+      "curiosidad_hp": "Evento 'Magical Mischief': revelan trucos de cámara y la capa de invisibilidad.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Salida a Watford",
+          "desc": "Central Line a Euston + Tren a Watford Jct.",
+          "tipo": "transporte",
+          "detalles": {
+            "contexto": "La estación de Euston es un caos organizado. Busca las pantallas gigantes centrales. El tren a Watford Junction que buscas es el de 'London Northwestern Railway' (tarda 20 min). Evita el 'Overground' (tarda 50 min) a menos que quieras ver todos los barrios residenciales.",
+            "lista_ver": [
+              "La locura de la pantalla de salidas en Euston",
+              "El autobús gratuito de HP esperando en la estación de Watford Junction (está decorado, no tiene pérdida)"
+            ]
+          }
+        },
+        {
+          "hora": "11:00",
+          "actividad": "The Making of HP",
+          "desc": "Tour completo. Llevad sándwiches.",
+          "tipo": "visita",
+          "direccion": "Warner Bros Studio Tour London"
+        },
+        {
+          "hora": "18:00",
+          "actividad": "Regreso",
+          "desc": "Vuelta a la base.",
+          "tipo": "transporte"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Comida en Apartamento",
+          "desc": "Sandwiches robustos para el tour",
+          "precio": "£3",
+          "loc": "Mochila"
+        }
+      ],
+      "nota_dia": "Cargar bien los móviles, vais a hacer muchas fotos."
+    },
+ {
+      "id": 4,
+      "fecha": "Jueves 2 Abril",
+      "titulo": "La Torre, la City y el Bus",
+      "icono": "fa-chess-rook",
+      "resumen": "Créditos 1 y 2: Torre de Londres y primer día de Bus Turístico.",
+      "curiosidad_hp": "Leadenhall Market: Busca el Bull's Head Passage nº 42. Esa puerta azul es la entrada al 'Caldero Chorreante'.",
+      "historia_dia": "Hoy empezamos a fundir la Explorer Pass. Nos adentraremos en los casi 1000 años de historia de la Torre de Londres. Luego nos mezclaremos con los ejecutivos de la City y veremos Londres desde las nubes en el Sky Garden. Para rematar, cuando ya nos duelan los pies, activaremos el bus turístico para dar un paseo panorámico de relax al atardecer.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Tower of London",
+          "desc": "¡CRÉDITO 1! Ir directos a ver las Joyas de la Corona antes de que haya mucha cola.",
+          "tipo": "visita",
+          "direccion": "Tower of London",
+          "precio": "Pase Explorer"
+        },
+        {
+          "hora": "12:30",
+          "actividad": "Leadenhall Market",
+          "desc": "Arquitectura victoriana espectacular. Paseo y buscar el Caldero Chorreante.",
+          "tipo": "caminar",
+          "direccion": "Leadenhall Market"
+        },
+        {
+          "hora": "14:00",
+          "actividad": "Sky Garden",
+          "desc": "Vistas 360º (Reserva previa obligatoria).",
+          "tipo": "visita",
+          "direccion": "Sky Garden",
+          "precio": "Gratuito"
+        },
+        {
+          "hora": "15:30",
+          "actividad": "St Dunstan in the East",
+          "desc": "Iglesia bombardeada hecha jardín. Paz en medio del caos de la City.",
+          "tipo": "relax",
+          "direccion": "St Dunstan in the East"
+        },
+        {
+          "hora": "16:30",
+          "actividad": "Hop-On Hop-Off Bus (Día 1)",
+          "desc": "¡CRÉDITO 2! Coger el bus en la parada de Tower Hill. Subir al piso de arriba y disfrutar de una ruta panorámica (ej. Ruta Roja) descansando las piernas mientras anochece.",
+          "tipo": "transporte"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Pizza Union",
+          "desc": "Pizzas romanas finas cerca de la City.",
+          "precio": "£6-8",
+          "loc": "Cerca de Aldgate"
+        }
+      ],
+      "nota_dia": "La ruta del bus desde la Torre os puede dejar en el centro (West End/Piccadilly) ideal para cenar o dar un paseo antes de volver a casa."
+    },
+    {
+      "id": 5,
+      "fecha": "Viernes 3 Abril",
+      "titulo": "Westminster, Noria y South Bank",
+      "icono": "fa-eye",
+      "resumen": "Créditos 3 y 4: Abadía, London Eye y segundo día de Bus.",
+      "curiosidad_hp": "El Millennium Bridge (frente a la Tate) es el puente que destruyen los Mortífagos al inicio de 'El Príncipe Mestizo'.",
+      "historia_dia": "Día fuerte de la Explorer Pass. A primera hora nos quitamos la Abadía de Westminster. Cruzamos el puente y subimos al London Eye. Al bajar, aprovecharemos que nuestro billete de bus sigue activo para que nos acerque a Borough Market a comer. Por la tarde, paseo artístico y alternativo.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Abadía de Westminster",
+          "desc": "¡CRÉDITO 3! Lugar de coronaciones y bodas reales.",
+          "tipo": "visita",
+          "direccion": "Westminster Abbey",
+          "precio": "Pase Explorer"
+
+        },
+        {
+          "hora": "11:30",
+          "actividad": "The London Eye",
+          "desc": "¡CRÉDITO 4! Cruzar el puente de Westminster para subir a la noria más famosa de Europa.",
+          "tipo": "visita",
+          "direccion": "London Eye",
+          "precio": "Pase Explorer"
+        },
+        {
+          "hora": "12:45",
+          "actividad": "Leake St Tunnel",
+          "desc": "Justo detrás del London Eye. El famoso túnel de grafitis de Banksy.",
+          "tipo": "visita",
+          "direccion": "Leake Street Arches"
+        },
+        {
+          "hora": "13:30",
+          "actividad": "Hop-On Hop-Off Bus (Día 2)",
+          "desc": "Coger el bus turístico desde la zona de Waterloo para que nos acerque hacia London Bridge (Borough Market).",
+          "tipo": "transporte",
+          "precio": "Pase Explorer"
+        },
+        {
+          "hora": "14:15",
+          "actividad": "Borough Market",
+          "desc": "Para a comer. Street food variada de todo el mundo.",
+          "tipo": "comida",
+          "direccion": "Borough Market"
+        },
+        {
+          "hora": "16:00",
+          "actividad": "Tate Modern y Millennium Bridge",
+          "desc": "Paseo digestivo por el South Bank hasta la Tate Modern (entrada gratis) y ver el puente de Harry Potter.",
+          "tipo": "caminar",
+          "direccion": "Tate Modern"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Borough Market",
+          "desc": "Street food espectacular.",
+          "precio": "£8-12",
+          "loc": "London Bridge"
+        },
+        {
+          "nombre": "Padella",
+          "desc": "Pasta fresca increíble (cola virtual).",
+          "precio": "£10-14",
+          "loc": "Borough Market"
+        }
+      ],
+      "nota_dia": "Viernes Santo: intentad comer pronto en Borough Market para evitar multitudes."
+    },
+    {
+      "id": 6,
+      "fecha": "Sábado 4 Abril",
+      "titulo": "Greenwich Marítimo",
+      "icono": "fa-compass",
+      "resumen": "Barcos, túneles bajo el agua y observatorio.",
+      "curiosidad_hp": "En la película de 'Thor' (Marvel) la batalla final ocurre en el Naval College de Greenwich.",
+      "timeline": [
+        {
+          "hora": "10:30",
+          "actividad": "Cutty Sark",
+          "desc": "Zona marítima.",
+          "tipo": "visita",
+          "direccion": "Cutty Sark"
+        },
+        {
+          "hora": "11:30",
+          "actividad": "Royal Observatory",
+          "desc": "Subir la colina. Vistas brutales.",
+          "tipo": "caminar",
+          "direccion": "Royal Observatory Greenwich"
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Greenwich Market",
+          "desc": "Comida callejera.",
+          "tipo": "comida"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "Foot Tunnel",
+          "desc": "Cruzar el río andando por debajo.",
+          "tipo": "caminar",
+          "direccion": "Greenwich Foot Tunnel"
+        },
+        {
+          "hora": "16:30",
+          "actividad": "Uber Boat",
+          "desc": "Vuelta en barco al atardecer.",
+          "tipo": "transporte"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Greenwich Market",
+          "desc": "Empanadas, Thai, Curry",
+          "precio": "£8-12",
+          "loc": "Greenwich"
+        }
+      ],
+      "nota_dia": "Atención al DLR: Si está cerrado usar Jubilee a Canary Wharf."
+    },
+{
+      "id": 7,
+      "fecha": "Domingo 5 Abril",
+      "titulo": "Parques, Canales y Camden",
+      "icono": "fa-tree",
+      "resumen": "Ruta lineal: Hyde Park, Little Venice, Regent's Park y Camden.",
+      "curiosidad_hp": "El zoo de Londres, situado dentro de Regent's Park (por donde pasearéis hoy), es donde Harry hace desaparecer el cristal del terrario de la serpiente en la primera película.",
+      "historia_dia": "Hoy haremos una de las rutas a pie más bonitas y menos conocidas por los turistas clásicos. Tras un paseo matutino por Hyde Park, iremos a Little Venice para empezar a caminar bordeando el Regent's Canal. Este camino del agua nos llevará a través de los jardines de Regent's Park y Primrose Hill, hasta desembocar directamente en el corazón del bullicio punk y la comida callejera de Camden Town.",
+      "timeline": [
+        {
+          "hora": "10:00",
+          "actividad": "Hyde Park & Kensington Gardens",
+          "desc": "Paseo matutino. Ver los cisnes, la Estatua de Peter Pan y los mágicos Italian Gardens.",
+          "tipo": "relax",
+          "direccion": "Hyde Park"
+        },
+        {
+          "hora": "12:00",
+          "actividad": "Little Venice",
+          "desc": "Coger el metro hasta Warwick Avenue. Ver los barcos pintorescos y empezar la ruta a pie por el Regent's Canal.",
+          "tipo": "caminar",
+          "direccion": "Little Venice"
+        },
+        {
+          "hora": "13:30",
+          "actividad": "Regent's Park & Primrose Hill",
+          "desc": "El canal nos deja aquí. Subir a Primrose Hill para ver el skyline de Londres desde la colina.",
+          "tipo": "relax",
+          "direccion": "Primrose Hill"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "Camden Town",
+          "desc": "Llegada por el canal. Caos alternativo, tiendas locas y el paraíso de la comida callejera.",
+          "tipo": "visita",
+          "direccion": "Camden Market",
+          "detalles": {
+            "contexto": "El barrio más ecléctico de Londres. Lo que empezó como un mercado de artesanía en los 70 es hoy un laberinto gigante de contracultura, música, comida de todo el mundo y fachadas decoradas con figuras gigantes 3D.",
+            "lista_ver": [
+              "La extravagante tienda futurista Cyberdog (con DJ's en directo y estética neón)",
+              "La inmensa zona de comida en las antiguas caballerizas (Stables Market)",
+              "La estatua tributo a Amy Winehouse"
+            ]
+          }
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Camden Market Food",
+          "desc": "El mejor día para comer en puestos de cualquier país del mundo. ¡Caminad por The Stables antes de decidir!",
+          "precio": "£10-15",
+          "loc": "Camden Lock"
+        }
+      ],
+      "nota_dia": "Llevad calzado muy cómodo, la ruta por el canal es preciosa pero se hacen bastantes kilómetros."
+    },
+{
+      "id": 8,
+      "fecha": "Lunes 6 Abril",
+      "titulo": "Museo Británico y Magia",
+      "icono": "fa-wand-magic-sparkles",
+      "resumen": "British Museum, comida en Covent Garden y Tour de Harry Potter.",
+      "curiosidad_hp": "Gran parte de lo que veréis en el tour de esta tarde inspiró el Callejón Diagon. En el British Museum buscad el 'Ajedrez de la isla de Lewis' (Sala 40)... ¡es el ajedrez mágico de la primera película!",
+      "historia_dia": "Último día en Londres. Empezaremos la mañana culturizándonos en el inmenso British Museum. Al salir, bajaremos paseando hacia Covent Garden para comer y disfrutar de su ambientazo callejero. Y como gran broche final, a las 16:00 haremos el Free Tour de Harry Potter para despedirnos de la ciudad con un toque de magia antes de volver a casa.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Llegada al British Museum",
+          "desc": "El museo abre a las 10:00. Desayuno rápido por Bloomsbury y listos para entrar de los primeros (Piedra Rosetta, Momias, Partenón...).",
+          "tipo": "museo",
+          "direccion": "British Museum",
+          "precio": "Gratuito"
+        },
+        {
+          "hora": "13:30",
+          "actividad": "Covent Garden & Neal's Yard",
+          "desc": "Paseo bajando desde el museo. Ver los músicos callejeros, la plaza empedrada y comer tranquilamente.",
+          "tipo": "comida",
+          "direccion": "Covent Garden",
+          "precio": "Gratuito"
+        },
+        {
+          "hora": "16:00",
+          "actividad": "Free Tour Harry Potter",
+          "desc": "Recorrido mágico por el centro de Londres (Reservar en Civitatis u otra plataforma). Durará un par de horas.",
+          "tipo": "caminar",
+          "direccion": "Trafalgar Square"
+        },
+        {
+          "hora": "18:30",
+          "actividad": "Regreso al Mundo Muggle",
+          "desc": "Fin del tour mágico. Recoger maletas en la base y rumbo al aeropuerto.",
+          "tipo": "check"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Seven Dials Market",
+          "desc": "Mercado de comida callejera cubierto súper chulo y animado, pegado a Covent Garden.",
+          "precio": "£12-15",
+          "loc": "Seven Dials"
+        },
+        {
+          "nombre": "Dishoom Covent Garden",
+          "desc": "Un clásico indio espectacular si queréis un homenaje de despedida.",
+          "precio": "£25",
+          "loc": "Covent Garden"
+        }
+      ],
+      "nota_dia": "¡Revisad bien desde dónde sale exactamente el Free Tour para ir caminando con tiempo desde Covent Garden!"
+    }
+  ],
+  "transporte": {
+    "consejo_oro": "¡Usa Contactless (Móvil/Tarjeta)! No compres Oyster física.",
+    "detalle": "Zonas 1-2. Tope diario £8.90. Tope semanal £44.70. Al llegar el viernes, el finde te saldrá prácticamente gratis.",
+    "apps": [
+      "Citymapper (Vital)",
+      "Google Maps",
+      "TfL Go"
+    ]
+  },
+  "supermercados": [
+    {
+      "nombre": "Lidl / Aldi",
+      "desc": "Dentro del W12 Shopping Centre. Los más baratos.",
+      "estrategia": "Comprar huevos, pan, queso, fruta y agua."
+    },
+    {
+      "nombre": "Tesco Express",
+      "desc": "Más caro, solo para emergencias nocturnas."
+    }
+  ],
+"checklist": [
+    "British Museum (Piedra Rosetta)",
+    "Tower Bridge & Tower of London",
+    "Historia Natural & Museo de Ciencias",
+    "Paseo en Uber Boat al atardecer",
+    "Sky Garden (Vistas)",
+    "Subir al London Eye",
+    "Camden Town & Little Venice",
+    "Portobello Road",
+    "Warner Bros Studios"
+  ],
+  "curiosidades_extra": [
+    {
+      "titulo": "St Dunstan in the East",
+      "texto": "Iglesia bombardeada en el Blitz, ahora un jardín secreto increíble."
+    },
+    {
+      "titulo": "Túnel de Greenwich",
+      "texto": "Cruzas el Támesis andando bajo el agua. Se siente la humedad."
+    },
+    {
+      "titulo": "Neal's Yard",
+      "texto": "Un callejón multicolor escondido en Covent Garden."
+    },
+    {
+      "titulo": "Leake Street",
+      "texto": "Túnel de grafitis legalizado por Banksy."
+    }
+  ],
+  "restaurantes_lista": [
+    {
+      "nombre": "Dishoom",
+      "tipo": "Indio (Bombay Cafe)",
+      "precio": "£25",
+      "nota": "El Bacon Naan Roll de desayuno es legendario."
+    },
+    {
+      "nombre": "Pizza Union",
+      "tipo": "Pizza",
+      "precio": "£6-9",
+      "nota": "Súper rápido y crujiente."
+    },
+    {
+      "nombre": "Padella",
+      "tipo": "Pasta Fresca",
+      "precio": "£10-15",
+      "nota": "Hay cola, pero vale la pena."
+    },
+    {
+      "nombre": "Mr Falafel",
+      "tipo": "Palestino",
+      "precio": "£7-8",
+      "nota": "El mejor de Shepherd's Bush."
+    }
+  ],
+
+  "explorer_pass": {
+    "titulo": "London Explorer Pass",
+    "subtitulo": "Pase de 4 Actividades",
+    "precio_total": "£198 (2 personas)",
+    "precio_pp": "£99 por persona",
+    "info": "Este pase va por créditos, no por días. La clave maestra es usar los 4 créditos SÓLO en las atracciones más caras (London Eye, Torre, Abadía y Bus). El viaje en Uber Boat lo pagaremos suelto con Contactless (£8) porque no compensa gastar un crédito en él.",
+    "actividades": [
+      {
+        "nombre": "Tower of London",
+        "precio_taquilla": 34.80,
+        "dia_sugerido": "Día 4 (Jueves)",
+        "icono": "fa-chess-rook",
+        "usado": false
+      },
+      {
+        "nombre": "Abadía de Westminster",
+        "precio_taquilla": 29.00,
+        "dia_sugerido": "Día 5 (Viernes)",
+        "icono": "fa-church",
+        "usado": false
+      },
+      {
+        "nombre": "The London Eye",
+        "precio_taquilla": 40.00,
+        "dia_sugerido": "Día 5 (Viernes)",
+        "icono": "fa-eye",
+        "usado": false
+      },
+      {
+        "nombre": "Bus Turístico (2 Días)",
+        "precio_taquilla": 45.00,
+        "dia_sugerido": "Día 4 y 5 (Jueves y Viernes)",
+        "icono": "fa-bus",
+        "usado": false
+      }
+    ]
+  }
+}
