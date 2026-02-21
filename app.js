@@ -173,6 +173,7 @@ function renderDayDetail(id) {
         if(item.tipo === 'check') icon = 'fa-check-double';
         if(item.tipo === 'caminar') icon = 'fa-walking';
         if(item.tipo === 'relax') icon = 'fa-leaf';
+        console.log(item.precio)
 
         const hasDetails = item.detalles ? true : false;
 
@@ -186,8 +187,11 @@ function renderDayDetail(id) {
                 <!-- Tarjeta Contenido -->
                 <div class="bg-white/80 p-4 rounded-lg shadow-sm border border-stone-200">
                     <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg leading-tight text-[var(--ink)]">${item.actividad}</h4>
-                        <span class="bg-stone-200 text-xs px-2 py-1 rounded font-mono font-bold text-stone-700 whitespace-nowrap ml-2">${item.hora}</span>
+                        <h4 class="font-bold text-lg leading-tight text-[var(--ink)] pr-2">${item.actividad}</h4>
+                        <div class="flex flex-col items-end gap-1 shrink-0">
+                            <span class="bg-stone-200 text-xs px-2 py-1 rounded font-mono font-bold text-stone-700 whitespace-nowrap">${item.hora}</span>
+                            ${item.precio ? `<span class="bg-green-100 text-green-800 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-green-200 shadow-sm">${item.precio}</span>` : ''}
+                        </div>
                     </div>
                     <p class="text-stone-700 text-base mb-3 leading-relaxed">${item.desc}</p>
                     

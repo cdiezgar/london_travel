@@ -197,7 +197,8 @@
           "actividad": "Tower of London",
           "desc": "¡CRÉDITO 1! Ir directos a ver las Joyas de la Corona antes de que haya mucha cola.",
           "tipo": "visita",
-          "direccion": "Tower of London"
+          "direccion": "Tower of London",
+          "precio": "Pase Explorer"
         },
         {
           "hora": "12:30",
@@ -211,7 +212,8 @@
           "actividad": "Sky Garden",
           "desc": "Vistas 360º (Reserva previa obligatoria).",
           "tipo": "visita",
-          "direccion": "Sky Garden"
+          "direccion": "Sky Garden",
+          "precio": "Gratuito"
         },
         {
           "hora": "15:30",
@@ -251,32 +253,43 @@
           "actividad": "Abadía de Westminster",
           "desc": "¡CRÉDITO 3! Lugar de coronaciones y bodas reales.",
           "tipo": "visita",
-          "direccion": "Westminster Abbey"
+          "direccion": "Westminster Abbey",
+          "precio": "Pase Explorer"
+
         },
         {
           "hora": "11:30",
           "actividad": "The London Eye",
           "desc": "¡CRÉDITO 4! Cruzar el puente de Westminster para subir a la noria más famosa de Europa.",
           "tipo": "visita",
-          "direccion": "London Eye"
+          "direccion": "London Eye",
+          "precio": "Pase Explorer"
         },
         {
-          "hora": "13:00",
+          "hora": "12:45",
+          "actividad": "Leake St Tunnel",
+          "desc": "Justo detrás del London Eye. El famoso túnel de grafitis de Banksy.",
+          "tipo": "visita",
+          "direccion": "Leake Street Arches"
+        },
+        {
+          "hora": "13:30",
           "actividad": "Hop-On Hop-Off Bus (Día 2)",
-          "desc": "Usar el bus (sigue activo) desde la zona del London Eye / Waterloo para acercarnos hacia London Bridge y evitar coger el metro.",
-          "tipo": "transporte"
+          "desc": "Coger el bus turístico desde la zona de Waterloo para que nos acerque hacia London Bridge (Borough Market).",
+          "tipo": "transporte",
+          "precio": "Pase Explorer"
         },
         {
-          "hora": "14:00",
+          "hora": "14:15",
           "actividad": "Borough Market",
           "desc": "Para a comer. Street food variada de todo el mundo.",
           "tipo": "comida",
           "direccion": "Borough Market"
         },
         {
-          "hora": "15:30",
-          "actividad": "Leake St Tunnel y Tate Modern",
-          "desc": "Pasear por el South Bank, ver el túnel de grafitis de Banksy y entrar a la Tate Modern (gratis).",
+          "hora": "16:00",
+          "actividad": "Tate Modern y Millennium Bridge",
+          "desc": "Paseo digestivo por el South Bank hasta la Tate Modern (entrada gratis) y ver el puente de Harry Potter.",
           "tipo": "caminar",
           "direccion": "Tate Modern"
         }
@@ -419,14 +432,16 @@
           "actividad": "Llegada al British Museum",
           "desc": "El museo abre a las 10:00. Desayuno rápido por Bloomsbury y listos para entrar de los primeros (Piedra Rosetta, Momias, Partenón...).",
           "tipo": "museo",
-          "direccion": "British Museum"
+          "direccion": "British Museum",
+          "precio": "Gratuito"
         },
         {
           "hora": "13:30",
           "actividad": "Covent Garden & Neal's Yard",
           "desc": "Paseo bajando desde el museo. Ver los músicos callejeros, la plaza empedrada y comer tranquilamente.",
           "tipo": "comida",
-          "direccion": "Covent Garden"
+          "direccion": "Covent Garden",
+          "precio": "Gratuito"
         },
         {
           "hora": "16:00",
