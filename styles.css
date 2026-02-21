@@ -1,0 +1,102 @@
+/* --- ESTÉTICA HARRY POTTER & PERGAMINO --- */
+:root {
+    --gryffindor-red: #740001;
+    --gold: #d3a625;
+    --parchment: #fcf5e5;
+    --ink: #2c1a0b;
+}
+
+/* Ajustes básicos para móvil */
+body {
+    background-color: var(--parchment);
+    color: var(--ink);
+    font-family: 'Crimson Text', serif;
+    background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');
+    -webkit-tap-highlight-color: transparent; /* Quita el flash azul al tocar en móviles */
+}
+
+h1, h2, h3, .magic-font {
+    font-family: 'Cinzel', serif;
+}
+
+.handwritten {
+    font-family: 'Homemade Apple', cursive;
+    color: #5a0000;
+}
+
+/* Efecto Carta/Pergamino */
+.parchment-box {
+    background: #fffef0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2d1aa;
+    position: relative;
+}
+
+.parchment-box::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    border: 1px solid #d3a625;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Botones Mágicos */
+.btn-reveal {
+    background-color: transparent;
+    color: var(--gryffindor-red);
+    border: 1px dashed var(--gryffindor-red);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-reveal:active {
+    background-color: var(--gryffindor-red);
+    color: #fff;
+    transform: scale(0.98);
+}
+
+/* Navegación Inferior - Ajuste iPhone X+ */
+.bottom-nav {
+    background: #2b1b17;
+    border-top: 3px solid var(--gold);
+    padding-bottom: env(safe-area-inset-bottom); /* Respetar área segura de iPhone */
+}
+
+.nav-item {
+    touch-action: manipulation; /* Mejora respuesta táctil */
+}
+
+.nav-item.active {
+    color: var(--gold);
+    text-shadow: 0 0 8px rgba(211, 166, 37, 0.6);
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.timeline-line {
+    border-left: 2px dashed var(--gryffindor-red);
+}
+
+/* Estilos específicos para la vista de secretos */
+.secret-page-border {
+    border: 4px double var(--gold);
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+}

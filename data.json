@@ -1,0 +1,605 @@
+{
+  "config": {
+    "titulo": "Expedición Londres",
+    "subtitulo": "Marzo-Abril 2026",
+    "presupuesto": "520€ / £445",
+    "base": "Shepherd's Bush (W12)"
+  },
+  "intro": {
+    "texto": "Bienvenido a Londres, viajero. O quizá debería decir… bienvenido, mago. Has llegado a una ciudad donde lo extraordinario siempre ha convivido con lo cotidiano. Donde las estaciones victorianas esconden andenes imposibles, los callejones parecen curvarse sobre sí mismos y las farolas de hierro iluminan la niebla como si guardaran secretos antiguos. Desde tu base en Shepherd’s Bush, cada trayecto hacia el corazón de la ciudad será algo más que un desplazamiento: será una transición entre mundos. El bullicio muggle quedará atrás mientras te adentras en avenidas monumentales, patios de piedra y mercados cubiertos que podrían ocultar, tras cualquier escaparate, el acceso a un callejón comercial muy particular. Esta guía no es solo un itinerario. Es tu mapa de exploración mágica: museos que parecen ministerios, bibliotecas que recuerdan a Hogwarts y parques donde el silencio invita a imaginar el batir de alas sobre los árboles. Prepárate. Ajusta tu capa —o tu abrigo londinense— y mantén la varita… o el móvil… a mano. La ciudad está lista para revelarte sus secretos.",
+    "alojamiento": "Stylish Studios by Luxestays Shepherds Bush"
+  },
+  "dias": [
+    {
+      "id": 1,
+      "fecha": "Lunes 30 Marzo",
+      "titulo": "Llegada y Despliegue",
+      "icono": "fa-plane-arrival",
+      "resumen": "Aterrizaje, check-in y exploración del barrio.",
+      "curiosidad_hp": "Aunque no sale en las pelis, el mercado de telas de Shepherd's Bush ha suministrado materiales para vestuarios de Harry Potter.",
+      "historia_dia": "Día 1 es de aterrizaje y ajuste de ritmo: llegas a Londres y atraviesas la ciudad como quien cruza un umbral. No es un día para acumular hitos, sino para desplegarse: instalarte en Shepherd’s Bush, aprovisionarte y hacer un primer paseo de reconocimiento. La misión es simple: descansar, orientarte y empezar a leer la ciudad con calma, porque Londres se disfruta mejor cuando no se corre.",
+      "timeline": [
+        {
+          "hora": "09:40",
+          "actividad": "Aterrizaje LCY",
+          "desc": "Trámite rápido. Aeropuerto pequeño.",
+          "tipo": "transporte"
+        },
+        {
+          "hora": "10:30",
+          "actividad": "Traslado a W12",
+          "desc": "DLR a Bank + Central Line.",
+          "tipo": "transporte",
+          "detalles": {
+            "contexto": "El trayecto desde el aeropuerto no es solo logístico, es tu primera lectura de Londres. El DLR te introduce por los Docklands, antiguos muelles transformados en el skyline moderno de Canary Wharf, donde cristal y acero dominan el horizonte. Desde la cabina frontal —si consigues asiento— verás cómo el tren elevado serpentea entre rascacielos. El intercambio en Bank, profundo y laberíntico, marca el paso al metro clásico londinense. Desde ahí, la Central Line te proyecta hacia el oeste hasta Shepherd’s Bush, dejando atrás la ciudad financiera para entrar en el Londres cotidiano donde vivirás estos días.",
+            "lista_ver": [
+              "Vistas de los rascacielos de Canary Wharf",
+              "Túnel profundo bajo el banco de Inglaterra (Bank)",
+              "Los antiguos muelles reconvertidos"
+            ]
+          }
+        },
+        {
+          "hora": "12:00",
+          "actividad": "Check-in / Drop-off",
+          "desc": "Dejar maletas. Si no, usar Bounce (£4.50).",
+          "tipo": "check",
+          "direccion": "Shepherd's Bush Station"
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Aprovisionamiento",
+          "desc": "Compra táctica en Lidl/Aldi para desayunos.",
+          "tipo": "comida"
+        },
+        {
+          "hora": "16:00",
+          "actividad": "Shepherd's Bush Market",
+          "desc": "Ver Classic Textiles y ambiente local.",
+          "tipo": "visita",
+          "direccion": "Shepherd's Bush Market",
+          "detalles": {
+            "contexto": "Shepherd’s Bush Market se despliega a lo largo de Uxbridge Road como una franja comercial que parece suspendida entre épocas. Caminas bajo los arcos del ferrocarril y el entorno cambia: menos escaparate moderno y más mercado vivido. Los puestos mezclan fruta tropical, especias, tejidos africanos y comida callejera que perfuma el aire por tramos. Es un espacio profundamente migrante, donde conviven acentos caribeños, árabes y africanos en la misma línea de tenderetes. El estruendo ocasional del tren sobre tu cabeza recuerda que el mercado creció adherido a la infraestructura victoriana. No es un lugar monumental ni escenográfico; su valor está en lo cotidiano. Más que visitarlo, se atraviesa como un corredor cultural del oeste londinense.",
+            "lista_ver": [
+              "Arcos ferroviarios victorianos que cubren el mercado",
+              "Puestos de fruta tropical y productos caribeños",
+              "Tiendas de especias, tejidos africanos y ropa tradicional",
+              "Locales familiares bajo los arcos (carnicerías halal, peluquerías, telefonía)",
+              "Comida callejera multicultural a lo largo del recorrido",
+              "Contraste entre el mercado y el tráfico de Uxbridge Road",
+              "El paso del tren sobre el viaducto mientras recorres los puestos"
+            ]
+          }
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Mr Falafel",
+          "desc": "Wrap deluxe coliflor",
+          "precio": "£8",
+          "loc": "Shepherd's Bush Market"
+        }
+      ],
+      "nota_dia": "Día de relax y logística. Cena ligera en casa."
+    },
+    {
+      "id": 2,
+      "fecha": "Martes 31 Marzo",
+      "titulo": "V&A y Portobello",
+      "icono": "fa-landmark",
+      "resumen": "Casas de colores, parque japonés y el museo V&A.",
+      "curiosidad_hp": "Kensington Gardens se utilizó como referencia paisajística para recrear espacios de paseo mágico, aunque la mayoría de escenas se rodaron en estudio o con CGI.",
+      "historia_dia": "La zona de Kensington y Notting Hill refleja la expansión residencial burguesa del oeste de Londres durante el siglo XIX. Portobello Road pasó de mercado de alimentos victorianos a uno de los principales mercados de antigüedades del mundo. El Victoria and Albert Museum abrió en 1852 tras la Gran Exposición de 1851 con el objetivo de mejorar el diseño industrial británico.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Holland Park",
+          "desc": "Visitar el Kyoto Garden.",
+          "tipo": "visita",
+          "direccion": "Holland Park",
+          "detalles": {
+            "contexto": "Holland Park ocupa los terrenos de la antigua Holland House, una mansión jacobea construida en 1605 por Sir Walter Cope, diplomático y alto funcionario de la corte de Jacobo I. La casa pasó posteriormente a la familia Rich, condes de Holland, de donde deriva el nombre actual del parque.\nDurante los siglos XVII y XVIII, Holland House fue un importante salón político e intelectual. Por sus estancias pasaron figuras clave de la vida británica como Joseph Addison, Charles James Fox o incluso Benjamin Franklin durante sus estancias en Londres. Era un espacio de debate liberal y cultural en plena era georgiana.\nEn el siglo XIX, los terrenos comenzaron a urbanizarse parcialmente, dando lugar al elegante barrio residencial que hoy rodea el parque, caracterizado por arquitectura victoriana de alto nivel.\nEl momento más crítico llegó durante la Segunda Guerra Mundial: en 1940, los bombardeos del Blitz dañaron gravemente Holland House, dejando gran parte de la estructura en ruinas. En lugar de reconstruirla por completo, se decidió conservar los restos como memoria histórica integrada en el parque.\nEl parque público, tal como se conoce hoy, se desarrolló progresivamente a partir de mediados del siglo XX, combinando jardines formales europeos con espacios paisajísticos más libres.\nEl Kyoto Garden, inaugurado en 1991, fue un regalo oficial de la ciudad de Kioto para conmemorar la relación cultural entre Japón y Reino Unido. Diseñado por maestros paisajistas japoneses, sigue los principios clásicos del jardín zen: equilibrio, agua, piedra y contemplación. En 2012 se añadió el Fukushima Memorial Garden como símbolo de solidaridad tras el desastre nuclear japonés.",
+            "lista_ver": [
+              "Cascada y estanque de carpas koi del Kyoto Garden",
+              "Pavos reales en libertad (residentes históricos del parque)",
+              "Fukushima Memorial Garden",
+              "Ruinas de Holland House (huellas visibles del Blitz en la 2ª guerra mundial)",
+              "La Orangerie (antiguo invernadero hoy reconvertido en cafetería)",
+              "Jardín holandés formal con parterres geométricos"
+            ],
+            "duracion_recomendada": "1h – 1h 30m",
+            "entrada": "Gratuita",
+            "horario_aprox": "Desde 07:30"
+          }
+        },
+        {
+          "hora": "11:00",
+          "actividad": "Portobello Road",
+          "desc": "Mercado de Portobello y paseo entre las emblemáticas casas victorianas de Notting Hill.",
+          "tipo": "caminar",
+          "direccion": "Portobello Road",
+          "detalles": {
+            "contexto": "Portobello Road se articula sobre el antiguo trazado rural que conectaba granjas y huertos al oeste de Londres antes de la expansión urbana victoriana. Su desarrollo como mercado comenzó en el siglo XIX, cuando Notting Hill se urbanizó rápidamente para alojar a clases trabajadoras vinculadas a la industria y al servicio doméstico. Durante la posguerra del siglo XX, el área sufrió un fuerte deterioro socioeconómico y se convirtió en punto de asentamiento de comunidades migrantes, especialmente caribeñas llegadas con la generación Windrush. Este mestizaje cultural transformó la identidad del barrio, visible aún hoy en su oferta gastronómica, musical y comercial. A partir de los años 60, artistas, anticuarios y comerciantes comenzaron a instalarse atraídos por los bajos alquileres, impulsando la conversión de Portobello en mercado de antigüedades de referencia internacional. La posterior gentrificación elevó el valor inmobiliario, pero mantuvo el carácter visual del barrio: fachadas victorianas de colores, comercios independientes y un tejido comercial híbrido entre lo histórico y lo alternativo.",
+            "lista_ver": [
+              "Casas victorianas de colores",
+              "Alice’s Antique Market",
+              "Electric Cinema (1910)",
+              "Tiendas de vinilos",
+              "Street art local"
+            ],
+            "mejor_tramo": "Westbourne Grove → Elgin Crescent",
+            "duracion_recomendada": "1h – 2h"
+          }
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Golborne Road",
+          "desc": "Zona multicultural con influencia luso-marroquí.",
+          "tipo": "comida",
+          "direccion": "Golborne Road",
+          "detalles": {
+            "contexto": "Área históricamente vinculada a comunidades portuguesa, española y marroquí.",
+            "lista_ver": [
+              "Lisboa Patisserie",
+              "Tiendas de azulejos portugueses",
+              "Ultramarinos ibéricos",
+              "Puestos de especias marroquíes"
+            ],
+            "duracion_recomendada": "45m – 1h"
+          }
+        },
+        {
+          "hora": "14:30",
+          "actividad": "V&A Museum",
+          "desc": "Salas 46a (Cast Courts). Ver el David a escala 1:1.",
+          "tipo": "museo",
+          "direccion": "Victoria and Albert Museum",
+          "detalles": {
+            "contexto": "El Victoria and Albert Museum no es solo un museo, sino la gran institución británica dedicada al arte aplicado, el diseño y la cultura material. Fue fundado en 1852 tras el impacto de la Gran Exposición de 1851, cuando el Imperio Británico entendió que debía mejorar la calidad estética de sus productos industriales para competir globalmente. Desde entonces, el V&A se concibió como un museo educativo para diseñadores, artesanos e ingenieros. Su colección supera los 2,3 millones de piezas y abarca más de 5.000 años de historia: escultura, moda, arquitectura, joyería, mobiliario, cerámica, fotografía y artes decorativas de Europa, Asia, África y Oriente Medio. El edificio en sí es también parte de la experiencia: galerías monumentales, patios interiores y salas de yesos arquitectónicos que permiten recorrer la historia del arte a escala real. Es un museo para explorar sin prisa, donde cada sala funciona como un viaje autónomo entre épocas, materiales y civilizaciones.",
+            "lista_ver": [
+              "<b>David de Miguel Ángel (réplica)</b> (Cast Courts – Sala 46a)",
+              "<b>Columna de Trajano (sección a escala)</b> (Cast Courts – Sala 46b)",
+              "<b>Portadas y fachadas renacentistas en yeso</b> (Cast Courts)",
+              "<b>Galería de Escultura Medieval Europea</b> (Salas 50–52)",
+              "<b>Retablos góticos y sepulcros tallados</b> (Medieval & Renaissance)",
+              "<b>Galerías de Moda Histórica</b> (Fashion Gallery – Sala 40)",
+              "<b>Vestidos victorianos y eduardianos</b> (Fashion Collection)",
+              "<b>Joyas históricas europeas</b> (Jewellery Gallery – Sala 91)",
+              "<b>Diseño británico del siglo XVIII</b> (British Galleries)",
+              "<b>Mobiliario georgiano y victoriano</b> (British Design 1700–1900)",
+              "<b>Cerámica y porcelana europea</b> (Ceramics Galleries)",
+              "<b>Arte islámico</b> (Jameel Gallery – Sala 42)",
+              "<b>Alfombras persas monumentales</b> (Islamic Middle East)",
+              "<b>Armaduras y armas ceremoniales</b> (Arms & Armour)",
+              "<b>Tipu’s Tiger (autómata mecánico)</b> (South Asia Gallery – Sala 41)",
+              "<b>Escultura del sur de Asia</b> (South Asia Collection)",
+              "<b>Fotografía histórica</b> (Photography Centre)",
+              "<b>Vidrieras medievales</b> (Sacred Silver & Stained Glass)",
+              "<b>Diseño contemporáneo internacional</b> (Design 1900–Now)",
+              "<b>Tipografía y arte gráfico</b> (Prints & Drawings Study Rooms)"
+            ],
+            "duracion_recomendada": "2h – 3h",
+            "entrada": "Gratuita",
+            "horario_aprox": "10:00 – 17:45"
+          }
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Lisboa Patisserie",
+          "desc": "Pastelería portuguesa famosa por los pastéis de nata.",
+          "precio": "£5-10",
+          "loc": "Golborne Road",
+          "fundacion": 1983,
+          "recomendacion": "Pastel de nata + café"
+        }
+      ],
+      "que_ver_extra": [
+        "Kensington Gardens",
+        "Estatua de Peter Pan",
+        "Albert Memorial",
+        "Royal Albert Hall (exterior)",
+        "Exhibition Road"
+      ],
+      "transporte_util": {
+        "metro_manana": "Holland Park (Central Line)",
+        "metro_portobello": "Notting Hill Gate / Ladbroke Grove",
+        "metro_museo": "South Kensington",
+        "zonas": "Travelcard Zona 1–2"
+      },
+      "nota_dia": "No os perdáis la estatua de Peter Pan en Kensington Gardens de camino al museo."
+    },
+    {
+      "id": 3,
+      "fecha": "Miércoles 1 Abril",
+      "titulo": "Warner Bros Studios",
+      "icono": "fa-wand-sparkles",
+      "resumen": "Día completo dedicado al mundo mágico.",
+      "curiosidad_hp": "Evento 'Magical Mischief': revelan trucos de cámara y la capa de invisibilidad.",
+      "timeline": [
+        {
+          "hora": "09:30",
+          "actividad": "Salida a Watford",
+          "desc": "Central Line a Euston + Tren a Watford Jct.",
+          "tipo": "transporte",
+          "detalles": {
+            "contexto": "La estación de Euston es un caos organizado. Busca las pantallas gigantes centrales. El tren a Watford Junction que buscas es el de 'London Northwestern Railway' (tarda 20 min). Evita el 'Overground' (tarda 50 min) a menos que quieras ver todos los barrios residenciales.",
+            "lista_ver": [
+              "La locura de la pantalla de salidas en Euston",
+              "El autobús gratuito de HP esperando en la estación de Watford Junction (está decorado, no tiene pérdida)"
+            ]
+          }
+        },
+        {
+          "hora": "11:00",
+          "actividad": "The Making of HP",
+          "desc": "Tour completo. Llevad sándwiches.",
+          "tipo": "visita",
+          "direccion": "Warner Bros Studio Tour London"
+        },
+        {
+          "hora": "18:00",
+          "actividad": "Regreso",
+          "desc": "Vuelta a la base.",
+          "tipo": "transporte"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Comida en Apartamento",
+          "desc": "Sandwiches robustos para el tour",
+          "precio": "£3",
+          "loc": "Mochila"
+        }
+      ],
+      "nota_dia": "Cargar bien los móviles, vais a hacer muchas fotos."
+    },
+    {
+      "id": 4,
+      "fecha": "Jueves 2 Abril",
+      "titulo": "La City y Jardines",
+      "icono": "fa-building",
+      "resumen": "Rascacielos, ruinas y el callejón Diagon.",
+      "curiosidad_hp": "Leadenhall Market: Busca el Bull's Head Passage nº 42. Esa puerta azul es la entrada al 'Caldero Chorreante'.",
+      "timeline": [
+        {
+          "hora": "10:00",
+          "actividad": "Tower Hill",
+          "desc": "Vistas Torre de Londres y Puente.",
+          "tipo": "visita",
+          "direccion": "Tower Bridge"
+        },
+        {
+          "hora": "11:30",
+          "actividad": "Leadenhall Market",
+          "desc": "Arquitectura victoriana espectacular.",
+          "tipo": "caminar",
+          "direccion": "Leadenhall Market",
+          "detalles": {
+            "contexto": "Este mercado cubierto data del siglo XIV y es uno de los más antiguos de Londres. Su techo ornamentado victoriano de color granate y crema fue la inspiración directa para el Callejón Diagon en las películas.",
+            "lista_ver": [
+              "La tienda de óptica azul (Entrada al Caldero Chorreante en la peli)",
+              "Los ganchos de carne antiguos en las tiendas",
+              "Los dragones plateados que sostienen el techo"
+            ]
+          }
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Sky Garden",
+          "desc": "Vistas 360º (Reserva previa obligatoria).",
+          "tipo": "visita",
+          "direccion": "Sky Garden"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "St Dunstan in the East",
+          "desc": "Iglesia bombardeada hecha jardín.",
+          "tipo": "relax",
+          "direccion": "St Dunstan in the East"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Pizza Union",
+          "desc": "Pizzas romanas finas",
+          "precio": "£6-8",
+          "loc": "Cerca de Aldgate"
+        },
+        {
+          "nombre": "Pret A Manger",
+          "desc": "Sandwiches rápidos",
+          "precio": "£5",
+          "loc": "Cualquier esquina"
+        }
+      ],
+      "nota_dia": "Día de contrastes entre lo antiguo y lo moderno."
+    },
+    {
+      "id": 5,
+      "fecha": "Viernes 3 Abril",
+      "titulo": "South Bank y Tate",
+      "icono": "fa-palette",
+      "resumen": "Paseo por el río, grafitis y arte moderno.",
+      "curiosidad_hp": "El Millennium Bridge (frente a la Tate) es el puente que destruyen los Mortífagos al inicio de 'El Príncipe Mestizo'.",
+      "timeline": [
+        {
+          "hora": "10:30",
+          "actividad": "Westminster",
+          "desc": "Big Ben y Abadía (Vistas puente).",
+          "tipo": "visita",
+          "direccion": "Westminster Bridge"
+        },
+        {
+          "hora": "11:30",
+          "actividad": "Leake St Tunnel",
+          "desc": "Túnel de grafiti (Banksy).",
+          "tipo": "visita",
+          "direccion": "Leake Street Arches",
+          "detalles": {
+            "contexto": "Conocido como el 'Túnel de Banksy', este paso subterráneo bajo la estación de Waterloo es una zona de grafiti legal. El arte cambia a diario. Es ruidoso, huele a spray y es absolutamente auténtico.",
+            "lista_ver": [
+              "Artistas pintando en directo",
+              "El techo completamente cubierto de capas de pintura",
+              "El bar de juegos de mesa 'Draughts' dentro del túnel"
+            ]
+          }
+        },
+        {
+          "hora": "13:00",
+          "actividad": "South Bank Walk",
+          "desc": "Paseo fluvial hasta Tate Modern.",
+          "tipo": "caminar",
+          "direccion": "Queen's Walk London"
+        },
+        {
+          "hora": "14:30",
+          "actividad": "Tate Modern",
+          "desc": "Turbine Hall y vistas Nivel 10.",
+          "tipo": "museo",
+          "direccion": "Tate Modern"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Padella",
+          "desc": "Pasta fresca increíble (cola virtual)",
+          "precio": "£10-14",
+          "loc": "Borough Market"
+        },
+        {
+          "nombre": "Borough Market",
+          "desc": "Street food variada",
+          "precio": "£8-12",
+          "loc": "London Bridge"
+        }
+      ],
+      "nota_dia": "Viernes Santo: puede haber más gente en zonas turísticas."
+    },
+    {
+      "id": 6,
+      "fecha": "Sábado 4 Abril",
+      "titulo": "Greenwich Marítimo",
+      "icono": "fa-compass",
+      "resumen": "Barcos, túneles bajo el agua y observatorio.",
+      "curiosidad_hp": "En la película de 'Thor' (Marvel) la batalla final ocurre en el Naval College de Greenwich.",
+      "timeline": [
+        {
+          "hora": "10:30",
+          "actividad": "Cutty Sark",
+          "desc": "Zona marítima.",
+          "tipo": "visita",
+          "direccion": "Cutty Sark"
+        },
+        {
+          "hora": "11:30",
+          "actividad": "Royal Observatory",
+          "desc": "Subir la colina. Vistas brutales.",
+          "tipo": "caminar",
+          "direccion": "Royal Observatory Greenwich"
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Greenwich Market",
+          "desc": "Comida callejera.",
+          "tipo": "comida"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "Foot Tunnel",
+          "desc": "Cruzar el río andando por debajo.",
+          "tipo": "caminar",
+          "direccion": "Greenwich Foot Tunnel"
+        },
+        {
+          "hora": "16:30",
+          "actividad": "Uber Boat",
+          "desc": "Vuelta en barco al atardecer.",
+          "tipo": "transporte"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Greenwich Market",
+          "desc": "Empanadas, Thai, Curry",
+          "precio": "£8-12",
+          "loc": "Greenwich"
+        }
+      ],
+      "nota_dia": "Atención al DLR: Si está cerrado usar Jubilee a Canary Wharf."
+    },
+    {
+      "id": 7,
+      "fecha": "Domingo 5 Abril",
+      "titulo": "British & Canals",
+      "icono": "fa-book-open",
+      "resumen": "El museo del mundo y la pequeña Venecia.",
+      "curiosidad_hp": "Cerca de King's Cross (cerca de donde estaremos) está el andén 9 3/4, aunque suele haber demasiada cola para la foto.",
+      "timeline": [
+        {
+          "hora": "10:00",
+          "actividad": "British Museum",
+          "desc": "Piedra Rosetta, Momias, Partenón.",
+          "tipo": "museo",
+          "direccion": "British Museum"
+        },
+        {
+          "hora": "13:30",
+          "actividad": "Comida Bloomsbury",
+          "desc": "Ramen o asiático.",
+          "tipo": "comida"
+        },
+        {
+          "hora": "15:00",
+          "actividad": "Little Venice",
+          "desc": "Paseo por el canal hasta Camden.",
+          "tipo": "caminar",
+          "direccion": "Little Venice"
+        },
+        {
+          "hora": "17:00",
+          "actividad": "Camden Town",
+          "desc": "Caos alternativo y compras.",
+          "tipo": "visita",
+          "direccion": "Camden Market"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Chang's Noodle",
+          "desc": "Fideos caseros",
+          "precio": "£15",
+          "loc": "Bloomsbury"
+        },
+        {
+          "nombre": "Shoryu",
+          "desc": "Ramen",
+          "precio": "£16",
+          "loc": "Bloomsbury"
+        }
+      ],
+      "nota_dia": "British Museum: Reservar entrada gratis online antes."
+    },
+    {
+      "id": 8,
+      "fecha": "Lunes 6 Abril",
+      "titulo": "Arte y Despedida",
+      "icono": "fa-paintbrush",
+      "resumen": "National Gallery y Covent Garden.",
+      "curiosidad_hp": "Goodwin's Court (cerca de Covent Garden) se cree que fue la inspiración real para el Callejón Knockturn.",
+      "timeline": [
+        {
+          "hora": "10:00",
+          "actividad": "Trafalgar Square",
+          "desc": "Leones y National Gallery.",
+          "tipo": "visita",
+          "direccion": "Trafalgar Square"
+        },
+        {
+          "hora": "10:30",
+          "actividad": "National Gallery",
+          "desc": "Van Gogh, Seurat, Van Eyck.",
+          "tipo": "museo",
+          "direccion": "National Gallery"
+        },
+        {
+          "hora": "13:00",
+          "actividad": "Covent Garden",
+          "desc": "Músicos, Neal's Yard, Seven Dials.",
+          "tipo": "caminar",
+          "direccion": "Covent Garden"
+        },
+        {
+          "hora": "17:00",
+          "actividad": "Regreso",
+          "desc": "Maletas y preparación.",
+          "tipo": "check"
+        }
+      ],
+      "restaurantes": [
+        {
+          "nombre": "Restos de nevera",
+          "desc": "Acabar provisiones",
+          "precio": "£0",
+          "loc": "Casa"
+        }
+      ],
+      "nota_dia": "Último día. Revisar pasaportes y billetes."
+    }
+  ],
+  "transporte": {
+    "consejo_oro": "¡Usa Contactless (Móvil/Tarjeta)! No compres Oyster física.",
+    "detalle": "Zonas 1-2. Tope diario £8.90. Tope semanal £44.70. Al llegar el viernes, el finde te saldrá prácticamente gratis.",
+    "apps": [
+      "Citymapper (Vital)",
+      "Google Maps",
+      "TfL Go"
+    ]
+  },
+  "supermercados": [
+    {
+      "nombre": "Lidl / Aldi",
+      "desc": "Dentro del W12 Shopping Centre. Los más baratos.",
+      "estrategia": "Comprar huevos, pan, queso, fruta y agua."
+    },
+    {
+      "nombre": "Tesco Express",
+      "desc": "Más caro, solo para emergencias nocturnas."
+    }
+  ],
+  "checklist": [
+    "British Museum (Piedra Rosetta)",
+    "Tower Bridge & Tower of London",
+    "Paseo South Bank",
+    "V&A Museum (Cast Courts)",
+    "Sky Garden (Vistas)",
+    "Andén 9 3/4 (King's Cross)",
+    "Camden Town",
+    "Portobello Road",
+    "Warner Bros Studios"
+  ],
+  "curiosidades_extra": [
+    {
+      "titulo": "St Dunstan in the East",
+      "texto": "Iglesia bombardeada en el Blitz, ahora un jardín secreto increíble."
+    },
+    {
+      "titulo": "Túnel de Greenwich",
+      "texto": "Cruzas el Támesis andando bajo el agua. Se siente la humedad."
+    },
+    {
+      "titulo": "Neal's Yard",
+      "texto": "Un callejón multicolor escondido en Covent Garden."
+    },
+    {
+      "titulo": "Leake Street",
+      "texto": "Túnel de grafitis legalizado por Banksy."
+    }
+  ],
+  "restaurantes_lista": [
+    {
+      "nombre": "Dishoom",
+      "tipo": "Indio (Bombay Cafe)",
+      "precio": "£25",
+      "nota": "El Bacon Naan Roll de desayuno es legendario."
+    },
+    {
+      "nombre": "Pizza Union",
+      "tipo": "Pizza",
+      "precio": "£6-9",
+      "nota": "Súper rápido y crujiente."
+    },
+    {
+      "nombre": "Padella",
+      "tipo": "Pasta Fresca",
+      "precio": "£10-15",
+      "nota": "Hay cola, pero vale la pena."
+    },
+    {
+      "nombre": "Mr Falafel",
+      "tipo": "Palestino",
+      "precio": "£7-8",
+      "nota": "El mejor de Shepherd's Bush."
+    }
+  ]
+}
