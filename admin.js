@@ -11,7 +11,7 @@ const schemaMap = {
         columns: [
             { key: 'id', label: 'ID Día', type: 'readonly', required: false },
             { key: 'titulo', label: 'Título', type: 'text', required: true },
-            { key: 'fecha', label: 'Fecha', type: 'text' },
+            { key: 'fecha', label: 'Fecha', type: 'date' },
             { key: 'icono', label: 'Icono (FontAwesome)', type: 'text' },
             { key: 'resumen', label: 'Resumen Corto', type: 'textarea' },
             { key: 'historia_dia', label: 'Historia Completa', type: 'textarea' },
@@ -177,9 +177,11 @@ window.openForm = function(rowData = null) {
                     <textarea name="${col.key}" rows="3" class="w-full p-3 border-2 border-[var(--gold)]/50 rounded-lg bg-white/60 focus:outline-none focus:bg-white focus:border-[var(--gold)] transition text-lg leading-relaxed" ${required}>${value}</textarea>${helpText}</div>`;
         }
         
+        // Por esto (hemos añadido la variable inputType):
+        const inputType = col.type === 'number' ? 'number' : (col.type === 'date' ? 'date' : 'text');
         return `<div><label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font tracking-wide">${col.label}</label>
-                <input type="${col.type === 'number' ? 'number' : 'text'}" name="${col.key}" value="${value}" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg font-medium" ${required}>${helpText}</div>`;
-    }).join('');
+                <input type="${inputType}" name="${col.key}" value="${value}" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg font-medium" ${required}>${helpText}</div>`;
+            }).join('');
 
     const timelineContainer = document.getElementById('timeline-container');
     const restContainer = document.getElementById('restaurants-container'); // NUEVO

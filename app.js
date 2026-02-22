@@ -133,7 +133,7 @@ async function fetchTravelData() {
                     )
                 ),
                 restaurantes_dia (*)
-            `).order('id', { ascending: true }),
+            `).order('fecha', { ascending: true }),
             sb.from('supermercados').select('*'),
             sb.from('secretos').select('*'),
             sb.from('restaurantes_top').select('*'),
@@ -157,7 +157,7 @@ async function fetchTravelData() {
             },
             dias: (diasData || []).map(dia => ({
                 id: dia.id, 
-                fecha: dia.fecha || '', 
+                fecha: formatearFecha(dia.fecha),
                 titulo: dia.titulo || '', 
                 icono: dia.icono || 'fa-circle',
                 resumen: dia.resumen || '', 
@@ -1041,6 +1041,16 @@ window.toggleMenu = function() {
         // Esperamos a que termine la animación css para ocultarlo del todo
         setTimeout(() => overlay.classList.add('hidden'), 300);
     }
+}
+
+function formatearFecha(fechaString) {
+    if (!fechaString) return '';
+    // Añadimos 'T00:00:00' para evitar problemas de zona horaria al convertir
+    const fecha = new Date(fechaString + 'T00:00:00');
+    const opciones = { weekday: 'long', day: 'numeric', month: 'long' };
+    let texto = fecha.toLocaleDateString('es-ES', opciones);
+    // Capitalizamos y quitamos el " de " para que quede "Lunes 30 Marzo"
+    return texto.charAt(0).toUpperCase() + texto.slice(1).replace(' de ', ' ');
 }
 
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
