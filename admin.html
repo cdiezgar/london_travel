@@ -78,6 +78,19 @@
                     </div>
                     <div id="timeline-content" class="bg-white/40 p-4 rounded-lg border border-[#e2d1aa]"></div>
                 </div>
+
+                <div id="restaurants-container" class="hidden border-t-2 border-[var(--gold)]/30 pt-6 mt-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-[var(--gryffindor-red)] flex items-center gap-2 text-xl magic-font">
+                            <i class="fas fa-utensils text-[var(--gold)]"></i> Dónde comer hoy
+                        </h4>
+                        <button type="button" onclick="openRestaurantModal()" class="btn-reveal">
+                            <i class="fas fa-plus"></i> Añadir Restaurante
+                        </button>
+                    </div>
+                    <div id="restaurants-content" class="bg-white/40 p-4 rounded-lg border border-[#e2d1aa]"></div>
+                </div>
+                
             </div>
 
             <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-4 shrink-0">
@@ -181,6 +194,45 @@
                 <button onclick="closeActivityModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold magic-font">Cancelar</button>
                 <button onclick="saveActivity()" class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 font-bold magic-font border border-green-900 shadow-md">
                     <i class="fas fa-save mr-1"></i> Guardar Actividad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="restaurant-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4">
+        <div class="parchment-box rounded-lg shadow-2xl w-full max-w-lg flex flex-col border-2 border-[var(--gold)]">
+            <div class="p-5 border-b-2 border-[var(--gold)] flex justify-between items-center bg-[#fffef0] rounded-t-lg shrink-0">
+                <h3 id="restaurant-modal-title" class="text-xl font-bold text-[var(--gryffindor-red)] magic-font"><i class="fas fa-utensils text-[var(--gold)]"></i> Restaurante del Día</h3>
+                <button onclick="closeRestaurantModal()" class="text-[var(--ink)] hover:text-[var(--gryffindor-red)] transition"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="restaurant-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Nombre <span class="text-red-500">*</span></label>
+                        <input type="text" id="rest-nombre" required class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-lg" placeholder="Ej: Padella">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Descripción Breve</label>
+                        <input type="text" id="rest-desc" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: Pasta fresca increíble (cola virtual).">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Precio</label>
+                            <input type="text" id="rest-precio" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: £10-14">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Localización / Maps</label>
+                            <input type="text" id="rest-loc" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: Borough Market">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-3 shrink-0">
+                <button onclick="closeRestaurantModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold magic-font">Cancelar</button>
+                <button onclick="saveRestaurant()" class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 font-bold magic-font shadow-md border border-green-900">
+                    <i class="fas fa-save mr-1"></i> Guardar
                 </button>
             </div>
         </div>

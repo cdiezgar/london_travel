@@ -45,6 +45,28 @@ checklist: {
             { key: 'titulo', label: 'Título', type: 'text', required: true },
             { key: 'texto', label: 'Contenido', type: 'textarea' }
         ]
+    },
+    restaurantes_top: {
+        label: "Restaurantes Top", icon: "fa-star",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'nombre', label: 'Nombre', type: 'text', required: true },
+            { key: 'tipo', label: 'Tipo de comida/lugar', type: 'text' },
+            { key: 'precio', label: 'Precio', type: 'text' },
+            { key: 'nota', label: 'Recomendación / Nota', type: 'textarea' }
+        ]
+    },
+    configuracion: {
+        label: "Configuración App", icon: "fa-cog",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'titulo', label: 'Título Principal', type: 'text', required: true },
+            { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
+            { key: 'presupuesto', label: 'Presupuesto total', type: 'text' },
+            { key: 'base', label: 'Base de Operaciones', type: 'text' },
+            { key: 'intro_texto', label: 'Texto Intro General', type: 'textarea' },
+            { key: 'intro_alojamiento', label: 'Texto Intro Alojamiento', type: 'textarea' }
+        ]
     }
 };
 
@@ -54,6 +76,7 @@ let currentDiaIdForActivity = null;
 let editingActivityId = null; 
 let editingLinkId = null;     
 let editingItemId = null; // <-- Añade esta línea al principio con el resto de lets
+let editingRestaurantId = null;
 
 async function init() {
     const { data: { session } } = await sb.auth.getSession();
@@ -159,12 +182,17 @@ window.openForm = function(rowData = null) {
     }).join('');
 
     const timelineContainer = document.getElementById('timeline-container');
+    const restContainer = document.getElementById('restaurants-container'); // NUEVO
+    
     if (currentTable === 'dias' && currentEditingId) {
         currentDiaIdForActivity = currentEditingId;
         timelineContainer.classList.remove('hidden');
+        restContainer.classList.remove('hidden'); // NUEVO
         loadTimeline(currentEditingId);
+        loadRestaurants(currentEditingId); // NUEVO
     } else {
         timelineContainer.classList.add('hidden');
+        restContainer.classList.add('hidden'); // NUEVO
         if (currentTable === 'dias') {
             document.getElementById('timeline-content').innerHTML = '<p class="text-lg handwritten text-center p-4">Guarda el día primero en el pergamino para poder añadirle actividades.</p>';
             timelineContainer.classList.remove('hidden');
@@ -511,5 +539,98 @@ window.editActivityItem = function(item) {
     // Hacemos scroll y focus para que el usuario sepa que puede escribir
     document.getElementById('new-item-text').focus();
 }
+
+// ==========================================
+// --- GESTIÓN DE RESTAURANTES DEL DÍA ---
+// ==========================================
+
+window.loadRestaurants = async function(diaId) {
+    const container = document.getElementById('restaurants-content');
+    container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-2xl text-[var(--gold)]"></i></div>';
+    
+    const { data: rests, error } = await sb.from('restaurantes_dia').select('*').eq('dia_id', diaId).order('id', { ascending: true });
+    
+    if (error) { container.innerHTML = `<p class="text-[var(--gryffindor-red)]">Error: ${error.message}</p>`; return; }
+    
+    if (!rests || rests.length === 0) {
+        container.innerHTML = '<p class="text-stone-500 text-lg handwritten text-center py-4">No hay reservas de mesas para hoy.</p>';
+        return;
+    }
+    
+    container.innerHTML = rests.map(r => `
+        <div class="flex justify-between items-center bg-white/60 p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group">
+            <div class="flex flex-col">
+                <span class="font-bold text-[var(--ink)] text-lg magic-font">${r.nombre}</span>
+                <span class="text-sm text-stone-600">${r.desc_texto || ''} ${r.precio ? `• <b class="text-green-800">${r.precio}</b>` : ''}</span>
+            </div>
+            <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition">
+                <button onclick='openRestaurantModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-2 rounded transition" title="Editar Restaurante"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteRestaurant(${r.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-2 rounded transition" title="Borrar Restaurante"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+};
+
+window.openRestaurantModal = function(rData = null) {
+    const form = document.getElementById('restaurant-form');
+    form.reset();
+    
+    if (rData) {
+        editingRestaurantId = rData.id;
+        document.getElementById('restaurant-modal-title').innerHTML = '<i class="fas fa-utensils text-[var(--gold)]"></i> Editar Restaurante';
+        document.getElementById('rest-nombre').value = rData.nombre || '';
+        document.getElementById('rest-desc').value = rData.desc_texto || '';
+        document.getElementById('rest-precio').value = rData.precio || '';
+        document.getElementById('rest-loc').value = rData.loc || '';
+    } else {
+        editingRestaurantId = null;
+        document.getElementById('restaurant-modal-title').innerHTML = '<i class="fas fa-utensils text-[var(--gold)]"></i> Nuevo Restaurante';
+    }
+    document.getElementById('restaurant-modal').classList.remove('hidden');
+};
+
+window.closeRestaurantModal = function() {
+    document.getElementById('restaurant-modal').classList.add('hidden');
+};
+
+window.saveRestaurant = async function() {
+    const form = document.getElementById('restaurant-form');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    
+    const payload = {
+        dia_id: currentDiaIdForActivity, // Usa el ID del día abierto
+        nombre: document.getElementById('rest-nombre').value.trim(),
+        desc_texto: document.getElementById('rest-desc').value.trim() || null,
+        precio: document.getElementById('rest-precio').value.trim() || null,
+        loc: document.getElementById('rest-loc').value.trim() || null
+    };
+    
+    let error;
+    if (editingRestaurantId) {
+        const res = await sb.from('restaurantes_dia').update(payload).eq('id', editingRestaurantId);
+        error = res.error;
+    } else {
+        const res = await sb.from('restaurantes_dia').insert([payload]);
+        error = res.error;
+    }
+    
+    if (error) {
+        alert("Maldición rebotada al guardar restaurante: " + error.message);
+    } else {
+        closeRestaurantModal();
+        loadRestaurants(currentDiaIdForActivity);
+        localStorage.removeItem('travel_data_cache');
+    }
+};
+
+window.deleteRestaurant = async function(id) {
+    if (!confirm("¿Seguro que quieres borrar este restaurante de los planes del día?")) return;
+    const { error } = await sb.from('restaurantes_dia').delete().eq('id', id);
+    if (error) alert("Error al borrar: " + error.message);
+    else {
+        loadRestaurants(currentDiaIdForActivity);
+        localStorage.removeItem('travel_data_cache');
+    }
+};
 
 document.addEventListener('DOMContentLoaded', init);
