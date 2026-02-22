@@ -146,11 +146,7 @@
                     <div class="bg-[#fffef0] p-4 rounded border border-[var(--gold)] shadow-inner relative mt-6">
                         <div class="absolute -top-3 left-3 bg-[var(--parchment)] px-2">
                             <label class="text-sm font-bold text-yellow-700 magic-font tracking-wider"><i class="fas fa-star text-[var(--gold)]"></i> Archivo Secreto</label>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font"><i class="fas fa-camera text-[var(--gold)]"></i> URL Imagen de Portada</label>
-                            <input type="text" id="act-img" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-base" placeholder="Pega aquí la URL pública de Supabase Storage">
-                        </div>                        
+                        </div>                     
                         <textarea id="act-contexto" rows="3" class="w-full p-2 border-0 bg-transparent focus:outline-none focus:ring-0 text-base mt-2" placeholder="Historia mágica para el botón 'Revelar Secretos'..."></textarea>
                     </div>
                 </form>
@@ -163,10 +159,15 @@
                     <div id="activity-items-list" class="space-y-2 mb-3">
                         </div>
                     
-                    <div class="flex gap-2 mt-2">
-                        <input type="text" id="new-item-text" class="flex-1 p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-base" placeholder="Añadir algo para ver (Ej: Corona de San Eduardo)">
-                        <button type="button" onclick="addActivityItem()" class="bg-[var(--gold)] text-[var(--ink)] px-4 py-2 rounded font-bold shadow-sm hover:bg-yellow-600 transition border border-yellow-700 active:scale-95">
-                            <i class="fas fa-plus"></i> Añadir
+                    <div class="flex flex-col gap-2 mt-3 bg-white/50 p-3 rounded border border-[var(--gold)]">
+                        <input type="text" id="new-item-text" class="w-full p-2 border-b-2 border-[var(--gold)] bg-transparent focus:outline-none transition text-base font-bold text-[var(--ink)]" placeholder="Añadir algo para ver (Ej: Piedra Rosetta) *Obligatorio">
+                        
+                        <textarea id="new-item-desc" rows="2" class="w-full p-2 border-b-2 border-[var(--gold)] bg-transparent focus:outline-none transition text-sm text-stone-700" placeholder="Explicación detallada (Opcional)"></textarea>
+                        
+                        <input type="text" id="new-item-img" class="w-full p-2 border-b-2 border-[var(--gold)] bg-transparent focus:outline-none transition text-sm text-stone-700" placeholder="URL de la imagen representativa (Opcional)">
+                        
+                        <button type="button" id="btn-save-item" onclick="addActivityItem()" class="mt-2 bg-[var(--gold)] text-[var(--ink)] px-4 py-2 rounded font-bold shadow-sm hover:bg-yellow-600 transition border border-yellow-700 active:scale-95 w-full">
+                            <i class="fas fa-plus"></i> Añadir Elemento
                         </button>
                     </div>
                 </div>

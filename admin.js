@@ -53,11 +53,16 @@ let currentEditingId = null;
 let currentDiaIdForActivity = null; 
 let editingActivityId = null; 
 let editingLinkId = null;     
+let editingItemId = null; // <-- Añade esta línea al principio con el resto de lets
 
 async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = 'index.html'; return; }
+    
     renderSidebar();
+    
+    // --- NUEVA LÍNEA: Carga la tabla 'dias' por defecto ---
+    loadTable('dias'); 
 }
 
 function renderSidebar() {
@@ -221,7 +226,7 @@ async function loadTimeline(diaId) {
     container.innerHTML = '<div class="text-center py-6"><i class="fas fa-spinner fa-spin text-3xl text-[var(--gold)]"></i></div>';
     
     const { data: links, error } = await sb.from('dia_actividad')
-        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto, imagen_url, checklist_id)`)
+        .select(`id, hora, actividades (id, nombre, desc_texto, tipo, direccion, precio, contexto, checklist_id)`)
         .eq('dia_id', diaId)
         .order('hora', { ascending: true });
 
@@ -250,7 +255,6 @@ async function loadTimeline(diaId) {
             linkId: link.id, hora: link.hora, actId: act.id, nombre: act.nombre,
             desc: act.desc_texto || '', tipo: act.tipo || 'visita',
             direccion: act.direccion || '', precio: act.precio || '', contexto: act.contexto || '',
-            imagen_url: act.imagen_url || '', // NUEVO
             checklist_id: act.checklist_id || '' // <-- AÑADE ESTA LÍNEA
         }).replace(/'/g, "&#39;");
 
@@ -284,6 +288,11 @@ async function loadTimeline(diaId) {
 
 // --- GESTIÓN DE LA ACTIVIDAD INDIVIDUAL Y SUS ITEMS ---
 window.openActivityModal = async function(actData = null) {
+
+    editingItemId = null;
+    const btnItem = document.getElementById('btn-save-item');
+    if(btnItem) btnItem.innerHTML = '<i class="fas fa-plus"></i> Añadir Elemento';
+
     const form = document.getElementById('activity-form');
     form.reset(); 
 
@@ -312,7 +321,6 @@ window.openActivityModal = async function(actData = null) {
         document.getElementById('act-precio').value = actData.precio;
         document.getElementById('act-desc').value = actData.desc;
         document.getElementById('act-contexto').value = actData.contexto;
-        document.getElementById('act-img').value = actData.imagen_url || ''; // NUEVO
         document.getElementById('act-checklist').value = actData.checklist_id || ''; // <-- AÑADE ESTA LÍNEA
 
         // Mostrar sección de items
@@ -351,7 +359,6 @@ window.saveActivity = async function() {
         direccion: document.getElementById('act-direccion').value || null,
         precio: document.getElementById('act-precio').value || null,
         desc_texto: document.getElementById('act-desc').value || null,
-        imagen_url: document.getElementById('act-img').value || null, // NUEVO
         contexto: document.getElementById('act-contexto').value || null,
         checklist_id: checklistVal ? parseInt(checklistVal) : null // <-- AÑADE ESTA LÍNEA
         
@@ -406,32 +413,70 @@ window.loadActivityItems = async function(actId) {
 
     container.innerHTML = items.map(item => `
         <div class="flex justify-between items-center bg-white/60 p-2.5 rounded border border-[#e2d1aa] shadow-sm">
-            <div class="flex items-start gap-3">
-                <i class="fas fa-check-circle text-[var(--gold)] mt-1 shrink-0"></i>
-                <span class="text-stone-800 text-base font-medium">${item.item_texto}</span>
+            <div class="flex flex-col">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-check-circle text-[var(--gold)] mt-1 shrink-0"></i>
+                    <span class="text-stone-800 text-base font-medium">${item.item_texto}</span>
+                </div>
+                ${item.descripcion || item.imagen_url ? `<span class="text-xs text-stone-500 ml-7 italic mt-1"><i class="fas fa-info-circle"></i> Tiene detalles guardados</span>` : ''}
             </div>
-            <button type="button" onclick="deleteActivityItem(${item.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 rounded ml-2 shrink-0 transition" title="Borrar elemento">
-                <i class="fas fa-trash"></i>
-            </button>
+            <div class="flex items-center shrink-0">
+                <button type="button" onclick='editActivityItem(${JSON.stringify(item).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-1.5 rounded transition" title="Editar elemento">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" onclick="deleteActivityItem(${item.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 rounded ml-1 transition" title="Borrar elemento">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
     `).join('');
 }
 
 window.addActivityItem = async function() {
-    const input = document.getElementById('new-item-text');
-    const text = input.value.trim();
-    if (!text) return;
-    
-    if (!editingActivityId) return;
+    const inputTxt = document.getElementById('new-item-text');
+    const inputDesc = document.getElementById('new-item-desc');
+    const inputImg = document.getElementById('new-item-img');
 
-    const { error } = await sb.from('actividad_items').insert([{ actividad_id: editingActivityId, item_texto: text }]);
+    const text = inputTxt.value.trim();
+    const desc = inputDesc.value.trim();
+    const img = inputImg.value.trim();
+
+    if (!text || !editingActivityId) return;
+
+    // Preparamos los datos
+    const payload = {
+        actividad_id: editingActivityId, 
+        item_texto: text,
+        descripcion: desc || null,
+        imagen_url: img || null
+    };
+
+    let error;
+    
+    // ¿Estamos editando o creando uno nuevo?
+    if (editingItemId) {
+        const res = await sb.from('actividad_items').update(payload).eq('id', editingItemId);
+        error = res.error;
+    } else {
+        const res = await sb.from('actividad_items').insert([payload]);
+        error = res.error;
+    }
     
     if (error) {
-        alert("Error al añadir el elemento: " + error.message);
+        alert("Error al guardar el elemento: " + error.message);
     } else {
-        input.value = ''; // Limpiar campo
-        loadActivityItems(editingActivityId); // Recargar la lista
-        localStorage.removeItem('travel_data_cache'); // Limpiar caché de la app
+        // Limpiamos los campos
+        inputTxt.value = '';
+        inputDesc.value = '';
+        inputImg.value = '';
+        
+        // ¡Importante! Reseteamos el modo edición
+        editingItemId = null; 
+        const btn = document.getElementById('btn-save-item');
+        if(btn) btn.innerHTML = '<i class="fas fa-plus"></i> Añadir Elemento';
+
+        loadActivityItems(editingActivityId);
+        localStorage.removeItem('travel_data_cache');
     }
 }
 
@@ -449,6 +494,22 @@ window.deleteActivityItem = async function(itemId) {
 window.logoutAdmin = async function() {
     await sb.auth.signOut();
     window.location.href = 'index.html';
+}
+
+window.editActivityItem = function(item) {
+    editingItemId = item.id; // Guardamos el ID del ítem que estamos editando
+    
+    // Rellenamos los campos con los datos actuales
+    document.getElementById('new-item-text').value = item.item_texto || '';
+    document.getElementById('new-item-desc').value = item.descripcion || '';
+    document.getElementById('new-item-img').value = item.imagen_url || '';
+    
+    // Cambiamos el aspecto del botón
+    const btn = document.getElementById('btn-save-item');
+    if(btn) btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+    
+    // Hacemos scroll y focus para que el usuario sepa que puede escribir
+    document.getElementById('new-item-text').focus();
 }
 
 document.addEventListener('DOMContentLoaded', init);

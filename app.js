@@ -126,7 +126,9 @@ async function fetchTravelData() {
                         contexto,
                         checklist_id,
                         actividad_items (
-                            item_texto
+                            item_texto,
+                            descripcion,
+                            imagen_url
                         )
                     )
                 ),
@@ -177,11 +179,16 @@ async function fetchTravelData() {
                         }
                     }        
 
+                    // En app.js, dentro de fetchTravelData(), cambia esto:
                     let detallesObj = null;
                     if (act.contexto || listaItems.length > 0) {
                         detallesObj = {
                             contexto: act.contexto || "",
-                            lista_ver: listaItems.map(item => item.item_texto || "")
+                            lista_ver: listaItems.map(item => ({
+                                texto: item.item_texto || "",
+                                desc: item.descripcion || null,
+                                img: item.imagen_url || null
+                            }))
                         };
                     }
 
@@ -522,12 +529,34 @@ function renderSecretDetails(diaId, itemIndex) {
                         <i class="fas fa-eye text-[var(--gryffindor-red)]"></i> Lo que no te puedes perder
                     </h3>
                     <ul class="space-y-3">
-                        ${item.detalles.lista_ver.map(li => `
-                            <li class="flex items-start gap-3">
-                                <i class="fas fa-check-circle text-[var(--gold)] mt-1 shrink-0"></i>
-                                <span class="text-base text-stone-800 font-medium">${li}</span>
-                            </li>
-                        `).join('')}
+                        ${item.detalles.lista_ver.map(li => {
+                            if (li.desc || li.img) {
+                                // Si tiene descripción o imagen, creamos un acordeón desplegable
+                                return `
+                                <li class="bg-white/80 rounded border border-[var(--gold)] overflow-hidden shadow-sm">
+                                    <details class="group">
+                                        <summary class="flex justify-between items-center p-3 cursor-pointer list-none hover:bg-white transition text-stone-800">
+                                            <div class="flex items-center gap-3">
+                                                <i class="fas fa-plus-circle text-[var(--gold)] shrink-0 group-open:hidden"></i>
+                                                <i class="fas fa-minus-circle text-[var(--gryffindor-red)] shrink-0 hidden group-open:block"></i>
+                                                <span class="font-bold">${li.texto}</span>
+                                            </div>
+                                        </summary>
+                                        <div class="p-4 border-t border-[var(--gold)]/30 text-stone-700 text-base leading-relaxed bg-[#fffef0] font-medium">
+                                            ${li.img ? `<img src="${li.img}" class="w-full h-40 sm:h-56 object-cover rounded mb-3 border border-stone-300 shadow-sm" alt="${li.texto}">` : ''}
+                                            ${li.desc ? `<p class="italic">"${li.desc}"</p>` : ''}
+                                        </div>
+                                    </details>
+                                </li>`;
+                            } else {
+                                // Si solo es texto, lo dejamos como una lista normal
+                                return `
+                                <li class="flex items-start gap-3 p-3">
+                                    <i class="fas fa-check-circle text-[var(--gold)] mt-1 shrink-0"></i>
+                                    <span class="text-base text-stone-800 font-medium">${li.texto}</span>
+                                </li>`;
+                            }
+                        }).join('')}
                     </ul>
                 </div>` : ''}
             </div>
