@@ -116,7 +116,23 @@ window.loadTable = async function(tableKey) {
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('data-table').classList.add('hidden');
 
-    const { data, error } = await sb.from(tableKey).select('*').order('id', { ascending: true });
+    // Determinamos la columna de orden según la tabla
+    let orderBy = 'id'; // Orden por defecto
+    
+    if (tableKey === 'dias') {
+        orderBy = 'fecha';
+    } else if (tableKey === 'checklist') {
+        orderBy = 'item';
+    } else if (tableKey === 'supermercados' || tableKey === 'restaurantes_top') {
+        orderBy = 'nombre';
+    }
+
+    // Llamada a Supabase con la columna dinámica
+    const { data, error } = await sb
+        .from(tableKey)
+        .select('*')
+        .order(orderBy, { ascending: true });
+
     document.getElementById('loading').classList.add('hidden');
     if (error) { alert("Error cargando datos: " + error.message); return; }
     
