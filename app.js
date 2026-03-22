@@ -1062,29 +1062,27 @@ function formatearFecha(fechaString) {
 window.generarGuiaPDF = function() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const data = organizadorViaje;
+    const data = organizadorViaje; // Basado en data.json
 
     const red = [116, 0, 1];
     const gold = [211, 166, 37];
     const darkInk = [40, 40, 40];
-    const textWidth = 175; // Ancho fijo para todos los bloques de texto
+    const textWidth = 175; 
 
-    // Función avanzada para justificar texto manualmente
+    // Función para renderizar texto justificado manualmente
     const renderJustified = (text, x, y, maxWidth, fontSize, fontStyle = "normal") => {
         doc.setFont("times", fontStyle);
         doc.setFontSize(fontSize);
-        
         const paragraphs = text.split('\n');
         let currentY = y;
 
         paragraphs.forEach(para => {
             const words = para.split(/\s+/);
             let line = [];
-
             for (let word of words) {
                 let testLine = [...line, word].join(' ');
                 if (doc.getTextWidth(testLine) > maxWidth && line.length > 0) {
-                    // Imprime la línea con el método de justificación de jsPDF
+                    if (currentY > 280) { doc.addPage(); currentY = 20; doc.setFont("times", fontStyle); doc.setFontSize(fontSize); }
                     doc.text(line.join(' '), x, currentY, { align: 'justify', maxWidth: maxWidth });
                     line = [word];
                     currentY += (fontSize * 0.5);
@@ -1092,7 +1090,7 @@ window.generarGuiaPDF = function() {
                     line.push(word);
                 }
             }
-            // La última línea de cada párrafo no se justifica para que no queden huecos enormes
+            if (currentY > 280) { doc.addPage(); currentY = 20; doc.setFont("times", fontStyle); doc.setFontSize(fontSize); }
             doc.text(line.join(' '), x, currentY);
             currentY += (fontSize * 0.6); 
         });
@@ -1112,23 +1110,35 @@ window.generarGuiaPDF = function() {
     doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
     doc.text(data.config.subtitulo, 105, 110, { align: "center" });
     
-    // --- 2. ÍNDICE ---
+    // --- 2. RESUMEN DE ITINERARIO (Sustituye al Índice) ---
     doc.addPage();
     doc.setFontSize(22);
     doc.setTextColor(red[0], red[1], red[2]);
-    doc.text("ÍNDICE MÁGICO", 20, 30);
-    let indiceY = 50;
-    data.dias.forEach((dia, i) => {
+    doc.text("RESUMEN DEL VIAJE", 20, 30);
+    
+    let resumenY = 50;
+    data.dias.forEach((dia) => {
+        if (resumenY > 270) { doc.addPage(); resumenY = 30; }
+        
+        doc.setFont("times", "bold");
         doc.setFontSize(12);
+        doc.setTextColor(red[0], red[1], red[2]);
+        doc.text(`${dia.fecha}: ${dia.titulo}`, 25, resumenY);
+        
+        resumenY += 6;
+        doc.setFont("times", "normal");
+        doc.setFontSize(10);
         doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
-        doc.text(`Día ${i + 1}: ${dia.titulo}`, 25, indiceY);
-        doc.text((i + 3).toString(), 185, indiceY, { align: "right" });
-        indiceY += 10;
+        // Solo el resumen corto
+        const resumenCorto = doc.splitTextToSize(dia.resumen || "Sin resumen disponible.", 160);
+        doc.text(resumenCorto, 30, resumenY);
+        
+        resumenY += (resumenCorto.length * 5) + 8;
     });
 
-    // --- 3. CONTENIDO POR DÍAS ---
+    // --- 3. CONTENIDO (Un Salto de Página por Día) ---
     data.dias.forEach((dia) => {
-        doc.addPage();
+        doc.addPage(); 
         let currentY = 20;
 
         // Título del Día
@@ -1140,7 +1150,7 @@ window.generarGuiaPDF = function() {
         doc.text(`${dia.fecha.toUpperCase()}: ${dia.titulo}`, 15, currentY + 10);
         currentY += 20;
 
-        // Historia del día JUSTIFICADA
+        // Historia (Justificada)
         currentY = renderJustified(dia.historia_dia || "", 15, currentY, textWidth, 10, "italic") + 5;
 
         // Tabla Itinerario
@@ -1151,65 +1161,55 @@ window.generarGuiaPDF = function() {
             headStyles: { fillColor: red },
             styles: { font: "times" },
             margin: { left: 15, right: 15 },
-            didDrawPage: (d) => { currentY = d.cursor.y + 15; }
+            didDrawPage: (d) => { currentY = d.cursor.y + 10; }
         });
 
-        // GUÍA DE EXPLORACIÓN
+        // SECCIÓN DE DETALLES (Continuo, sin saltar página)
         doc.setFont("times", "bold");
-        doc.setFontSize(14);
+        doc.setFontSize(13);
         doc.setTextColor(red[0], red[1], red[2]);
-        doc.text("DETALLES DE LA EXPEDICIÓN", 15, currentY);
-        currentY += 10;
+        doc.text("GUÍA DE EXPLORACIÓN Y PUNTOS CLAVE", 15, currentY);
+        currentY += 8;
 
         dia.timeline.forEach(item => {
             if (item.detalles) {
-                // Cálculo de altura preventiva
-                const lineasContexto = doc.splitTextToSize(item.detalles.contexto || "", textWidth).length;
-                let alturaNecesaria = (lineasContexto * 6) + 15;
-                if (item.detalles.lista_ver) alturaNecesaria += (item.detalles.lista_ver.length * 12);
-
-                if (currentY + alturaNecesaria > 275) {
-                    doc.addPage();
-                    currentY = 25;
-                }
-
-                // Título Actividad
+                if (currentY > 280) { doc.addPage(); currentY = 20; }
                 doc.setFont("times", "bold");
                 doc.setFontSize(11);
                 doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
                 doc.text(`> ${item.actividad}`, 15, currentY);
                 currentY += 6;
 
-                // Contexto JUSTIFICADO
                 if (item.detalles.contexto) {
-                    currentY = renderJustified(item.detalles.contexto, 15, currentY, textWidth, 10) + 4;
+                    currentY = renderJustified(item.detalles.contexto, 15, currentY, textWidth, 10) + 2;
                 }
 
-                // Puntos Clave con sus descripciones JUSTIFICADAS
                 if (item.detalles.lista_ver && item.detalles.lista_ver.length > 0) {
+                    if (currentY > 280) { doc.addPage(); currentY = 20; }
                     doc.setFont("times", "bolditalic");
                     doc.setTextColor(gold[0], gold[1], gold[2]);
-                    doc.text("Indispensable ver:", 15, currentY);
-                    currentY += 6;
+                    doc.text("Indispensable ver:", 18, currentY);
+                    currentY += 5;
                     
                     item.detalles.lista_ver.forEach(punto => {
                         const nombrePunto = typeof punto === 'object' ? punto.texto : punto;
+                        if (currentY > 280) { doc.addPage(); currentY = 20; }
                         doc.setFont("times", "bold");
                         doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
-                        doc.text(`- ${nombrePunto}`, 20, currentY);
+                        doc.text(`- ${nombrePunto}`, 22, currentY);
                         currentY += 5;
                         
                         if (punto.desc) {
-                            currentY = renderJustified(punto.desc, 25, currentY, textWidth - 10, 9) + 2;
+                            currentY = renderJustified(punto.desc, 27, currentY, textWidth - 12, 9) + 2;
                         }
                     });
-                    currentY += 4;
+                    currentY += 2;
                 }
             }
         });
     });
 
-    // --- 4. CHECKLIST Y PAGINACIÓN ---
+    // --- 4. CHECKLIST FINAL ---
     doc.addPage();
     doc.setFont("times", "bold");
     doc.setFontSize(22);
@@ -1218,22 +1218,25 @@ window.generarGuiaPDF = function() {
     let checkY = 50;
     const itemsCheck = [...data.checklist].sort((a, b) => a.item.localeCompare(b.item));
     itemsCheck.forEach(obj => {
-        if (checkY > 275) { doc.addPage(); checkY = 25; }
+        if (checkY > 280) { doc.addPage(); checkY = 20; }
         doc.setDrawColor(gold[0], gold[1], gold[2]);
         doc.rect(20, checkY - 4, 5, 5);
+        doc.setFont("times", "normal");
+        doc.setFontSize(11);
         doc.text(obj.item, 30, checkY);
-        checkY += 10;
+        checkY += 8;
     });
 
+    // --- 5. PAGINACIÓN FINAL ---
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         doc.setFontSize(9);
         doc.setTextColor(150);
-        doc.text(`Expedición Londres 2026 - Página ${i} de ${totalPages}`, 105, 290, { align: "center" });
+        doc.text(`Página ${i} de ${totalPages}`, 105, 290, { align: "center" });
     }
 
-    doc.save(`Guia_Londres_Justificada_2026.pdf`);
+    doc.save(`Guia_Londres_Resumen_2026.pdf`);
 };
 
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
