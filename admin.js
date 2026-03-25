@@ -57,17 +57,37 @@ checklist: {
         ]
     },
     configuracion: {
-        label: "Configuración App", icon: "fa-cog",
-        columns: [
-            { key: 'id', label: 'ID', type: 'readonly' },
-            { key: 'titulo', label: 'Título Principal', type: 'text', required: true },
-            { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
-            { key: 'presupuesto', label: 'Presupuesto total', type: 'text' },
-            { key: 'base', label: 'Base de Operaciones', type: 'text' },
-            { key: 'intro_texto', label: 'Texto Intro General', type: 'textarea' },
-            { key: 'intro_alojamiento', label: 'Texto Intro Alojamiento', type: 'textarea' }
-        ]
-    }
+            label: "Configuración App", icon: "fa-cog",
+            columns: [
+                { key: 'id', label: 'ID', type: 'readonly' },
+                { key: 'titulo', label: 'Título Principal', type: 'text', required: true },
+                { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
+                { key: 'presupuesto', label: 'Presupuesto total', type: 'text' },
+                { key: 'base', label: 'Base de Operaciones', type: 'text' },
+                { key: 'intro_texto', label: 'Texto Intro General', type: 'textarea' },
+                { key: 'intro_alojamiento', label: 'Texto Intro Alojamiento', type: 'textarea' }
+            ]
+        },
+        transportes: {
+            label: "Transporte Mágico", icon: "fa-train-subway",
+            columns: [
+                { key: 'id', label: 'ID', type: 'readonly' },
+                { key: 'consejo_oro', label: 'Regla de Oro', type: 'text', required: true },
+                { key: 'detalle', label: 'Costes y Límites', type: 'textarea' },
+                { key: 'apps', label: 'Apps (separadas por comas)', type: 'text' }
+            ]
+        },
+        pases_turisticos: {
+            label: "Pases Turísticos", icon: "fa-ticket-alt",
+            columns: [
+                { key: 'id', label: 'ID', type: 'readonly' },
+                { key: 'titulo', label: 'Título del Pase', type: 'text', required: true },
+                { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
+                { key: 'precio_total', label: 'Precio Total', type: 'text' },
+                { key: 'precio_pp', label: 'Precio por Persona', type: 'text' },
+                { key: 'info', label: 'Información y Reglas', type: 'textarea' }
+            ]
+        }
 };
 
 let currentTable = null;
@@ -77,33 +97,75 @@ let editingActivityId = null;
 let editingLinkId = null;     
 let editingItemId = null; // <-- Añade esta línea al principio con el resto de lets
 let editingRestaurantId = null;
+let currentAdminViajeId = null; // <--- NUEVA VARIABLE GLOBAL
 
 async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = 'index.html'; return; }
     
-    renderSidebar();
+    // 1. CARGAMOS LOS VIAJES DEL USUARIO
+    const { data: viajes, error } = await sb.from('viajes').select('id, nombre').order('created_at', { ascending: true });
     
-    // --- NUEVA LÍNEA: Carga la tabla 'dias' por defecto ---
+    if (error || !viajes || viajes.length === 0) {
+        alert("Primero debes crear un viaje en la aplicación principal.");
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // 2. ¿VENIMOS DE LA APP CON UN VIAJE ESPECÍFICO?
+    const urlParams = new URLSearchParams(window.location.search);
+    const viajeDesdeApp = urlParams.get('viaje');
+
+    // Comprobamos si nos han pasado un ID y si ese ID realmente pertenece al usuario
+    if (viajeDesdeApp && viajes.some(v => v.id == viajeDesdeApp)) {
+        currentAdminViajeId = viajeDesdeApp;
+        
+        // (Opcional) Limpiamos la URL para que quede bonita
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        // Si no venimos de la app, seleccionamos el primero por defecto
+        currentAdminViajeId = viajes[0].id; 
+    }
+
+    renderSidebar(viajes);
+    
+    // 3. ACTUALIZAMOS EL SELECTOR VISUALMENTE
+    const selector = document.getElementById('admin-viaje-selector');
+    if (selector) {
+        selector.value = currentAdminViajeId;
+    }
+
     loadTable('dias'); 
 }
 
-function renderSidebar() {
+function renderSidebar(viajes) {
     const menu = document.getElementById('sidebar-menu');
-    menu.innerHTML = Object.keys(schemaMap).map(key => `
+    
+    // Inyectamos un selector de viajes al principio del menú lateral
+    let sidebarContent = `
+        <div class="px-6 pb-4 border-b border-[var(--gold)]/30 mb-4">
+            <label class="block text-[var(--gold)] text-xs font-bold mb-1 uppercase tracking-widest">Viaje a Administrar</label>
+            <select id="admin-viaje-selector" onchange="changeAdminViaje()" class="w-full p-2 bg-[#1a100d] text-white border border-[var(--gold)] rounded outline-none focus:ring-1 focus:ring-[var(--gold)] truncate">
+                ${viajes.map(v => `<option value="${v.id}">${v.nombre}</option>`).join('')}
+            </select>
+        </div>
+    `;
+
+    // Añadimos los botones de las tablas
+    sidebarContent += Object.keys(schemaMap).map(key => `
         <button onclick="loadTable('${key}')" id="nav-${key}" class="w-full text-left px-6 py-4 hover:bg-[var(--gryffindor-red)] hover:text-white transition flex items-center gap-3 border-l-4 border-transparent text-lg font-medium">
             <i class="fas ${schemaMap[key].icon} w-6 text-center text-[var(--gold)]"></i>
             ${schemaMap[key].label}
         </button>
     `).join('');
+
+    menu.innerHTML = sidebarContent;
 }
 
-function setActiveMenu(tableKey) {
-    document.querySelectorAll('#sidebar-menu button').forEach(btn => {
-        btn.classList.remove('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
-    });
-    const active = document.getElementById(`nav-${tableKey}`);
-    if (active) active.classList.add('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+// Nueva función para cuando el admin cambie de viaje en el desplegable
+window.changeAdminViaje = function() {
+    currentAdminViajeId = document.getElementById('admin-viaje-selector').value;
+    loadTable(currentTable || 'dias'); // Recarga la tabla actual con los datos del nuevo viaje
 }
 
 window.loadTable = async function(tableKey) {
@@ -127,16 +189,25 @@ window.loadTable = async function(tableKey) {
         orderBy = 'nombre';
     }
 
-    // Llamada a Supabase con la columna dinámica
+// Llamada a Supabase con la columna dinámica y el FILTRO DE VIAJE
     const { data, error } = await sb
         .from(tableKey)
         .select('*')
+        .eq('viaje_id', currentAdminViajeId) // <--- ESTO ES LO NUEVO E IMPORTANTE
         .order(orderBy, { ascending: true });
 
     document.getElementById('loading').classList.add('hidden');
     if (error) { alert("Error cargando datos: " + error.message); return; }
     
     renderTable(data, tableKey);
+}
+
+function setActiveMenu(tableKey) {
+    document.querySelectorAll('#sidebar-menu button').forEach(btn => {
+        btn.classList.remove('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+    });
+    const active = document.getElementById(`nav-${tableKey}`);
+    if (active) active.classList.add('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
 }
 
 function renderTable(data, tableKey) {
@@ -240,6 +311,9 @@ window.saveData = async function() {
             payload[col.key] = val;
         }
     });
+
+    // <--- NUEVO: Inyectamos el ID del viaje seleccionado --->
+    payload.viaje_id = currentAdminViajeId;
 
     let error;
     if (currentEditingId) ({ error } = await sb.from(currentTable).update(payload).eq('id', currentEditingId));
@@ -406,7 +480,8 @@ window.saveActivity = async function() {
         precio: document.getElementById('act-precio').value || null,
         desc_texto: document.getElementById('act-desc').value || null,
         contexto: document.getElementById('act-contexto').value || null,
-        checklist_id: checklistVal ? parseInt(checklistVal) : null // <-- AÑADE ESTA LÍNEA
+        checklist_id: checklistVal ? parseInt(checklistVal) : null, 
+        viaje_id: currentAdminViajeId
         
     };
 
@@ -650,5 +725,15 @@ window.deleteRestaurant = async function(id) {
         localStorage.removeItem('travel_data_cache');
     }
 };
+
+window.goToApp = function() {
+    if (currentAdminViajeId) {
+        // Mandamos a la app principal el ID del viaje en la URL
+        window.location.href = `index.html?viaje=${currentAdminViajeId}`;
+    } else {
+        // Por si acaso no hubiera ningún viaje seleccionado
+        window.location.href = 'index.html';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', init);

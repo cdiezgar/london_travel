@@ -7,6 +7,7 @@ const sb = createClient(supabaseUrl, supabaseKey);
 // Variables globales
 let organizadorViaje = null;
 let appContent, hamburgerBtn, navItems;
+let currentViajeId = null;
 
 async function checkAuthAndInit() {
     appContent = document.getElementById('app-content');
@@ -16,16 +17,38 @@ async function checkAuthAndInit() {
     const { data: { session } } = await sb.auth.getSession();
     
     if (session) {
-        await fetchTravelData();
+        // ¿Venimos desde el botón del Admin?
+        const urlParams = new URLSearchParams(window.location.search);
+        const goToViaje = urlParams.get('viaje');
+        
+        if (goToViaje) {
+            // Limpiamos la URL para que quede bonita (index.html a secas)
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Buscamos el nombre de ese viaje para ponerlo en el menú de carga
+            const { data } = await sb.from('viajes').select('nombre').eq('id', goToViaje).single();
+            if (data) {
+                selectTrip(goToViaje, data.nombre); // ¡Entramos directos!
+                return;
+            }
+        }
+        
+        // Si no venimos del admin, cargamos la lista normal
+        loadUserTrips();
     } else {
+        document.getElementById('trip-selection-container').style.display = 'none';
+        appContent.style.display = 'block';
         renderLogin();
     }
 }
 
 // Escuchar cambios de estado
 sb.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') {
+    if (event === 'SIGNED_OUT' || !session) {
+        // Usuario no logueado: Ocultar selector de viajes, mostrar appContent y renderizar login
         if(hamburgerBtn) hamburgerBtn.classList.add('hidden');
+        document.getElementById('trip-selection-container').style.display = 'none';
+        appContent.style.display = 'block'; // Aseguramos que el main es visible
         renderLogin();
     }
 });
@@ -81,8 +104,11 @@ async function handleLogin(e) {
         btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i> Alohomora`;
         btn.disabled = false;
     } else {
-        appContent.innerHTML = `<div class="h-full flex items-center justify-center mt-20"><i class="fas fa-spinner fa-spin text-4xl text-[var(--gold)]"></i></div>`;
-        await fetchTravelData();
+        // AQUÍ ESTÁ LA CLAVE: 
+        // En lugar de inyectar el spinner y llamar a fetchTravelData() directamente,
+        // vaciamos el appContent y llamamos a loadUserTrips() para que el usuario elija su viaje.
+        appContent.innerHTML = ''; 
+        loadUserTrips();
     }
 }
 
@@ -94,7 +120,8 @@ async function fetchTravelData() {
     try {
 
     // 1. Intentar cargar de caché primero
-        const cached = localStorage.getItem('travel_data_cache');
+        const cacheKey = 'travel_data_cache_' + currentViajeId;
+        const cached = localStorage.getItem(cacheKey);
         if (cached) {
             organizadorViaje = JSON.parse(cached);
             renderHome();
@@ -109,36 +136,34 @@ async function fetchTravelData() {
             { data: secretosData },
             { data: restTopData },
             { data: checkData },
-            { data: gastosData } // NUEVO: Capturamos los gastos
+            { data: gastosData },
+            { data: transData },  // <-- NUEVA VARIABLE
+            { data: pasesData }   // <-- NUEVA VARIABLE
         ] = await Promise.all([
-            sb.from('configuracion').select('*').single(),
-            // JOIN PROFUNDO: Trae días -> relación -> actividades -> items
+            // Cambiamos .single() por .maybeSingle() para que no falle si está vacío
+            sb.from('configuracion').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
+            
             sb.from('dias').select(`
                 *,
                 dia_actividad (
                     hora,
                     actividades (
-                        nombre,
-                        desc_texto,
-                        tipo,
-                        direccion,
-                        precio,
-                        contexto,
-                        checklist_id,
-                        actividad_items (
-                            item_texto,
-                            descripcion,
-                            imagen_url
-                        )
+                        nombre, desc_texto, tipo, direccion, precio, contexto, checklist_id,
+                        actividad_items ( item_texto, descripcion, imagen_url )
                     )
                 ),
                 restaurantes_dia (*)
-            `).order('fecha', { ascending: true }),
-            sb.from('supermercados').select('*'),
-            sb.from('secretos').select('*'),
-            sb.from('restaurantes_top').select('*'),
-            sb.from('checklist').select('*').order('id', { ascending: true }), // Modificado para el orden
-            sb.from('gastos').select('*').order('created_at', { ascending: true }) // NUEVO: Llamada a gastos
+            `).eq('viaje_id', currentViajeId).order('fecha', { ascending: true }),
+            
+            sb.from('supermercados').select('*').eq('viaje_id', currentViajeId),
+            sb.from('secretos').select('*').eq('viaje_id', currentViajeId),
+            sb.from('restaurantes_top').select('*').eq('viaje_id', currentViajeId),
+            sb.from('checklist').select('*').eq('viaje_id', currentViajeId).order('id', { ascending: true }),
+            sb.from('gastos').select('*').eq('viaje_id', currentViajeId).order('created_at', { ascending: true }),
+            
+            // --- NUEVAS CONSULTAS ---
+            sb.from('transportes').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
+            sb.from('pases_turisticos').select('*').eq('viaje_id', currentViajeId).maybeSingle()
         ]);
 
         if (configErr || diasErr) throw new Error("Fallo al leer datos");
@@ -216,27 +241,27 @@ async function fetchTravelData() {
             gastos: gastosData || [],
             // Textos estáticos (no los pasamos a tabla porque son constantes)
             transporte: {
-                consejo_oro: "¡Usa Contactless (Móvil/Tarjeta)! No compres Oyster física.",
-                detalle: "Zonas 1-2. Tope diario £8.90. Tope semanal £44.70.",
-                apps: ["Citymapper (Vital)", "Google Maps", "TfL Go"]
+                // Si no hay datos (viaje nuevo), ponemos un texto por defecto
+                consejo_oro: transData?.consejo_oro || "Regla de oro no configurada.",
+                detalle: transData?.detalle || "Detalles de transporte no configurados.",
+                // Separamos por comas si existe, si no, array vacío
+                apps: transData?.apps ? transData.apps.split(',').map(app => app.trim()) : []
             },
             explorer_pass: {
-                titulo: "London Explorer Pass",
-                subtitulo: "Pase de 4 Actividades",
-                precio_total: "£198 (2 personas)",
-                precio_pp: "£99 por persona",
-                info: "Este pase va por créditos, no por días. La clave maestra es usar los 4 créditos SÓLO en las atracciones más caras. El viaje en Uber Boat lo pagaremos suelto (£8).",
-                actividades: [
-                    { nombre: "Tower of London", precio_taquilla: 34.80, dia_sugerido: "Día 4 (Jueves)", icono: "fa-chess-rook" },
-                    { nombre: "Abadía de Westminster", precio_taquilla: 29.00, dia_sugerido: "Día 5 (Viernes)", icono: "fa-church" },
-                    { nombre: "The London Eye", precio_taquilla: 40.00, dia_sugerido: "Día 5 (Viernes)", icono: "fa-eye" },
-                    { nombre: "Bus Turístico (2 Días)", precio_taquilla: 45.00, dia_sugerido: "Día 4 y 5", icono: "fa-bus" }
-                ]
+                titulo: pasesData?.titulo || "Pase Turístico",
+                subtitulo: pasesData?.subtitulo || "No configurado",
+                precio_total: pasesData?.precio_total || "-",
+                precio_pp: pasesData?.precio_pp || "-",
+                info: pasesData?.info || "Añade la información del pase en el panel de administración.",
+                
+                // Las actividades del pase las dejamos vacías por ahora para no sobrecomplicar la BBDD.
+                // Podrías crear una tabla 'actividades_pase' en el futuro si quieres.
+                actividades: [] 
             }
         };
 
         // Guardar en caché para la próxima vez
-        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+       localStorage.setItem(cacheKey, JSON.stringify(organizadorViaje));
 
         // MOSTRAMOS EL BOTÓN HAMBURGUESA EN VEZ DE LA ANTIGUA BARRA
         if(hamburgerBtn) hamburgerBtn.classList.remove('hidden');
@@ -583,16 +608,11 @@ function renderTransport() {
             <div class="parchment-box p-6 rounded-lg mb-6 text-center border-l-4 border-yellow-500 shadow-md">
                 <h3 class="font-bold text-lg mb-2 flex justify-center items-center gap-2"><i class="fas fa-exclamation-circle text-yellow-600"></i> REGLA DE ORO</h3>
                 <p class="text-xl font-bold text-[var(--gryffindor-red)] my-3">${organizadorViaje.transporte.consejo_oro}</p>
-                <p class="text-sm mt-2 font-medium">Usa tu móvil (Apple Pay/Google Pay) o tarjeta Contactless directa. NO compres billetes de papel.</p>
             </div>
 
             <div class="bg-white/70 p-5 rounded-lg shadow mb-6 border border-stone-200">
-                <h3 class="font-bold mb-3 border-b border-gray-300 pb-2">Costes y Límites (Caps)</h3>
+                <h3 class="font-bold mb-3 border-b border-gray-300 pb-2">Detalles</h3>
                 <p class="text-base mb-3 text-justify text-stone-800">${organizadorViaje.transporte.detalle}</p>
-                <div class="flex justify-between text-xs font-mono bg-gray-100 p-3 rounded mt-2 border border-gray-200">
-                    <span class="font-bold text-red-800">Tope Diario: £8.90</span>
-                    <span class="font-bold text-red-800">Tope Semanal: £44.70</span>
-                </div>
             </div>
 
             <h3 class="font-bold mb-3 px-1">Apps Esenciales</h3>
@@ -820,7 +840,7 @@ window.toggleChecklist = async function(id, estadoActual) {
         renderExtras();
     } else {
         // Si va bien, actualizamos la caché local por si cierras la app de golpe
-        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+       localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
     }
 }
 
@@ -925,7 +945,7 @@ window.addGasto = async function(event) {
         organizadorViaje.gastos.push(data[0]); // Metemos el dato real de la BBDD (con su ID)
         
         // Guardamos caché y redibujamos solo la pantalla de gastos
-        localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+       localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
         renderGastos();
     }
 }
@@ -942,7 +962,7 @@ window.deleteGasto = async function(id) {
             organizadorViaje.gastos = organizadorViaje.gastos.filter(g => g.id !== id);
             
             // Actualizamos caché y redibujamos
-            localStorage.setItem('travel_data_cache', JSON.stringify(organizadorViaje));
+           localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
             renderGastos();
         }
     }
@@ -965,8 +985,6 @@ function renderExplorerPass() {
                 </p>
             </div>
 
-            <h3 class="font-bold text-lg mb-3 px-1 border-b-2 border-[var(--gold)] inline-block">Nuestros 4 Créditos:</h3>
-            <div class="space-y-4">
     `;
 
     organizadorViaje.explorer_pass.actividades.forEach(act => {
@@ -1003,17 +1021,17 @@ window.openMap = function(destination) {
 async function logout() {
     const { error } = await sb.auth.signOut();
     if (!error) {
-        localStorage.removeItem('travel_data_cache'); // Limpiar caché al salir
+        localStorage.removeItem('travel_data_cache_' + currentViajeId); // Limpiar caché al salir
         location.reload();
     }
 }
 
 // --- CORRECCIÓN 2: Mostrar/Ocultar botón de salir ---
 function toggleLogoutButton(show) {
-    const btn = document.getElementById('global-logout');
-    if (btn) {
-        if (show) btn.classList.remove('hidden');
-        else btn.classList.add('hidden');
+    const actions = document.getElementById('header-actions');
+    if (actions) {
+        if (show) actions.classList.remove('hidden');
+        else actions.classList.add('hidden');
     }
 }
 
@@ -1239,6 +1257,130 @@ window.generarGuiaPDF = function() {
     doc.save(`Guia_Londres_Resumen_2026.pdf`);
 };
 
+async function loadUserTrips() {
+    // 1. Ocultar el contenido principal (appContent) y mostrar el selector como FLEX
+    document.getElementById('app-content').style.display = 'none';
+    document.getElementById('trip-selection-container').style.display = 'flex'; // IMPORTANTE: flex en vez de block
+    
+    const tripList = document.getElementById('trip-list');
+    tripList.innerHTML = '<p class="text-stone-600 italic text-sm"><i class="fas fa-spinner fa-spin text-[var(--gold)] mr-2"></i>Consultando con Gringotts...</p>';
+
+    // 2. Obtener los viajes del usuario actual
+    const { data: viajes, error } = await sb.from('viajes').select('*').order('created_at', { ascending: true });
+
+    if (error) {
+        console.error("Error cargando viajes:", error);
+        tripList.innerHTML = '<p class="text-red-600 font-bold text-sm">Maldición detectada al cargar los viajes.</p>';
+        return;
+    }
+
+    tripList.innerHTML = ''; 
+
+    // 3. Evaluar si tiene viajes
+    if (viajes.length === 0) {
+        tripList.innerHTML = '<p class="text-stone-700 font-medium text-sm">No tienes ningún viaje todavía. ¡Forja el primero abajo!</p>';
+    } else {
+        viajes.forEach(viaje => {
+            const btn = document.createElement('button');
+            // Estilos mágicos para el botón generado
+            btn.className = 'w-full bg-white/80 p-3 rounded shadow-sm border border-[var(--gold)] text-[var(--ink)] font-bold active:scale-95 transition hover:bg-yellow-50 flex justify-between items-center group';
+            
+            // Añadimos el nombre y una flechita a la derecha
+            btn.innerHTML = `
+                <span class="text-left flex-1 truncate pr-2 text-lg">${viaje.nombre}</span> 
+                <i class="fas fa-chevron-right text-[var(--gryffindor-red)] opacity-50 group-hover:opacity-100 transition-opacity"></i>
+            `;
+            
+            btn.onclick = () => selectTrip(viaje.id, viaje.nombre);
+            tripList.appendChild(btn);
+        });
+    }
+}
+
+window.selectTrip = function(viajeId, viajeNombre) {
+    // 1. Guardar el ID globalmente para usarlo en los Inserts de la app (gastos, checklist, etc)
+    currentViajeId = viajeId; 
+    
+    // (Opcional) Guardarlo en LocalStorage por si refresca la página
+    localStorage.setItem('currentViajeId', viajeId);
+
+    // 2. Ocultar selector de viajes, mostrar el contenedor principal real (app-content)
+    document.getElementById('trip-selection-container').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+
+    // 3. Poner un spinner de carga bonito mientras se descargan los datos
+    document.getElementById('app-content').innerHTML = `
+        <div class="h-full flex flex-col items-center justify-center mt-20 fade-in">
+            <i class="fas fa-spinner fa-spin text-5xl text-[var(--gold)] mb-4"></i>
+            <p class="font-bold magic-font text-[var(--ink)] text-xl">Viajando a ${viajeNombre}...</p>
+        </div>
+    `;
+
+    // 4. Llamar a tu función original para cargar los datos del viaje
+    // (Asegúrate de que dentro de fetchTravelData estás usando .eq('viaje_id', currentViajeId))
+    fetchTravelData(); 
+};
+
+window.createNewTrip = async function() {
+    const inputName = document.getElementById('new-trip-name');
+    const nombreViaje = inputName.value.trim();
+
+    if (!nombreViaje) {
+        alert("Por favor, introduce un nombre para el viaje.");
+        return;
+    }
+
+    // Obtenemos el ID del usuario actual
+    const { data: { user } } = await sb.auth.getUser();
+
+    // Insertamos el nuevo viaje
+    const { data, error } = await sb.from('viajes').insert([
+        { 
+            nombre: nombreViaje, 
+            user_id: user.id 
+        }
+    ]).select();
+
+    if (error) {
+        console.error("Error creando el viaje:", error);
+        alert("Hubo un error al crear el viaje.");
+        return;
+    }
+
+    // Limpiamos el input
+    inputName.value = '';
+
+    // OPCIÓN A: Entrar automáticamente al viaje recién creado
+    selectTrip(data[0].id, data[0].nombre);
+    
+    // OPCIÓN B: Simplemente recargar la lista de viajes (descomenta la siguiente línea y comenta la de arriba)
+    // loadUserTrips();
+};
+
+window.backToTrips = function() {
+    // 1. Opcional: Limpiar el ID del viaje actual en caché para evitar auto-cargas extrañas
+    currentViajeId = null;
+    
+    // 2. Vaciamos el contenido de la app para que no se quede "congelado" el viaje anterior de fondo
+    document.getElementById('app-content').innerHTML = '';
+    
+    // 3. Ocultamos la app y mostramos el selector de viajes
+    document.getElementById('app-content').style.display = 'none';
+    document.getElementById('trip-selection-container').style.display = 'flex';
+    
+    // 5. Volvemos a cargar la lista para que se muestre actualizada
+    loadUserTrips();
+};
+
+window.goToAdmin = function() {
+    if (currentViajeId) {
+        // Mandamos al admin con el ID del viaje actual en la URL
+        window.location.href = `admin.html?viaje=${currentViajeId}`;
+    } else {
+        window.location.href = 'admin.html';
+    }
+};
+
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
 window.renderHome = renderHome;
 window.renderItineraryList = renderItineraryList;
@@ -1257,3 +1399,5 @@ window.deleteGasto = deleteGasto;
 window.toggleChecklist = toggleChecklist;
 window.toggleSecretos = toggleSecretos;
 window.toggleMenu = toggleMenu;
+window.selectTrip = selectTrip;
+window.loadUserTrips = loadUserTrips;
