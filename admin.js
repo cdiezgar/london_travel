@@ -57,7 +57,7 @@ checklist: {
         ]
     },
     configuracion: {
-            label: "Configuración App", icon: "fa-cog",
+            label: "Datos del viaje", icon: "fa-cog",
             columns: [
                 { key: 'id', label: 'ID', type: 'readonly' },
                 { key: 'titulo', label: 'Título Principal', type: 'text', required: true },

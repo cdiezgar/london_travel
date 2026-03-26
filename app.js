@@ -72,8 +72,13 @@ function renderLogin() {
                         class="w-full p-3 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg tracking-widest">
                     
                     <button type="submit" id="login-btn" class="w-full bg-[var(--gryffindor-red)] text-white font-bold py-3 rounded shadow-md active:scale-95 transition mt-4">
-                        <i class="fas fa-wand-magic-sparkles mr-2"></i> Alohomora
+                        <i class="fas fa-wand-magic-sparkles mr-2"></i> Iniciar Sesión (Alohomora)
                     </button>
+                    
+                    <button type="button" id="signup-btn" class="w-full bg-[#2b1b17] text-[var(--gold)] font-bold py-3 rounded shadow-md active:scale-95 transition mt-2 border border-[var(--gold)]">
+                        <i class="fas fa-user-plus mr-2"></i> Crear nueva cuenta
+                    </button>
+                    
                     <p id="login-error" class="text-red-600 text-sm hidden font-bold mt-2"></p>
                 </form>
             </div>
@@ -81,6 +86,7 @@ function renderLogin() {
     `;
 
     document.getElementById('login-form').addEventListener('submit', handleLogin);
+    document.getElementById('signup-btn').addEventListener('click', handleSignUp);
 }
 
 async function handleLogin(e) {
@@ -338,12 +344,6 @@ function renderHome() {
                     <i class="fas fa-coins"></i> Presupuesto
                 </h3>
                 <p class="text-sm italic mb-2 font-bold">Objetivo: ${organizadorViaje.config.presupuesto}</p>
-                <ul class="text-sm list-disc pl-5 space-y-1 text-stone-700">
-                    <li>Desayunos en la habitación.</li>
-                    <li>Cenas en la habitación.</li>
-                    <li>Comidas fuera de casa. Tope de £25 por persona</li>
-                    <li>Tope de transporte semanal £44.70.</li>
-                </ul>
             </div>
         </div>
         <button onclick="generarGuiaPDF()" class="w-full parchment-box p-4 rounded-lg shadow-md flex items-center justify-center gap-3 mt-6 bg-red-50 border-[var(--gold)] active:scale-95 transition-all">
@@ -1381,6 +1381,52 @@ window.goToAdmin = function() {
     }
 };
 
+async function handleSignUp(e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('magic-email').value;
+    const passwordInput = document.getElementById('magic-password').value;
+    const errorMsg = document.getElementById('login-error');
+    const btn = document.getElementById('signup-btn');
+    
+    // Resetear estilos de mensaje
+    errorMsg.classList.remove('text-green-600');
+    errorMsg.classList.add('text-red-600');
+
+    if (!emailInput || !passwordInput) {
+        errorMsg.textContent = "Introduce correo y contraseña para crear la cuenta.";
+        errorMsg.classList.remove('hidden');
+        return;
+    }
+
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Forjando cuenta...`;
+    btn.disabled = true;
+
+    // Llamada a Supabase para registrar al usuario
+    const { data, error } = await sb.auth.signUp({
+        email: emailInput,
+        password: passwordInput,
+    });
+
+    if (error) {
+        errorMsg.textContent = "Error al crear cuenta: " + error.message;
+        errorMsg.classList.remove('hidden');
+    } else {
+        // Éxito al registrar
+        errorMsg.classList.remove('text-red-600');
+        errorMsg.classList.add('text-green-600');
+        errorMsg.textContent = "¡Cuenta creada con éxito! Ya puedes iniciar sesión.";
+        errorMsg.classList.remove('hidden');
+        
+        // Opcional: limpiar los campos
+        // document.getElementById('magic-email').value = '';
+        // document.getElementById('magic-password').value = '';
+    }
+
+    // Restaurar el botón
+    btn.innerHTML = `<i class="fas fa-user-plus mr-2"></i> Crear nueva cuenta`;
+    btn.disabled = false;
+}
+
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---
 window.renderHome = renderHome;
 window.renderItineraryList = renderItineraryList;
@@ -1401,3 +1447,4 @@ window.toggleSecretos = toggleSecretos;
 window.toggleMenu = toggleMenu;
 window.selectTrip = selectTrip;
 window.loadUserTrips = loadUserTrips;
+window.handleSignUp = handleSignUp;
