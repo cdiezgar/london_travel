@@ -244,10 +244,10 @@ function renderTable(data, tableKey) {
 
     const visibleCols = schema.columns.filter(c => c.type !== 'textarea').slice(0, 5);
     
-    // Cambiamos a index === 1 para que el título/nombre se vea en móvil y el ID se oculte
+    // 1. Reducimos el padding horizontal en móvil (px-2) y lo subimos en PC (sm:px-4)
     thead.innerHTML = `<tr>
-        ${visibleCols.map((col, index) => `<th class="py-4 px-4 font-bold uppercase ${index === 1 ? '' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
-        <th class="py-4 px-4 text-right">Acciones</th>
+        ${visibleCols.map((col, index) => `<th class="py-3 px-2 sm:px-4 font-bold uppercase text-left text-sm sm:text-base ${index === 1 ? 'w-full' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
+        <th class="py-3 px-2 sm:px-4 text-right text-sm sm:text-base whitespace-nowrap">Acciones</th>
     </tr>`;
 
     if (data.length === 0) {
@@ -257,10 +257,21 @@ function renderTable(data, tableKey) {
 
     tbody.innerHTML = data.map(row => `
         <tr class="hover:bg-[#fffef0] transition border-b border-[#e2d1aa]/50 group">
-            ${visibleCols.map((col, index) => `<td class="py-3 px-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] text-stone-800 ${index === 1 ? '' : 'hidden md:table-cell'}">${row[col.key] || '-'}</td>`).join('')}
-            <td class="py-3 px-4 text-right opacity-100 md:opacity-50 group-hover:opacity-100 transition whitespace-nowrap">
-                <button onclick='openForm(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="text-[var(--gold)] hover:text-yellow-600 p-2"><i class="fas fa-edit text-xl"></i></button>
-                <button onclick='deleteData(${row.id})' class="text-[var(--gryffindor-red)] hover:text-red-800 p-2 ml-1"><i class="fas fa-trash text-xl"></i></button>
+            ${visibleCols.map((col, index) => `
+                <td class="py-2 sm:py-3 px-2 sm:px-4 text-stone-800 text-sm sm:text-base ${index === 1 ? '' : 'hidden md:table-cell'}">
+                    <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] xs:max-w-[180px] sm:max-w-[250px]" title="${row[col.key] || '-'}">
+                        ${row[col.key] || '-'}
+                    </div>
+                </td>
+            `).join('')}
+            
+            <td class="py-2 sm:py-3 px-2 sm:px-4 text-right opacity-100 md:opacity-50 group-hover:opacity-100 transition whitespace-nowrap w-[1%]">
+                <button onclick='openForm(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="text-[var(--gold)] hover:text-yellow-600 p-1.5 sm:p-2" title="Editar">
+                    <i class="fas fa-edit text-lg sm:text-xl"></i>
+                </button>
+                <button onclick='deleteData(${row.id})' class="text-[var(--gryffindor-red)] hover:text-red-800 p-1.5 sm:p-2 ml-0 sm:ml-1" title="Borrar">
+                    <i class="fas fa-trash text-lg sm:text-xl"></i>
+                </button>
             </td>
         </tr>
     `).join('');
@@ -417,24 +428,24 @@ async function loadTimeline(diaId) {
             checklist_id: act.checklist_id || '' // <-- AÑADE ESTA LÍNEA
         }).replace(/'/g, "&#39;");
 
-        html += `
+ html += `
             <div class="relative group">
                 <div class="absolute -left-[30px] top-2 bg-[var(--parchment)] border-2 border-[var(--gryffindor-red)] rounded-full w-7 h-7 flex items-center justify-center text-[var(--gryffindor-red)] text-xs z-10 shadow-sm">
                     <i class="fas ${icon}"></i>
                 </div>
                 
-                <div class="flex flex-col parchment-box p-3 rounded transform transition duration-200 hover:scale-[1.01] hover:shadow-md cursor-pointer border border-[#e2d1aa]">
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-start gap-3">
-                            <span class="bg-[#2b1b17] text-[var(--gold)] text-xs px-2 py-1 rounded font-mono font-bold mt-1 shadow-sm">${link.hora}</span>
-                            <div>
-                                <span class="font-bold text-[var(--ink)] text-lg magic-font tracking-wide">${act.nombre}</span>
-                                ${act.desc_texto ? `<p class="text-sm text-stone-600 mt-1 line-clamp-1 italic">${act.desc_texto}</p>` : ''}
+                <div class="flex flex-col parchment-box p-2 sm:p-3 rounded transform transition duration-200 hover:scale-[1.01] hover:shadow-md cursor-pointer border border-[#e2d1aa]">
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                            <span class="bg-[#2b1b17] text-[var(--gold)] text-[10px] sm:text-xs px-1.5 sm:px-2 py-1 rounded font-mono font-bold mt-1 shadow-sm shrink-0">${link.hora}</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-[var(--ink)] text-base sm:text-lg magic-font tracking-wide truncate" title="${act.nombre}">${act.nombre}</div>
+                                ${act.desc_texto ? `<p class="text-xs sm:text-sm text-stone-600 mt-0.5 sm:mt-1 truncate italic" title="${act.desc_texto}">${act.desc_texto}</p>` : ''}
                             </div>
                         </div>
-                        <div class="flex gap-2 shrink-0 opacity-80 group-hover:opacity-100 transition">
-                            <button onclick='openActivityModal(${actJson})' class="text-blue-700 hover:bg-blue-100 p-2 rounded transition" title="Editar Actividad"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteActivity(${link.id}, ${act.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
+                        <div class="flex gap-1 sm:gap-2 shrink-0 opacity-100 md:opacity-80 group-hover:opacity-100 transition">
+                            <button onclick='openActivityModal(${actJson})' class="text-blue-700 hover:bg-blue-100 p-1.5 sm:p-2 rounded transition" title="Editar Actividad"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteActivity(${link.id}, ${act.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 sm:p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
@@ -689,15 +700,15 @@ window.loadRestaurants = async function(diaId) {
         return;
     }
     
-    container.innerHTML = rests.map(r => `
-        <div class="flex justify-between items-center bg-white/60 p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group">
-            <div class="flex flex-col">
-                <span class="font-bold text-[var(--ink)] text-lg magic-font">${r.nombre}</span>
-                <span class="text-sm text-stone-600">${r.desc_texto || ''} ${r.precio ? `• <b class="text-green-800">${r.precio}</b>` : ''}</span>
+container.innerHTML = rests.map(r => `
+        <div class="flex justify-between items-center bg-white/60 p-2 sm:p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group gap-2">
+            <div class="flex flex-col min-w-0 flex-1">
+                <div class="font-bold text-[var(--ink)] text-base sm:text-lg magic-font truncate" title="${r.nombre}">${r.nombre}</div>
+                <div class="text-xs sm:text-sm text-stone-600 truncate">${r.desc_texto || ''} ${r.precio ? `• <b class="text-green-800">${r.precio}</b>` : ''}</div>
             </div>
-            <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition">
-                <button onclick='openRestaurantModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-2 rounded transition" title="Editar Restaurante"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteRestaurant(${r.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-2 rounded transition" title="Borrar Restaurante"><i class="fas fa-trash"></i></button>
+            <div class="flex gap-1 sm:gap-2 shrink-0 opacity-100 md:opacity-80 group-hover:opacity-100 transition">
+                <button onclick='openRestaurantModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-1.5 sm:p-2 rounded transition" title="Editar Restaurante"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteRestaurant(${r.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 sm:p-2 rounded transition" title="Borrar Restaurante"><i class="fas fa-trash"></i></button>
             </div>
         </div>
     `).join('');
@@ -792,20 +803,20 @@ window.loadPassActivities = async function(paseId) {
         return;
     }
     
-    container.innerHTML = acts.map(a => `
-        <div class="flex justify-between items-center bg-white/60 p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group">
-            <div class="flex items-center gap-3">
-                <div class="bg-[var(--parchment)] w-10 h-10 rounded-full flex items-center justify-center border border-[var(--gold)]">
-                    <i class="fas ${a.icono || 'fa-ticket-alt'} text-[var(--gryffindor-red)]"></i>
+container.innerHTML = acts.map(a => `
+        <div class="flex justify-between items-center bg-white/60 p-2 sm:p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group gap-2">
+            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <div class="bg-[var(--parchment)] w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border border-[var(--gold)] shrink-0">
+                    <i class="fas ${a.icono || 'fa-ticket-alt'} text-[var(--gryffindor-red)] text-sm sm:text-base"></i>
                 </div>
-                <div class="flex flex-col">
-                    <span class="font-bold text-[var(--ink)] text-lg magic-font">${a.nombre}</span>
-                    <span class="text-sm text-stone-600">${a.dia_sugerido || ''} ${a.precio_taquilla ? `• <b class="text-stone-800">£${a.precio_taquilla}</b>` : ''}</span>
+                <div class="flex flex-col min-w-0 flex-1">
+                    <div class="font-bold text-[var(--ink)] text-base sm:text-lg magic-font truncate" title="${a.nombre}">${a.nombre}</div>
+                    <div class="text-xs sm:text-sm text-stone-600 truncate">${a.dia_sugerido || ''} ${a.precio_taquilla ? `• <b class="text-stone-800">£${a.precio_taquilla}</b>` : ''}</div>
                 </div>
             </div>
-            <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition">
-                <button onclick='openPassActivityModal(${JSON.stringify(a).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-2 rounded transition" title="Editar Actividad"><i class="fas fa-edit"></i></button>
-                <button onclick="deletePassActivity(${a.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
+            <div class="flex gap-1 sm:gap-2 shrink-0 opacity-100 md:opacity-80 group-hover:opacity-100 transition">
+                <button onclick='openPassActivityModal(${JSON.stringify(a).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-1.5 sm:p-2 rounded transition" title="Editar Actividad"><i class="fas fa-edit"></i></button>
+                <button onclick="deletePassActivity(${a.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 sm:p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
             </div>
         </div>
     `).join('');
