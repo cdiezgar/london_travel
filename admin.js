@@ -6,6 +6,24 @@ const sb = createClient(supabaseUrl, supabaseKey);
 
 // --- 1. CONFIGURACIÓN ---
 const schemaMap = {
+    // 1. CONFIGURACIÓN GENERAL
+    configuracion: {
+        label: "Datos del viaje", icon: "fa-cog",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'titulo', label: 'Título Principal', type: 'text', required: true },
+            { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
+            { key: 'presupuesto', label: 'Presupuesto total', type: 'text' },
+            { key: 'base', label: 'Base de Operaciones', type: 'text' },
+            { key: 'intro_texto', label: 'Texto Intro General', type: 'textarea' },
+            { key: 'intro_alojamiento', label: 'Texto Intro Alojamiento', type: 'textarea' },
+            { key: 'tasa_cambio', label: 'Tasa de Cambio (Ej: 1.17)', type: 'float' },
+            { key: 'lat_centro', label: 'Latitud Mapa (Ej: 51.5074)', type: 'float' },
+            { key: 'long_centro', label: 'Longitud Mapa (Ej: -0.1278)', type: 'float' }
+        ]
+    },
+
+    // 2. EL ITINERARIO (El núcleo de la app)
     dias: {
         label: "Días (Itinerario)", icon: "fa-calendar-day",
         columns: [
@@ -19,14 +37,38 @@ const schemaMap = {
             { key: 'nota_dia', label: 'Nota en rojo', type: 'text' }
         ]
     },
-checklist: {
-        label: "Checklist", icon: "fa-check-square",
+
+    // 3. LOGÍSTICA
+    transportes: {
+        label: "Transporte Mágico", icon: "fa-train-subway",
         columns: [
             { key: 'id', label: 'ID', type: 'readonly' },
-            { key: 'item', label: 'Elemento', type: 'text', required: true },
-            { key: 'imagen_url', label: 'URL Imagen', type: 'text' },
-            { key: 'lat', label: 'Latitud', type: 'float' },
-            { key: 'long', label: 'Longitud', type: 'float' }
+            { key: 'consejo_oro', label: 'Regla de Oro', type: 'text', required: true },
+            { key: 'detalle', label: 'Costes y Límites', type: 'textarea' },
+            { key: 'apps', label: 'Apps (separadas por comas)', type: 'text' }
+        ]
+    },
+    pases_turisticos: {
+        label: "Pases Turísticos", icon: "fa-ticket-alt",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'titulo', label: 'Título del Pase', type: 'text', required: true },
+            { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
+            { key: 'precio_total', label: 'Precio Total', type: 'text' },
+            { key: 'precio_pp', label: 'Precio por Persona', type: 'text' },
+            { key: 'info', label: 'Información y Reglas', type: 'textarea' }
+        ]
+    },
+
+    // 4. ALIMENTACIÓN
+    restaurantes_top: {
+        label: "Restaurantes Top", icon: "fa-star",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'nombre', label: 'Nombre', type: 'text', required: true },
+            { key: 'tipo', label: 'Tipo de comida/lugar', type: 'text' },
+            { key: 'precio', label: 'Precio', type: 'text' },
+            { key: 'nota', label: 'Recomendación / Nota', type: 'textarea' }
         ]
     },
     supermercados: {
@@ -38,6 +80,18 @@ checklist: {
             { key: 'estrategia', label: 'Estrategia', type: 'text' }
         ]
     },
+
+    // 5. EXTRAS Y JUEGOS
+    checklist: {
+        label: "Checklist", icon: "fa-check-square",
+        columns: [
+            { key: 'id', label: 'ID', type: 'readonly' },
+            { key: 'item', label: 'Elemento', type: 'text', required: true },
+            { key: 'imagen_url', label: 'URL Imagen', type: 'text' },
+            { key: 'lat', label: 'Latitud', type: 'float' },
+            { key: 'long', label: 'Longitud', type: 'float' }
+        ]
+    },
     secretos: {
         label: "Secretos Extra", icon: "fa-key",
         columns: [
@@ -45,49 +99,7 @@ checklist: {
             { key: 'titulo', label: 'Título', type: 'text', required: true },
             { key: 'texto', label: 'Contenido', type: 'textarea' }
         ]
-    },
-    restaurantes_top: {
-        label: "Restaurantes Top", icon: "fa-star",
-        columns: [
-            { key: 'id', label: 'ID', type: 'readonly' },
-            { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-            { key: 'tipo', label: 'Tipo de comida/lugar', type: 'text' },
-            { key: 'precio', label: 'Precio', type: 'text' },
-            { key: 'nota', label: 'Recomendación / Nota', type: 'textarea' }
-        ]
-    },
-    configuracion: {
-            label: "Datos del viaje", icon: "fa-cog",
-            columns: [
-                { key: 'id', label: 'ID', type: 'readonly' },
-                { key: 'titulo', label: 'Título Principal', type: 'text', required: true },
-                { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
-                { key: 'presupuesto', label: 'Presupuesto total', type: 'text' },
-                { key: 'base', label: 'Base de Operaciones', type: 'text' },
-                { key: 'intro_texto', label: 'Texto Intro General', type: 'textarea' },
-                { key: 'intro_alojamiento', label: 'Texto Intro Alojamiento', type: 'textarea' }
-            ]
-        },
-        transportes: {
-            label: "Transporte Mágico", icon: "fa-train-subway",
-            columns: [
-                { key: 'id', label: 'ID', type: 'readonly' },
-                { key: 'consejo_oro', label: 'Regla de Oro', type: 'text', required: true },
-                { key: 'detalle', label: 'Costes y Límites', type: 'textarea' },
-                { key: 'apps', label: 'Apps (separadas por comas)', type: 'text' }
-            ]
-        },
-        pases_turisticos: {
-            label: "Pases Turísticos", icon: "fa-ticket-alt",
-            columns: [
-                { key: 'id', label: 'ID', type: 'readonly' },
-                { key: 'titulo', label: 'Título del Pase', type: 'text', required: true },
-                { key: 'subtitulo', label: 'Subtítulo', type: 'text' },
-                { key: 'precio_total', label: 'Precio Total', type: 'text' },
-                { key: 'precio_pp', label: 'Precio por Persona', type: 'text' },
-                { key: 'info', label: 'Información y Reglas', type: 'textarea' }
-            ]
-        }
+    }
 };
 
 let currentTable = null;
@@ -98,6 +110,8 @@ let editingLinkId = null;
 let editingItemId = null; // <-- Añade esta línea al principio con el resto de lets
 let editingRestaurantId = null;
 let currentAdminViajeId = null; // <--- NUEVA VARIABLE GLOBAL
+let currentPaseIdForActivity = null;
+let editingPassActivityId = null;
 
 async function init() {
     const { data: { session } } = await sb.auth.getSession();
@@ -271,21 +285,33 @@ window.openForm = function(rowData = null) {
             }).join('');
 
     const timelineContainer = document.getElementById('timeline-container');
-    const restContainer = document.getElementById('restaurants-container'); // NUEVO
+    const restContainer = document.getElementById('restaurants-container'); 
+    const passContainer = document.getElementById('pass-activities-container'); // NUEVO
     
+    // Resetear todo a oculto
+    timelineContainer.classList.add('hidden');
+    restContainer.classList.add('hidden'); 
+    passContainer.classList.add('hidden');
+
     if (currentTable === 'dias' && currentEditingId) {
         currentDiaIdForActivity = currentEditingId;
         timelineContainer.classList.remove('hidden');
-        restContainer.classList.remove('hidden'); // NUEVO
+        restContainer.classList.remove('hidden'); 
         loadTimeline(currentEditingId);
-        loadRestaurants(currentEditingId); // NUEVO
-    } else {
-        timelineContainer.classList.add('hidden');
-        restContainer.classList.add('hidden'); // NUEVO
-        if (currentTable === 'dias') {
-            document.getElementById('timeline-content').innerHTML = '<p class="text-lg handwritten text-center p-4">Guarda el día primero en el pergamino para poder añadirle actividades.</p>';
-            timelineContainer.classList.remove('hidden');
-        }
+        loadRestaurants(currentEditingId); 
+    } else if (currentTable === 'dias') {
+        document.getElementById('timeline-content').innerHTML = '<p class="text-lg handwritten text-center p-4">Guarda el día primero en el pergamino para poder añadirle actividades.</p>';
+        timelineContainer.classList.remove('hidden');
+    }
+
+    // NUEVO BLOQUE PARA PASES TURÍSTICOS
+    if (currentTable === 'pases_turisticos' && currentEditingId) {
+        currentPaseIdForActivity = currentEditingId;
+        passContainer.classList.remove('hidden');
+        loadPassActivities(currentEditingId);
+    } else if (currentTable === 'pases_turisticos') {
+        document.getElementById('pass-activities-content').innerHTML = '<p class="text-lg handwritten text-center p-4">Guarda el pase primero para poder añadirle actividades dentro.</p>';
+        passContainer.classList.remove('hidden');
     }
 
     document.getElementById('form-modal').classList.remove('hidden');
@@ -735,5 +761,104 @@ window.goToApp = function() {
         window.location.href = 'index.html';
     }
 }
+
+// ==========================================
+// --- GESTIÓN DE ACTIVIDADES DEL PASE ---
+// ==========================================
+
+window.loadPassActivities = async function(paseId) {
+    const container = document.getElementById('pass-activities-content');
+    container.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-2xl text-[var(--gold)]"></i></div>';
+    
+    const { data: acts, error } = await sb.from('actividades_pase').select('*').eq('pase_id', paseId).order('id', { ascending: true });
+    
+    if (error) { container.innerHTML = `<p class="text-[var(--gryffindor-red)]">Error: ${error.message}</p>`; return; }
+    
+    if (!acts || acts.length === 0) {
+        container.innerHTML = '<p class="text-stone-500 text-lg handwritten text-center py-4">No hay actividades vinculadas a este pase.</p>';
+        return;
+    }
+    
+    container.innerHTML = acts.map(a => `
+        <div class="flex justify-between items-center bg-white/60 p-3 rounded border border-[#e2d1aa] shadow-sm mb-2 group">
+            <div class="flex items-center gap-3">
+                <div class="bg-[var(--parchment)] w-10 h-10 rounded-full flex items-center justify-center border border-[var(--gold)]">
+                    <i class="fas ${a.icono || 'fa-ticket-alt'} text-[var(--gryffindor-red)]"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-[var(--ink)] text-lg magic-font">${a.nombre}</span>
+                    <span class="text-sm text-stone-600">${a.dia_sugerido || ''} ${a.precio_taquilla ? `• <b class="text-stone-800">£${a.precio_taquilla}</b>` : ''}</span>
+                </div>
+            </div>
+            <div class="flex gap-2 opacity-80 group-hover:opacity-100 transition">
+                <button onclick='openPassActivityModal(${JSON.stringify(a).replace(/'/g, "&#39;")})' class="text-blue-700 hover:bg-blue-100 p-2 rounded transition" title="Editar Actividad"><i class="fas fa-edit"></i></button>
+                <button onclick="deletePassActivity(${a.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+};
+
+window.openPassActivityModal = function(aData = null) {
+    const form = document.getElementById('pass-activity-form');
+    form.reset();
+    
+    if (aData) {
+        editingPassActivityId = aData.id;
+        document.getElementById('pass-activity-modal-title').innerHTML = '<i class="fas fa-ticket-alt text-[var(--gold)]"></i> Editar Actividad';
+        document.getElementById('pass-act-nombre').value = aData.nombre || '';
+        document.getElementById('pass-act-precio').value = aData.precio_taquilla || '';
+        document.getElementById('pass-act-dia').value = aData.dia_sugerido || '';
+        document.getElementById('pass-act-icono').value = aData.icono || '';
+    } else {
+        editingPassActivityId = null;
+        document.getElementById('pass-activity-modal-title').innerHTML = '<i class="fas fa-ticket-alt text-[var(--gold)]"></i> Nueva Actividad';
+    }
+    document.getElementById('pass-activity-modal').classList.remove('hidden');
+};
+
+window.closePassActivityModal = function() {
+    document.getElementById('pass-activity-modal').classList.add('hidden');
+};
+
+window.savePassActivity = async function() {
+    const form = document.getElementById('pass-activity-form');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    
+    const payload = {
+        pase_id: currentPaseIdForActivity,  // Referencia al ID del pase padre
+        viaje_id: currentAdminViajeId,      // Referencia al ID del viaje global
+        nombre: document.getElementById('pass-act-nombre').value.trim(),
+        precio_taquilla: document.getElementById('pass-act-precio').value || null,
+        dia_sugerido: document.getElementById('pass-act-dia').value.trim() || null,
+        icono: document.getElementById('pass-act-icono').value.trim() || null
+    };
+    
+    let error;
+    if (editingPassActivityId) {
+        const res = await sb.from('actividades_pase').update(payload).eq('id', editingPassActivityId);
+        error = res.error;
+    } else {
+        const res = await sb.from('actividades_pase').insert([payload]);
+        error = res.error;
+    }
+    
+    if (error) {
+        alert("Maldición rebotada al guardar actividad: " + error.message);
+    } else {
+        closePassActivityModal();
+        loadPassActivities(currentPaseIdForActivity);
+        localStorage.removeItem('travel_data_cache_' + currentAdminViajeId); // Limpia la caché para que la app se actualice
+    }
+};
+
+window.deletePassActivity = async function(id) {
+    if (!confirm("¿Seguro que quieres borrar esta actividad del pase turístico?")) return;
+    const { error } = await sb.from('actividades_pase').delete().eq('id', id);
+    if (error) alert("Error al borrar: " + error.message);
+    else {
+        loadPassActivities(currentPaseIdForActivity);
+        localStorage.removeItem('travel_data_cache_' + currentAdminViajeId);
+    }
+};
 
 document.addEventListener('DOMContentLoaded', init);

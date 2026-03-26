@@ -144,7 +144,8 @@ async function fetchTravelData() {
             { data: checkData },
             { data: gastosData },
             { data: transData },  // <-- NUEVA VARIABLE
-            { data: pasesData }   // <-- NUEVA VARIABLE
+            { data: pasesData },   // <-- NUEVA VARIABLE
+            { data: actividadesPaseData } // <--- NUEVA VARIABLE
         ] = await Promise.all([
             // Cambiamos .single() por .maybeSingle() para que no falle si está vacío
             sb.from('configuracion').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
@@ -169,7 +170,8 @@ async function fetchTravelData() {
             
             // --- NUEVAS CONSULTAS ---
             sb.from('transportes').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
-            sb.from('pases_turisticos').select('*').eq('viaje_id', currentViajeId).maybeSingle()
+            sb.from('pases_turisticos').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
+            sb.from('actividades_pase').select('*').eq('viaje_id', currentViajeId)
         ]);
 
         if (configErr || diasErr) throw new Error("Fallo al leer datos");
@@ -180,7 +182,10 @@ async function fetchTravelData() {
                 titulo: configData?.titulo || '', 
                 subtitulo: configData?.subtitulo || '',
                 presupuesto: configData?.presupuesto || '', 
-                base: configData?.base || ''
+                base: configData?.base || '',
+                tasa_cambio: configData?.tasa_cambio || 1, // Por defecto 1
+                lat_centro: configData?.lat_centro || 51.5074, // Londres por defecto
+                long_centro: configData?.long_centro || -0.1278
             },
             intro: {
                 texto: configData?.intro_texto || '', 
@@ -262,12 +267,15 @@ async function fetchTravelData() {
                 
                 // Las actividades del pase las dejamos vacías por ahora para no sobrecomplicar la BBDD.
                 // Podrías crear una tabla 'actividades_pase' en el futuro si quieres.
-                actividades: [] 
+                actividades: actividadesPaseData || []
             }
         };
 
+        // ACTUALIZAR EL TÍTULO DE LA PESTAÑA DEL NAVEGADOR
+        document.title = organizadorViaje.config.titulo || "Expedición";
+        
         // Guardar en caché para la próxima vez
-       localStorage.setItem(cacheKey, JSON.stringify(organizadorViaje));
+        localStorage.setItem(cacheKey, JSON.stringify(organizadorViaje));
 
         // MOSTRAMOS EL BOTÓN HAMBURGUESA EN VEZ DE LA ANTIGUA BARRA
         if(hamburgerBtn) hamburgerBtn.classList.remove('hidden');
@@ -627,10 +635,6 @@ function renderTransport() {
 
             <div class="parchment-box p-5 rounded-lg">
                 <h4 class="font-bold mb-3 text-sm uppercase tracking-wider text-[var(--ink)]">Transporte Especial</h4>
-                <ul class="text-sm space-y-3">
-                    <li class="flex gap-3"><i class="fas fa-ship text-blue-600 mt-1"></i> <div><strong>Uber Boat:</strong> Se paga igual (Contactless). Genial al atardecer.</div></li>
-                    <li class="flex gap-3"><i class="fas fa-train text-purple-600 mt-1"></i> <div><strong>Elizabeth Line:</strong> Súper rápida, moderna y con aire acondicionado.</div></li>
-                    <li class="flex gap-3"><i class="fas fa-bus text-red-600 mt-1"></i> <div><strong>Bus Rojo:</strong> £1.75 el viaje. Si coges otro antes de 1h es gratis (Hopper Fare).</div></li>
                 </ul>
             </div>
         </div>
@@ -786,8 +790,7 @@ function initMapaDinamico() {
     setTimeout(() => {
         if (window.londonMap) { window.londonMap.remove(); }
         
-        window.londonMap = L.map('london-map').setView([51.5074, -0.1278], 12);
-
+        window.londonMap = L.map('london-map').setView([organizadorViaje.config.lat_centro, organizadorViaje.config.long_centro], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.londonMap);
 
         organizadorViaje.checklist.forEach(item => {
@@ -850,7 +853,7 @@ window.toggleChecklist = async function(id, estadoActual) {
 function renderGastos() {
     setActiveNav('nav-gastos');
     
-    const TASA_CAMBIO = 1.17; // Modifica según el cambio actual
+    const TASA_CAMBIO = organizadorViaje.config.tasa_cambio; // Modifica según el cambio actual
     let gastos = organizadorViaje.gastos || [];
     
     let totalGBP = gastos.reduce((sum, g) => sum + parseFloat(g.cantidad), 0);
@@ -999,7 +1002,7 @@ function renderExplorerPass() {
                 </div>
                 <div class="text-right">
                     <span class="block text-xs uppercase text-stone-400 mb-1">En taquilla</span>
-                    <span class="font-bold text-stone-800 bg-stone-100 px-2 py-1 rounded font-mono">£${act.precio_taquilla.toFixed(2)}</span>
+                    <span class="font-bold text-stone-800 bg-stone-100 px-2 py-1 rounded font-mono">${act.precio_taquilla ? '£' + act.precio_taquilla : '-'}</span>
                 </div>
             </div>
         `;
@@ -1254,7 +1257,8 @@ window.generarGuiaPDF = function() {
         doc.text(`Página ${i} de ${totalPages}`, 105, 290, { align: "center" });
     }
 
-    doc.save(`Guia_Londres_Resumen_2026.pdf`);
+    const nombreArchivo = data.config.titulo ? data.config.titulo.replace(/\s+/g, '_') : 'Viaje';
+    doc.save(`Guia_${nombreArchivo}.pdf`);
 };
 
 async function loadUserTrips() {
