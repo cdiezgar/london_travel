@@ -20,32 +20,37 @@
 </head>
 <body class="h-screen flex overflow-hidden bg-[var(--parchment)] text-[var(--ink)]" style="font-family: 'Crimson Text', serif;">
 
-    <aside class="w-64 bg-[#2b1b17] text-[#e2d1aa] flex flex-col h-full shadow-[4px_0_15px_rgba(0,0,0,0.5)] z-20 border-r-2 border-[var(--gold)]">
-        <div class="p-6 border-b border-[var(--gold)]/30 text-center">
-            <h1 class="text-2xl font-bold flex flex-col items-center gap-2 text-[var(--gold)] magic-font">
+<div id="admin-overlay" onclick="toggleAdminMenu()" class="fixed inset-0 bg-black/60 z-20 hidden md:hidden"></div>
+
+    <aside id="admin-sidebar" class="absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out w-64 bg-[#2b1b17] text-[#e2d1aa] flex flex-col h-full shadow-[4px_0_15px_rgba(0,0,0,0.5)] z-30 border-r-2 border-[var(--gold)]">
+        <div class="p-6 border-b border-[var(--gold)]/30 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex flex-col items-center gap-2 text-[var(--gold)] magic-font mx-auto">
                 <i class="fas fa-hat-wizard text-4xl mb-1"></i> Admin Mágico
             </h1>
+            <button onclick="toggleAdminMenu()" class="md:hidden text-[var(--gold)] text-2xl"><i class="fas fa-times"></i></button>
         </div>
         <nav class="flex-1 overflow-y-auto py-4" id="sidebar-menu"></nav>
         <div class="p-4 border-t border-[var(--gold)]/30">
-
             <button onclick="goToApp()" class="w-full bg-[var(--gryffindor-red)] hover:bg-red-900 text-white py-2.5 rounded transition border border-[var(--gold)] shadow-md magic-font tracking-wider active:scale-95 my-5">
                 <i class="fas fa-sign-out-alt"></i> Ir al viaje
-            </button>
-                        
+            </button>            
             <button onclick="logoutAdmin()" class="w-full bg-[var(--gryffindor-red)] hover:bg-red-900 text-white py-2.5 rounded transition border border-[var(--gold)] shadow-md magic-font tracking-wider active:scale-95">
                 <i class="fas fa-sign-out-alt"></i> Salir
             </button>
-
-
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative">
-        <header class="bg-[#fffef0] shadow-md p-5 flex justify-between items-center z-10 border-b border-[#e2d1aa]">
-            <h2 id="view-title" class="text-3xl font-bold text-[var(--gryffindor-red)] magic-font tracking-wide">Panel de Control</h2>
-            <button id="btn-add" class="hidden bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font active:scale-95">
-                <i class="fas fa-wand-magic-sparkles mr-2"></i> Nuevo Registro
+    <main class="flex-1 flex flex-col h-full relative w-full overflow-hidden">
+        <header class="bg-[#fffef0] shadow-md p-4 sm:p-5 flex justify-between items-center z-10 border-b border-[#e2d1aa]">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAdminMenu()" class="md:hidden text-[var(--gryffindor-red)] text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 id="view-title" class="text-xl sm:text-3xl font-bold text-[var(--gryffindor-red)] magic-font tracking-wide">Panel</h2>
+            </div>
+            
+            <button id="btn-add" class="hidden bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font active:scale-95 text-sm sm:text-base">
+                <i class="fas fa-wand-magic-sparkles sm:mr-2"></i> <span class="hidden sm:inline">Nuevo Registro</span>
             </button>
         </header>
         
@@ -112,9 +117,9 @@
                 
             </div>
 
-            <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-4 shrink-0">
-                <button onclick="closeModal()" class="px-5 py-2.5 bg-gray-300 text-gray-800 rounded shadow hover:bg-gray-400 font-bold magic-font tracking-wider">Cancelar</button>
-                <button onclick="saveData()" class="px-5 py-2.5 bg-[var(--gryffindor-red)] text-white rounded shadow-md hover:bg-red-900 font-bold magic-font tracking-wider border border-[var(--gold)]">Guardar Cambios</button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+                <button type="button" onclick="closeModal()" class="w-full sm:w-auto bg-stone-300 hover:bg-stone-400 text-stone-800 px-5 py-2.5 rounded font-bold transition">Cancelar</button>
+                <button type="button" onclick="saveData()" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font tracking-wider">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -128,7 +133,7 @@
             
             <div class="p-6 overflow-y-auto flex-1">
                 <form id="activity-form" class="space-y-5">
-                    <div class="grid grid-cols-3 gap-4 border-b border-[#e2d1aa] pb-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-[#e2d1aa] pb-5">
                         <div class="col-span-1">
                             <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Hora <span class="text-red-500">*</span></label>
                             <input type="time" id="act-hora" required class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg font-bold font-sans">
@@ -139,7 +144,7 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Tipo de icono</label>
                             <select id="act-tipo" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-base">
@@ -209,11 +214,9 @@
                 </div>
             </div>
 
-            <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-3 shrink-0">
-                <button onclick="closeActivityModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold magic-font">Cancelar</button>
-                <button onclick="saveActivity()" class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 font-bold magic-font border border-green-900 shadow-md">
-                    <i class="fas fa-save mr-1"></i> Guardar Actividad
-                </button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+                <button type="button" onclick="closeActivityModal()" class="w-full sm:w-auto bg-stone-300 hover:bg-stone-400 text-stone-800 px-5 py-2.5 rounded font-bold transition">Cancelar</button>
+                <button type="button" onclick="saveActivity()" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">Guardar Actividad</button>
             </div>
         </div>
     </div>
@@ -235,7 +238,7 @@
                         <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Descripción Breve</label>
                         <input type="text" id="rest-desc" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: Pasta fresca increíble (cola virtual).">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Precio</label>
                             <input type="text" id="rest-precio" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: £10-14">
@@ -248,11 +251,9 @@
                 </form>
             </div>
 
-            <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-3 shrink-0">
-                <button onclick="closeRestaurantModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold magic-font">Cancelar</button>
-                <button onclick="saveRestaurant()" class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 font-bold magic-font shadow-md border border-green-900">
-                    <i class="fas fa-save mr-1"></i> Guardar
-                </button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+                <button type="button" onclick="closeRestaurantModal()" class="w-full sm:w-auto bg-stone-300 hover:bg-stone-400 text-stone-800 px-5 py-2.5 rounded font-bold transition">Cancelar</button>
+                <button type="button" onclick="saveRestaurant()" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">Guardar Restaurante</button>
             </div>
         </div>
     </div>
@@ -270,7 +271,7 @@
                         <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Nombre de Atracción <span class="text-red-500">*</span></label>
                         <input type="text" id="pass-act-nombre" required class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-lg" placeholder="Ej: Tower of London">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">Precio Taquilla</label>
                             <input type="number" step="0.01" id="pass-act-precio" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition text-base" placeholder="Ej: 34.80">
@@ -287,11 +288,9 @@
                 </form>
             </div>
 
-            <div class="p-5 border-t-2 border-[var(--gold)] bg-[#fffef0] rounded-b-lg flex justify-end gap-3 shrink-0">
-                <button onclick="closePassActivityModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-bold magic-font shadow-sm">Cancelar</button>
-                <button onclick="savePassActivity()" class="px-4 py-2 bg-[var(--gryffindor-red)] text-white rounded hover:bg-red-900 font-bold magic-font shadow-md border border-[var(--gold)]">
-                    <i class="fas fa-save mr-1"></i> Guardar
-                </button>
+            <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+                <button type="button" onclick="closePassActivityModal()" class="w-full sm:w-auto bg-stone-300 hover:bg-stone-400 text-stone-800 px-5 py-2.5 rounded font-bold transition">Cancelar</button>
+                <button type="button" onclick="savePassActivity()" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">Guardar Actividad</button>
             </div>
         </div>
     </div>

@@ -185,6 +185,17 @@ window.changeAdminViaje = function() {
 window.loadTable = async function(tableKey) {
     currentTable = tableKey;
     setActiveMenu(tableKey);
+    
+    // --- NUEVO: Cerrar el menú en móvil automáticamente al hacer clic ---
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('admin-overlay');
+    if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+    }
+    // -------------------------------------------------------------------
+
+    document.getElementById('view-title').textContent = schemaMap[tableKey].label;
     document.getElementById('view-title').textContent = schemaMap[tableKey].label;
     document.getElementById('btn-add').classList.remove('hidden');
     document.getElementById('btn-add').onclick = () => openForm(); 
@@ -232,8 +243,10 @@ function renderTable(data, tableKey) {
     table.classList.remove('hidden');
 
     const visibleCols = schema.columns.filter(c => c.type !== 'textarea').slice(0, 5);
+    
+    // Cambiamos a index === 1 para que el título/nombre se vea en móvil y el ID se oculte
     thead.innerHTML = `<tr>
-        ${visibleCols.map(col => `<th class="py-4 px-4 font-bold uppercase">${col.label}</th>`).join('')}
+        ${visibleCols.map((col, index) => `<th class="py-4 px-4 font-bold uppercase ${index === 1 ? '' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
         <th class="py-4 px-4 text-right">Acciones</th>
     </tr>`;
 
@@ -244,10 +257,10 @@ function renderTable(data, tableKey) {
 
     tbody.innerHTML = data.map(row => `
         <tr class="hover:bg-[#fffef0] transition border-b border-[#e2d1aa]/50 group">
-            ${visibleCols.map(col => `<td class="py-3 px-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] text-stone-800">${row[col.key] || '-'}</td>`).join('')}
-            <td class="py-3 px-4 text-right opacity-50 group-hover:opacity-100 transition">
+            ${visibleCols.map((col, index) => `<td class="py-3 px-4 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px] text-stone-800 ${index === 1 ? '' : 'hidden md:table-cell'}">${row[col.key] || '-'}</td>`).join('')}
+            <td class="py-3 px-4 text-right opacity-100 md:opacity-50 group-hover:opacity-100 transition whitespace-nowrap">
                 <button onclick='openForm(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="text-[var(--gold)] hover:text-yellow-600 p-2"><i class="fas fa-edit text-xl"></i></button>
-                <button onclick='deleteData(${row.id})' class="text-[var(--gryffindor-red)] hover:text-red-800 p-2 ml-2"><i class="fas fa-trash text-xl"></i></button>
+                <button onclick='deleteData(${row.id})' class="text-[var(--gryffindor-red)] hover:text-red-800 p-2 ml-1"><i class="fas fa-trash text-xl"></i></button>
             </td>
         </tr>
     `).join('');
@@ -860,5 +873,12 @@ window.deletePassActivity = async function(id) {
         localStorage.removeItem('travel_data_cache_' + currentAdminViajeId);
     }
 };
+
+window.toggleAdminMenu = function() {
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('admin-overlay');
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
 
 document.addEventListener('DOMContentLoaded', init);
