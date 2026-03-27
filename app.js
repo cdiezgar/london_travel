@@ -1272,7 +1272,7 @@ async function loadUserTrips() {
     tripList.innerHTML = '<p class="text-stone-600 italic text-sm"><i class="fas fa-spinner fa-spin text-[var(--gold)] mr-2"></i>Consultando con Gringotts...</p>';
 
     // 2. Obtener los viajes del usuario actual
-    const { data: viajes, error } = await sb.from('viajes').select('*').order('created_at', { ascending: true });
+    const { data: viajes, error } = await sb.from('viajes').select('*').eq('activo', true).order('created_at', { ascending: true });
 
     if (error) {
         console.error("Error cargando viajes:", error);
@@ -1284,7 +1284,7 @@ async function loadUserTrips() {
 
     // 3. Evaluar si tiene viajes
     if (viajes.length === 0) {
-        tripList.innerHTML = '<p class="text-stone-700 font-medium text-sm">No tienes ningún viaje todavía. ¡Forja el primero abajo!</p>';
+        tripList.innerHTML = '<p class="text-stone-700 font-medium text-sm">No tienes ningún activo. ¡Forja el primero abajo!</p>';
     } else {
         viajes.forEach(viaje => {
             const btn = document.createElement('button');
