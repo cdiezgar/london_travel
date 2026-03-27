@@ -29,7 +29,7 @@ const schemaMap = {
         columns: [
             { key: 'id', label: 'ID Día', type: 'readonly', required: false },
             { key: 'titulo', label: 'Título', type: 'text', required: true },
-            { key: 'fecha', label: 'Fecha', type: 'date' },
+            { key: 'fecha', label: 'Fecha', type: 'date', required: true },
             { key: 'icono', label: 'Icono (FontAwesome)', type: 'text' },
             { key: 'resumen', label: 'Resumen Corto', type: 'textarea' },
             { key: 'historia_dia', label: 'Historia Completa', type: 'textarea' },
@@ -242,7 +242,7 @@ function renderTable(data, tableKey) {
     const schema = schemaMap[tableKey];
     table.classList.remove('hidden');
 
-    const visibleCols = schema.columns.filter(c => c.type !== 'textarea').slice(0, 5);
+    const visibleCols = schema.columns.filter(c => c.type !== 'textarea' && c.key !== 'id').slice(0, 5);
     
     thead.innerHTML = `<tr>
         ${visibleCols.map((col, index) => `<th class="py-3 px-2 sm:px-4 font-bold uppercase text-left text-sm sm:text-base ${index === 1 ? 'w-full' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
@@ -524,9 +524,9 @@ window.saveActivity = async function() {
     const actData = {
         nombre: document.getElementById('act-nombre').value,
         tipo: document.getElementById('act-tipo').value,
-        direccion: document.getElementById('act-direccion').value || null,
-        precio: document.getElementById('act-precio').value || null,
-        desc_texto: document.getElementById('act-desc').value || null,
+        direccion: document.getElementById('act-direccion').value || "",
+        precio: document.getElementById('act-precio').value || "",
+        desc_texto: document.getElementById('act-desc').value || "",
         contexto: document.getElementById('act-contexto').value || null,
         checklist_id: checklistVal ? parseInt(checklistVal) : null, 
         viaje_id: currentAdminViajeId
@@ -744,7 +744,7 @@ window.saveRestaurant = async function() {
         dia_id: currentDiaIdForActivity, // Usa el ID del día abierto
         nombre: document.getElementById('rest-nombre').value.trim(),
         desc_texto: document.getElementById('rest-desc').value.trim() || null,
-        precio: document.getElementById('rest-precio').value.trim() || null,
+        precio: document.getElementById('rest-precio').value.trim() || "",
         loc: document.getElementById('rest-loc').value.trim() || null
     };
     
@@ -854,8 +854,8 @@ window.savePassActivity = async function() {
         pase_id: currentPaseIdForActivity,  // Referencia al ID del pase padre
         viaje_id: currentAdminViajeId,      // Referencia al ID del viaje global
         nombre: document.getElementById('pass-act-nombre').value.trim(),
-        precio_taquilla: document.getElementById('pass-act-precio').value || null,
-        dia_sugerido: document.getElementById('pass-act-dia').value.trim() || null,
+        precio_taquilla: document.getElementById('pass-act-precio').value || "",
+        dia_sugerido: document.getElementById('pass-act-dia').value.trim() || "Sin día indicado",
         icono: document.getElementById('pass-act-icono').value.trim() || null
     };
     

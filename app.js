@@ -410,11 +410,13 @@ function renderDayDetail(id) {
             <div class="text-center mb-8">
                 <h2 class="text-3xl font-bold text-[var(--gryffindor-red)] mb-1">${dia.titulo}</h2>
                 <p class="text-md font-bold text-gray-600 uppercase tracking-widest">${dia.fecha}</p>
+                ${dia.nota_dia ? `
                 <div class="mt-4 text-center">
                     <span class="handwritten text-xl text-red-900 bg-yellow-50 px-4 py-2 rounded shadow-sm inline-block transform -rotate-1 border border-yellow-200">
                         "${dia.nota_dia}"
                     </span>
                 </div>
+                ` : ''}
             </div>
 
             ${dia.historia_dia ? `
@@ -867,7 +869,7 @@ function renderGastos() {
 
             <div class="parchment-box p-5 rounded-lg mb-6 shadow-md text-center border-l-4 border-yellow-500 bg-yellow-50">
                 <h3 class="font-bold text-lg mb-1 text-[var(--ink)]">Gasto Acumulado</h3>
-                <p class="text-4xl font-bold text-[var(--gryffindor-red)] mb-1 tracking-wider">£${totalGBP.toFixed(2)}</p>
+                <p class="text-4xl font-bold text-[var(--gryffindor-red)] mb-1 tracking-wider">${totalGBP.toFixed(2)}</p>
                 <p class="text-sm font-bold text-stone-600 bg-white/60 inline-block px-4 py-1.5 rounded-full border border-stone-300 shadow-sm mt-1">
                     <i class="fas fa-exchange-alt mr-1"></i> ≈ €${totalEUR.toFixed(2)}
                 </p>
@@ -879,7 +881,7 @@ function renderGastos() {
                 </h3>
                 <div class="flex gap-2">
                     <input type="text" id="gasto-concepto" placeholder="Ej: Pintas pub" class="flex-1 p-2 border-b-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-[var(--gold)] focus:bg-white transition">
-                    <input type="number" step="0.01" id="gasto-cantidad" placeholder="£" class="w-20 p-2 border-b-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-[var(--gold)] focus:bg-white transition text-center font-bold">
+                    <input type="number" step="0.01" id="gasto-cantidad" class="w-20 p-2 border-b-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-[var(--gold)] focus:bg-white transition text-center font-bold">
                     <button onclick="addGasto(event)" class="bg-[var(--gryffindor-red)] text-white px-4 py-2 rounded shadow hover:bg-red-900 transition active:scale-95">
                         <i class="fas fa-check"></i>
                     </button>
@@ -900,7 +902,7 @@ function renderGastos() {
                     <span class="font-medium text-stone-800 text-lg leading-tight w-1/2">${g.concepto}</span>
                     <div class="flex items-center gap-3">
                         <div class="text-right">
-                            <span class="block font-bold text-[var(--gryffindor-red)] text-lg">£${parseFloat(g.cantidad).toFixed(2)}</span>
+                            <span class="block font-bold text-[var(--gryffindor-red)] text-lg">${parseFloat(g.cantidad).toFixed(2)}</span>
                             <span class="block text-xs font-bold text-stone-500">€${eur.toFixed(2)}</span>
                         </div>
                         <button onclick="deleteGasto(${g.id})" class="text-red-300 hover:text-red-600 p-2 transition active:scale-95" title="Eliminar gasto">
@@ -1002,7 +1004,7 @@ function renderExplorerPass() {
                 </div>
                 <div class="text-right">
                     <span class="block text-xs uppercase text-stone-400 mb-1">En taquilla</span>
-                    <span class="font-bold text-stone-800 bg-stone-100 px-2 py-1 rounded font-mono">${act.precio_taquilla ? '£' + act.precio_taquilla : '-'}</span>
+                    <span class="font-bold text-stone-800 bg-stone-100 px-2 py-1 rounded font-mono">${act.precio_taquilla ? '' + act.precio_taquilla : '-'}</span>
                 </div>
             </div>
         `;
