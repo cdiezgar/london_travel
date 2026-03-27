@@ -1394,9 +1394,8 @@ async function handleSignUp(e) {
     const errorMsg = document.getElementById('login-error');
     const btn = document.getElementById('signup-btn');
     
-    // Resetear estilos de mensaje
-    errorMsg.classList.remove('text-green-600');
-    errorMsg.classList.add('text-red-600');
+    // Ocultar mensajes de error previos
+    errorMsg.classList.add('hidden');
 
     if (!emailInput || !passwordInput) {
         errorMsg.textContent = "Introduce correo y contraseña para crear la cuenta.";
@@ -1416,21 +1415,56 @@ async function handleSignUp(e) {
     if (error) {
         errorMsg.textContent = "Error al crear cuenta: " + error.message;
         errorMsg.classList.remove('hidden');
+        btn.innerHTML = `<i class="fas fa-user-plus mr-2"></i> Crear nueva cuenta`;
+        btn.disabled = false;
     } else {
-        // Éxito al registrar
-        errorMsg.classList.remove('text-red-600');
-        errorMsg.classList.add('text-green-600');
-        errorMsg.textContent = "¡Cuenta creada con éxito! Ya puedes iniciar sesión.";
-        errorMsg.classList.remove('hidden');
-        
-        // Opcional: limpiar los campos
-        // document.getElementById('magic-email').value = '';
-        // document.getElementById('magic-password').value = '';
+        // ¡ÉXITO! Lanzamos el modal dinámico
+        mostrarModalExito(emailInput, passwordInput);
     }
+}
 
-    // Restaurar el botón
-    btn.innerHTML = `<i class="fas fa-user-plus mr-2"></i> Crear nueva cuenta`;
-    btn.disabled = false;
+// NUEVA FUNCION: Crea un modal dinámico, lo inyecta en el HTML y maneja el auto-login
+function mostrarModalExito(email, password) {
+    const modalHtml = `
+        <div id="signup-success-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[200] px-4 fade-in">
+            <div class="parchment-box p-8 rounded-lg text-center max-w-sm w-full relative border-2 border-[var(--gold)] shadow-2xl">
+                <i class="fas fa-envelope-open-text text-6xl text-[var(--gold)] mb-4 filter drop-shadow-md"></i>
+                <h2 class="text-2xl font-bold text-[var(--gryffindor-red)] mb-2 magic-font">¡Carta Aceptada!</h2>
+                <p class="text-stone-700 font-medium mb-6 text-sm">Tu cuenta ha sido forjada con éxito en los registros del Ministerio de Magia.</p>
+                
+                <button id="btn-enter-app" class="w-full bg-[var(--gryffindor-red)] text-white font-bold py-3 rounded shadow-md active:scale-95 transition border border-[var(--gold)]">
+                    <i class="fas fa-door-open mr-2"></i> Entrar al Andén 9 ¾
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Lo inyectamos al final del body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Le damos vida al botón del modal
+    document.getElementById('btn-enter-app').addEventListener('click', async () => {
+        const btn = document.getElementById('btn-enter-app');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Cruzando el muro...';
+        btn.disabled = true;
+
+        // Iniciar sesión automáticamente de fondo
+        const { error } = await sb.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        // Destruimos el modal del HTML
+        document.getElementById('signup-success-modal').remove();
+
+        if (error) {
+            alert("Error al intentar cruzar el muro: " + error.message);
+        } else {
+            // Entramos de lleno a la aplicación
+            appContent.innerHTML = ''; 
+            loadUserTrips();
+        }
+    });
 }
 
 // --- EXPORTAR FUNCIONES AL ÁMBITO GLOBAL ---

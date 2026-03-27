@@ -245,7 +245,7 @@ function renderTable(data, tableKey) {
     const visibleCols = schema.columns.filter(c => c.type !== 'textarea' && c.key !== 'id').slice(0, 5);
     
     thead.innerHTML = `<tr>
-        ${visibleCols.map((col, index) => `<th class="py-3 px-2 sm:px-4 font-bold uppercase text-left text-sm sm:text-base ${index === 1 ? 'w-full' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
+        ${visibleCols.map((col, index) => `<th class="py-3 px-2 sm:px-4 font-bold uppercase text-left text-sm sm:text-base ${index === 0 ? 'w-full' : 'hidden md:table-cell'}">${col.label}</th>`).join('')}
         <th class="py-3 px-2 sm:px-4 text-right text-sm sm:text-base whitespace-nowrap">Borrar</th>
     </tr>`;
 
@@ -257,8 +257,8 @@ function renderTable(data, tableKey) {
     tbody.innerHTML = data.map(row => `
         <tr class="hover:bg-blue-50/30 transition border-b border-[#e2d1aa]/50 group/row">
             ${visibleCols.map((col, index) => `
-                <td onclick='openForm(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="py-2 sm:py-3 px-2 sm:px-4 text-sm sm:text-base cursor-pointer ${index === 1 ? '' : 'hidden md:table-cell'}">
-                    <div class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] xs:max-w-[180px] sm:max-w-[250px] text-stone-800 group-hover/row:text-blue-800 transition" title="${row[col.key] || '-'}">
+                <td onclick='openForm(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="py-2 sm:py-3 px-2 sm:px-4 text-sm sm:text-base cursor-pointer ${index === 0 ? '' : 'hidden md:table-cell'}">
+                   <div class="whitespace-normal break-words min-w-[120px] text-stone-800 group-hover/row:text-blue-800 transition" title="${row[col.key] || '-'}">
                         ${row[col.key] || '-'}
                     </div>
                 </td>
