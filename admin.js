@@ -357,8 +357,8 @@ window.renderDashboardConfig = function(configData, isActivo) {
                 <input type="text" id="conf-${col.key}" value="${value}" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition font-medium"></div>`;
     }).join('');
 
-    container.innerHTML = `
-        <div class="parchment-box p-4 sm:p-6 rounded-lg shadow-lg relative">
+container.innerHTML = `
+        <div class="parchment-box p-4 sm:p-6 rounded-lg shadow-lg relative mb-24">
             
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 border-b border-[var(--gold)] pb-4 gap-4">
                 
@@ -392,7 +392,7 @@ window.renderDashboardConfig = function(configData, isActivo) {
                 ${formFields}
             </form>
             
-            <div class="mt-8 flex flex-col sm:flex-row justify-end pt-4 border-t border-[var(--gold)]/30 gap-3">
+            <div class="mt-8 flex flex-col sm:flex-row justify-end pt-4 border-t border-[var(--gold)]/30 gap-3 pb-6">
                 <button type="button" onclick="guardarDashboardConfig(${configData ? configData.id : 'null'})" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-6 py-3 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font flex items-center justify-center active:scale-95">
                     <i class="fas fa-save mr-2"></i> Guardar Cambios
                 </button>
