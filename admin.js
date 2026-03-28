@@ -335,6 +335,7 @@ window.loadTable = async function(tableKey) {
     renderTable(data, tableKey);
 }
 // NUEVA FUNCIÓN: Dibuja el Dashboard de Configuración
+// NUEVA FUNCIÓN: Dibuja el Dashboard de Configuración (Optimizada para Móvil)
 window.renderDashboardConfig = function(configData, isActivo) {
     let container = document.getElementById('dashboard-area');
     if (!container) {
@@ -357,19 +358,33 @@ window.renderDashboardConfig = function(configData, isActivo) {
     }).join('');
 
     container.innerHTML = `
-        <div class="parchment-box p-6 rounded-lg shadow-lg relative">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-[var(--gold)] pb-4 gap-4">
-                <h3 class="text-2xl font-bold text-[var(--gryffindor-red)] magic-font">
-                    <i class="fas fa-cogs text-[var(--gold)] mr-2"></i> Configuración del Viaje
+        <div class="parchment-box p-4 sm:p-6 rounded-lg shadow-lg relative">
+            
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 border-b border-[var(--gold)] pb-4 gap-4">
+                
+                <h3 class="text-xl sm:text-2xl font-bold text-[var(--gryffindor-red)] magic-font flex items-center shrink-0">
+                    <i class="fas fa-cogs text-[var(--gold)] mr-2"></i> Configuración
                 </h3>
                 
-                <div class="flex items-center gap-3 bg-white/70 p-3 rounded-lg border border-[var(--gold)] shadow-sm">
-                    <label class="font-bold text-[var(--ink)] magic-font text-sm">Estado:</label>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="toggle-activo" class="sr-only peer" ${isActivo ? 'checked' : ''} onchange="confirmarCambioEstado(this.checked)">
-                        <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--gryffindor-red)]"></div>
-                        <span class="ml-3 text-sm font-bold ${isActivo ? 'text-green-700' : 'text-stone-500'}" id="estado-text">${isActivo ? 'VIAJE ACTIVO' : 'ARCHIVADO'}</span>
-                    </label>
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
+                    
+                    <button type="button" onclick="openManageAccessModal()" class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-white/80 hover:bg-white text-[var(--ink)] px-3 py-2 sm:px-4 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font text-sm sm:text-base active:scale-95">
+                        <i class="fas fa-users-cog"></i> <span>Accesos</span>
+                    </button>
+
+                    <button type="button" onclick="openShareModal()" class="flex-1 sm:flex-none flex justify-center items-center gap-2 bg-[#1a100d] hover:bg-black text-[var(--gold)] px-3 py-2 sm:px-4 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font text-sm sm:text-base active:scale-95">
+                        <i class="fas fa-share-alt"></i> <span>Compartir</span>
+                    </button>
+                    
+                    <div class="flex items-center gap-3 bg-white/70 p-2 sm:p-3 rounded-lg border border-[var(--gold)] shadow-sm w-full sm:w-auto justify-between sm:justify-start mt-2 sm:mt-0">
+                        <label class="font-bold text-[var(--ink)] magic-font text-sm">Estado:</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggle-activo" class="sr-only peer" ${isActivo ? 'checked' : ''} onchange="confirmarCambioEstado(this.checked)">
+                            <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--gryffindor-red)]"></div>
+                            <span class="ml-3 text-sm font-bold ${isActivo ? 'text-green-700' : 'text-stone-500'} truncate" id="estado-text">${isActivo ? 'ACTIVO' : 'ARCHIVADO'}</span>
+                        </label>
+                    </div>
+
                 </div>
             </div>
             
@@ -377,15 +392,9 @@ window.renderDashboardConfig = function(configData, isActivo) {
                 ${formFields}
             </form>
             
-            <div class="mt-8 flex justify-end pt-4 border-t border-[var(--gold)]/30">
-                <button type="button" onclick="guardarDashboardConfig(${configData ? configData.id : 'null'})" class="bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-6 py-3 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">
+            <div class="mt-8 flex flex-col sm:flex-row justify-end pt-4 border-t border-[var(--gold)]/30 gap-3">
+                <button type="button" onclick="guardarDashboardConfig(${configData ? configData.id : 'null'})" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-6 py-3 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font flex items-center justify-center active:scale-95">
                     <i class="fas fa-save mr-2"></i> Guardar Cambios
-                </button>
-                <button type="button" onclick="openShareModal()" class="bg-[#1a100d] hover:bg-black text-[var(--gold)] px-4 py-2 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font mr-3">
-                    <i class="fas fa-share-alt mr-2"></i> Compartir Viaje
-                </button>
-                <button type="button" onclick="openManageAccessModal()" class="bg-white/80 hover:bg-white text-[var(--ink)] px-4 py-2 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font mr-3">
-                    <i class="fas fa-users-cog mr-2"></i> Editar acceso
                 </button>
             </div>
         </div>
