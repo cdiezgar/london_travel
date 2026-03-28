@@ -1,5 +1,7 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+window.misViajes = [];
+
 const supabaseUrl = "https://zephobibrftatzmagjta.supabase.co";
 const supabaseKey = "sb_publishable_WFqb8AOLj0GAUq3UJ364kA_vU9tIAXL";
 const sb = createClient(supabaseUrl, supabaseKey);
@@ -113,12 +115,13 @@ let currentAdminViajeId = null; // <--- NUEVA VARIABLE GLOBAL
 let currentPaseIdForActivity = null;
 let editingPassActivityId = null;
 
+// --- MODIFICAR init() y renderSidebar() ---
 async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = 'index.html'; return; }
     
-    // 1. CARGAMOS LOS VIAJES DEL USUARIO
-    const { data: viajes, error } = await sb.from('viajes').select('id, nombre').order('created_at', { ascending: true });
+    // Obtenemos todos los viajes
+    const { data: viajes, error } = await sb.from('viajes').select('*').order('created_at', { ascending: true });
     
     if (error || !viajes || viajes.length === 0) {
         alert("Primero debes crear un viaje en la aplicación principal.");
@@ -126,46 +129,134 @@ async function init() {
         return;
     }
 
-    // 2. ¿VENIMOS DE LA APP CON UN VIAJE ESPECÍFICO?
+    window.misViajes = viajes;
+
     const urlParams = new URLSearchParams(window.location.search);
     const viajeDesdeApp = urlParams.get('viaje');
 
-    // Comprobamos si nos han pasado un ID y si ese ID realmente pertenece al usuario
+    // Si venimos de la app con un viaje específico, entramos directo a administrarlo
     if (viajeDesdeApp && viajes.some(v => v.id == viajeDesdeApp)) {
-        currentAdminViajeId = viajeDesdeApp;
-        
-        // (Opcional) Limpiamos la URL para que quede bonita
+        entrarAViaje(viajeDesdeApp);
         window.history.replaceState({}, document.title, window.location.pathname);
     } else {
-        // Si no venimos de la app, seleccionamos el primero por defecto
-        currentAdminViajeId = viajes[0].id; 
+        // Si no, mostramos el Lobby (Pantalla de inicio)
+        renderHome();
     }
-
-    renderSidebar(viajes);
-    
-    // 3. ACTUALIZAMOS EL SELECTOR VISUALMENTE
-    const selector = document.getElementById('admin-viaje-selector');
-    if (selector) {
-        selector.value = currentAdminViajeId;
-    }
-
-    loadTable('dias'); 
 }
 
-function renderSidebar(viajes) {
-    const menu = document.getElementById('sidebar-menu');
+// NUEVA FUNCIÓN: Dibuja la pantalla de inicio (Lobby)
+window.renderHome = function(mostrarArchivados = false) {
+    currentAdminViajeId = null;
     
-    // Inyectamos un selector de viajes al principio del menú lateral
+    // Ocultamos el sidebar de forma segura sin romper el layout Flex
+    const sidebar = document.getElementById('admin-sidebar');
+    if (sidebar) sidebar.style.display = 'none'; 
+
+    // Mantenemos la cabecera principal limpia y sin botones extra
+    document.getElementById('view-title').textContent = "Panel de Expediciones";
+    document.getElementById('btn-add').classList.add('hidden');
+
+    const tableContainer = document.getElementById('data-table').parentElement;
+    if (tableContainer) tableContainer.classList.add('hidden');
+    
+    let container = document.getElementById('dashboard-area');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'dashboard-area';
+        document.getElementById('content-area').appendChild(container);
+    }
+    
+    container.classList.remove('hidden');
+
+    const viajesAMostrar = window.misViajes.filter(v => mostrarArchivados ? v.activo === false : v.activo !== false);
+
+    // Renderizamos el Lobby (Ya no hay h2 duplicado aquí)
+    container.innerHTML = `
+        <div class="max-w-5xl mx-auto mt-4">
+            <div class="text-center mb-8">
+                <p class="text-stone-600 text-lg">Selecciona un viaje para administrar su contenido y configuración.</p>
+            </div>
+
+            <div class="flex justify-center gap-4 mb-8 border-b border-[var(--gold)]/30 pb-4">
+                <button onclick="renderHome(false)" class="px-6 py-2 font-bold rounded transition ${!mostrarArchivados ? 'bg-[#1a100d] text-[var(--gold)] border border-[var(--gold)] shadow-md' : 'text-stone-500 hover:text-stone-800'}">
+                    <i class="fas fa-plane-departure mr-2"></i> Viajes Activos
+                </button>
+                <button onclick="renderHome(true)" class="px-6 py-2 font-bold rounded transition ${mostrarArchivados ? 'bg-[#1a100d] text-[var(--gold)] border border-[var(--gold)] shadow-md' : 'text-stone-500 hover:text-stone-800'}">
+                    <i class="fas fa-archive mr-2"></i> Histórico
+                </button>
+            </div>
+
+            ${viajesAMostrar.length === 0 ? `
+                <div class="text-center py-12 text-stone-400 font-bold magic-font text-xl">
+                    No hay viajes en esta sección...
+                </div>
+            ` : `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${viajesAMostrar.map(v => `
+                        <div class="parchment-box p-6 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between border ${!mostrarArchivados ? 'border-[var(--gold)]' : 'border-stone-400 opacity-80'}" onclick="${mostrarArchivados ? `reactivarDesdeHome(${v.id})` : `entrarAViaje(${v.id})`}">
+                            <div>
+                                <h3 class="text-2xl font-bold text-[var(--gryffindor-red)] magic-font mb-2">${v.nombre}</h3>
+                                <p class="text-sm text-stone-500 mb-4 font-bold"><i class="fas ${mostrarArchivados ? 'fa-book-dead' : 'fa-check-circle text-green-600'} mr-1"></i> ${mostrarArchivados ? 'Archivado' : 'Activo'}</p>
+                            </div>
+                            <button class="w-full py-2 bg-[#2b1b17] text-[var(--gold)] rounded font-bold shadow-md hover:bg-black transition border border-[var(--gold)]/50">
+                                ${mostrarArchivados ? '<i class="fas fa-undo-alt mr-2"></i> Reactivar Viaje' : '<i class="fas fa-magic mr-2"></i> Administrar'}
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `}
+        </div>
+    `;
+}
+
+// Lógica para entrar a administrar un viaje específico
+window.entrarAViaje = function(id) {
+    currentAdminViajeId = id;
+    
+    // Restauramos el menú lateral con Flex
+    const sidebar = document.getElementById('admin-sidebar');
+    if (sidebar) sidebar.style.display = 'flex'; 
+    
+    renderSidebar();
+    loadTable('configuracion'); 
+}
+
+// Reactivar desde la pantalla de inicio
+window.reactivarDesdeHome = async function(id) {
+    const confirmado = await customConfirm(
+        "Reactivar Expedición", 
+        "¿Deseas reactivar este viaje y devolverlo a tu lista de viajes activos?", 
+        "fa-undo-alt"
+    );
+
+    if (confirmado) {
+        const { error } = await sb.from('viajes').update({ activo: true }).eq('id', id);
+        if (error) {
+            customAlert("Maldición detectada", error.message, "fa-skull-crossbones");
+        } else {
+            const viaje = window.misViajes.find(v => v.id === id);
+            if(viaje) viaje.activo = true;
+            renderHome(true); 
+        }
+    }
+}
+
+function renderSidebar() {
+    const menu = document.getElementById('sidebar-menu');
+    const viajeActual = window.misViajes.find(v => v.id == currentAdminViajeId);
+    
     let sidebarContent = `
         <div class="px-6 pb-4 border-b border-[var(--gold)]/30 mb-4">
-            <label class="block text-[var(--gold)] text-xs font-bold mb-1 uppercase tracking-widest">Viaje a Administrar</label>
-            <select id="admin-viaje-selector" onchange="changeAdminViaje()" class="w-full p-2 bg-[#1a100d] text-white border border-[var(--gold)] rounded outline-none focus:ring-1 focus:ring-[var(--gold)] truncate">
-                ${viajes.map(v => `<option value="${v.id}">${v.nombre}</option>`).join('')}
-            </select>
+            <button onclick="renderHome()" class="w-full p-2 bg-[#2b1b17] hover:bg-black text-[var(--gold)] border border-[var(--gold)] rounded font-bold shadow-md transition flex justify-center items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Volver al Lobby
+            </button>
+            <div class="mt-4 text-center">
+                <span class="text-[var(--gold)] text-xs font-bold uppercase tracking-widest block mb-1">Administrando:</span>
+                <span class="text-white font-bold magic-font text-lg truncate block">${viajeActual ? viajeActual.nombre : ''}</span>
+            </div>
         </div>
     `;
 
-    // Añadimos los botones de las tablas
     sidebarContent += Object.keys(schemaMap).map(key => `
         <button onclick="loadTable('${key}')" id="nav-${key}" class="w-full text-left px-6 py-4 hover:bg-[var(--gryffindor-red)] hover:text-white transition flex items-center gap-3 border-l-4 border-transparent text-lg font-medium">
             <i class="fas ${schemaMap[key].icon} w-6 text-center text-[var(--gold)]"></i>
@@ -186,53 +277,142 @@ window.loadTable = async function(tableKey) {
     currentTable = tableKey;
     setActiveMenu(tableKey);
     
-    // --- NUEVO: Cerrar el menú en móvil automáticamente al hacer clic ---
     const sidebar = document.getElementById('admin-sidebar');
     const overlay = document.getElementById('admin-overlay');
     if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
         sidebar.classList.add('-translate-x-full');
         if (overlay) overlay.classList.add('hidden');
     }
-    // -------------------------------------------------------------------
 
-    document.getElementById('view-title').textContent = schemaMap[tableKey].label;
-    document.getElementById('view-title').textContent = schemaMap[tableKey].label;
-    document.getElementById('btn-add').classList.remove('hidden');
-    document.getElementById('btn-add').onclick = () => openForm(); 
-    
+    const tableContainer = document.getElementById('data-table').parentElement;
+    const dashboardDiv = document.getElementById('dashboard-area');
+
     document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('data-table').classList.add('hidden');
-
-    // Determinamos la columna de orden según la tabla
-    let orderBy = 'id'; // Orden por defecto
     
-    if (tableKey === 'dias') {
-        orderBy = 'fecha';
-    } else if (tableKey === 'checklist') {
-        orderBy = 'item';
-    } else if (tableKey === 'supermercados' || tableKey === 'restaurantes_top') {
-        orderBy = 'nombre';
+    if (tableContainer) tableContainer.classList.add('hidden'); 
+    if (dashboardDiv) dashboardDiv.classList.add('hidden');
+
+    // MODO DASHBOARD PARA CONFIGURACIÓN
+    if (tableKey === 'configuracion') {
+        // ACTUALIZAMOS EL TÍTULO DE LA CABECERA EXPRESAMENTE AQUÍ
+        document.getElementById('view-title').textContent = schemaMap[tableKey].label;
+        document.getElementById('btn-add').classList.add('hidden');
+        
+        const viajeInfo = window.misViajes.find(v => v.id == currentAdminViajeId);
+        const { data: configData, error } = await sb.from(tableKey).select('*').eq('viaje_id', currentAdminViajeId).maybeSingle();
+        
+        document.getElementById('loading').classList.add('hidden');
+        if (error) { alert("Error cargando configuración: " + error.message); return; }
+        
+        renderDashboardConfig(configData, viajeInfo?.activo !== false);
+        return;
     }
 
-// Llamada a Supabase con la columna dinámica y el FILTRO DE VIAJE
-    const { data, error } = await sb
-        .from(tableKey)
-        .select('*')
-        .eq('viaje_id', currentAdminViajeId) // <--- ESTO ES LO NUEVO E IMPORTANTE
-        .order(orderBy, { ascending: true });
+    // SI ES UNA TABLA NORMAL
+    document.getElementById('view-title').textContent = schemaMap[tableKey] ? schemaMap[tableKey].label : "Panel";
+    document.getElementById('btn-add').classList.remove('hidden');
+    document.getElementById('btn-add').onclick = () => openForm(); 
+
+    let orderBy = tableKey === 'dias' ? 'fecha' : (tableKey === 'checklist' ? 'item' : (['supermercados','restaurantes_top'].includes(tableKey) ? 'nombre' : 'id'));
+    
+    const { data, error } = await sb.from(tableKey).select('*').eq('viaje_id', currentAdminViajeId).order(orderBy, { ascending: true });
 
     document.getElementById('loading').classList.add('hidden');
     if (error) { alert("Error cargando datos: " + error.message); return; }
     
+    if (tableContainer) tableContainer.classList.remove('hidden'); 
     renderTable(data, tableKey);
 }
+// NUEVA FUNCIÓN: Dibuja el Dashboard de Configuración
+window.renderDashboardConfig = function(configData, isActivo) {
+    let container = document.getElementById('dashboard-area');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'dashboard-area';
+        document.getElementById('content-area').appendChild(container);
+    }
+    
+    container.classList.remove('hidden');
+    
+    // Generar campos usando el schemaMap
+    const formFields = schemaMap['configuracion'].columns.filter(c => c.key !== 'id').map(col => {
+        const value = configData ? (configData[col.key] || '') : '';
+        if (col.type === 'textarea') {
+            return `<div class="col-span-1 md:col-span-2"><label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">${col.label}</label>
+                    <textarea id="conf-${col.key}" rows="3" class="w-full p-2 border-2 border-[var(--gold)]/50 rounded bg-white/60 focus:outline-none transition">${value}</textarea></div>`;
+        }
+        return `<div><label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font">${col.label}</label>
+                <input type="text" id="conf-${col.key}" value="${value}" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none transition font-medium"></div>`;
+    }).join('');
 
-function setActiveMenu(tableKey) {
-    document.querySelectorAll('#sidebar-menu button').forEach(btn => {
-        btn.classList.remove('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+    container.innerHTML = `
+        <div class="parchment-box p-6 rounded-lg shadow-lg relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-[var(--gold)] pb-4 gap-4">
+                <h3 class="text-2xl font-bold text-[var(--gryffindor-red)] magic-font">
+                    <i class="fas fa-cogs text-[var(--gold)] mr-2"></i> Configuración del Viaje
+                </h3>
+                
+                <div class="flex items-center gap-3 bg-white/70 p-3 rounded-lg border border-[var(--gold)] shadow-sm">
+                    <label class="font-bold text-[var(--ink)] magic-font text-sm">Estado:</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-activo" class="sr-only peer" ${isActivo ? 'checked' : ''} onchange="confirmarCambioEstado(this.checked)">
+                        <div class="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--gryffindor-red)]"></div>
+                        <span class="ml-3 text-sm font-bold ${isActivo ? 'text-green-700' : 'text-stone-500'}" id="estado-text">${isActivo ? 'VIAJE ACTIVO' : 'ARCHIVADO'}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <form id="dashboard-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                ${formFields}
+            </form>
+            
+            <div class="mt-8 flex justify-end pt-4 border-t border-[var(--gold)]/30">
+                <button type="button" onclick="guardarDashboardConfig(${configData ? configData.id : 'null'})" class="bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-6 py-3 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">
+                    <i class="fas fa-save mr-2"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Función para guardar directamente del Dashboard
+window.guardarDashboardConfig = async function(existingId) {
+    // 1. Recopilamos los datos del formulario 
+    const payload = { viaje_id: currentAdminViajeId };
+    
+    schemaMap['configuracion'].columns.filter(c => c.key !== 'id').forEach(col => {
+        let val = document.getElementById(`conf-${col.key}`).value.trim();
+        
+        // Si el campo está vacío, mandamos null a la base de datos para que no pete
+        if (val === '') {
+            payload[col.key] = null;
+        } else {
+            // Si tiene contenido y es un número, lo convertimos
+            if (col.type === 'float' || col.type === 'number') {
+                payload[col.key] = parseFloat(val);
+            } else {
+                // Si es texto, lo pasamos tal cual
+                payload[col.key] = val;
+            }
+        }
     });
-    const active = document.getElementById(`nav-${tableKey}`);
-    if (active) active.classList.add('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+
+    // 2. Guardamos en Supabase
+    let error;
+    if (existingId) {
+        ({ error } = await sb.from('configuracion').update(payload).eq('id', existingId));
+    } else {
+        ({ error } = await sb.from('configuracion').insert([payload]));
+    }
+
+    // 3. Mostramos las modales personalizadas
+    if (error) {
+        customAlert("Error al guardar", error.message, "fa-times-circle");
+    } else {
+        customAlert("¡Hechizo completado!", "La configuración del viaje se ha guardado correctamente.", "fa-check-circle");
+        // Borramos caché para que la app principal recargue la nueva config
+        localStorage.removeItem('travel_data_cache_' + currentAdminViajeId);
+    }
 }
 
 function renderTable(data, tableKey) {
@@ -894,4 +1074,171 @@ window.toggleAdminMenu = function() {
     overlay.classList.toggle('hidden');
 }
 
+// Confirmación del checkbox
+window.confirmarCambioEstado = async function(isChecking) {
+    const accion = isChecking ? "reactivar" : "desactivar";
+    const mensaje = isChecking 
+        ? "¿Deseas reactivar este viaje y devolverlo al panel principal?"
+        : "¿Estás seguro de que deseas archivar este viaje?<br><br><span class='text-sm text-stone-600 block mt-2'><i class='fas fa-info-circle'></i> Pasará al Histórico y dejará de verse en la app principal.</span>";
+    
+    // Mostramos la modal personalizada
+    const confirmado = await customConfirm("Cambio de Estado", mensaje, isChecking ? "fa-magic" : "fa-archive");
+    
+    if (confirmado) {
+        cambiarEstadoViaje(isChecking);
+    } else {
+        // Si el usuario cancela, revertimos el checkbox visualmente
+        document.getElementById('toggle-activo').checked = !isChecking;
+    }
+}
+
+window.cambiarEstadoViaje = async function(nuevoEstado) {
+    const { error } = await sb.from('viajes').update({ activo: nuevoEstado }).eq('id', currentAdminViajeId);
+    if (error) {
+        alert("Maldición detectada: " + error.message);
+        document.getElementById('toggle-activo').checked = !nuevoEstado;
+    } else {
+        document.getElementById('estado-text').innerText = nuevoEstado ? 'VIAJE ACTIVO' : 'ARCHIVADO';
+        document.getElementById('estado-text').className = `ml-3 text-sm font-bold ${nuevoEstado ? 'text-green-700' : 'text-stone-500'}`;
+        init(); // Recargamos para actualizar menús
+    }
+}
+
+// Carga la tabla de viajes archivados
+window.loadHistorico = async function() {
+    currentTable = 'historico';
+    setActiveMenu('historico');
+    
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('admin-overlay');
+    if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+    }
+
+    document.getElementById('view-title').textContent = "Histórico de Viajes";
+    document.getElementById('btn-add').classList.add('hidden');
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('data-table').classList.add('hidden');
+    const dash = document.getElementById('dashboard-area');
+    if(dash) dash.classList.add('hidden');
+
+    const { data, error } = await sb.from('viajes').select('*').eq('activo', false);
+    
+    document.getElementById('loading').classList.add('hidden');
+    if (error) { alert("Error: " + error.message); return; }
+
+    const table = document.getElementById('data-table');
+    const thead = document.getElementById('table-head');
+    const tbody = document.getElementById('table-body');
+    table.classList.remove('hidden');
+
+    thead.innerHTML = `<tr>
+        <th class="py-3 px-4 font-bold uppercase text-left w-full text-[var(--gryffindor-red)] magic-font">Viajes Archivados</th>
+        <th class="py-3 px-4 text-right whitespace-nowrap text-[var(--gryffindor-red)] magic-font">Acción</th>
+    </tr>`;
+
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2" class="py-8 text-center handwritten text-xl text-stone-500">No hay viajes inactivos en el archivo...</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = data.map(row => `
+        <tr class="hover:bg-stone-100 transition border-b border-[#e2d1aa]/50 bg-white/50">
+            <td class="py-4 px-4 text-lg font-bold text-stone-800 magic-font">
+                <i class="fas fa-book-dead text-stone-400 mr-2"></i> ${row.nombre}
+            </td>
+            <td class="py-4 px-4 text-right">
+                <button onclick="reactivarDesdeHistorico(${row.id})" class="bg-[#2b1b17] hover:bg-black text-[var(--gold)] border border-[var(--gold)] px-4 py-2 rounded shadow-md font-bold transition active:scale-95 text-sm">
+                    <i class="fas fa-undo-alt mr-1"></i> Reactivar
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+window.reactivarDesdeHistorico = async function(id) {
+    if (confirm("¿Deseas reactivar este viaje y devolverlo al menú principal de expediciones?")) {
+        const { error } = await sb.from('viajes').update({ activo: true }).eq('id', id);
+        if (error) alert("Error: " + error.message);
+        else {
+            init(); 
+            loadHistorico(); 
+        }
+    }
+}
+
+function setActiveMenu(tableKey) {
+    document.querySelectorAll('#sidebar-menu button').forEach(btn => {
+        btn.classList.remove('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+    });
+    const active = document.getElementById(`nav-${tableKey}`);
+    if (active) active.classList.add('bg-[#1a100d]', 'border-[var(--gold)]', 'text-white');
+}
+
 document.addEventListener('DOMContentLoaded', init);
+
+// --- SISTEMA DE MODALES MÁGICOS ---
+window.initCustomModal = function() {
+    if (document.getElementById('custom-modal-overlay')) return;
+    const modalHTML = `
+        <div id="custom-modal-overlay" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+            <div class="parchment-box border-2 border-[var(--gold)] p-8 rounded-lg shadow-2xl max-w-md w-full transform transition-transform duration-300 scale-95" id="custom-modal-box">
+                <h3 class="text-3xl font-bold text-[var(--gryffindor-red)] magic-font mb-4 flex items-center gap-3">
+                    <i id="custom-modal-icon" class="fas fa-question-circle text-[var(--gold)]"></i> 
+                    <span id="custom-modal-title">Atención</span>
+                </h3>
+                <p id="custom-modal-message" class="text-stone-800 text-lg mb-8 font-medium"></p>
+                <div class="flex justify-end gap-4 mt-6 pt-4 border-t border-[var(--gold)]/30" id="custom-modal-buttons"></div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.showModal = function(type, title, message, icon) {
+    return new Promise((resolve) => {
+        initCustomModal();
+        const overlay = document.getElementById('custom-modal-overlay');
+        const box = document.getElementById('custom-modal-box');
+        
+        document.getElementById('custom-modal-title').textContent = title;
+        document.getElementById('custom-modal-message').innerHTML = message;
+        document.getElementById('custom-modal-icon').className = `fas ${icon} text-[var(--gold)]`;
+
+        const close = (result) => {
+            overlay.classList.remove('opacity-100');
+            box.classList.remove('scale-100');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                resolve(result);
+            }, 300); // Espera a que termine la transición CSS
+        };
+
+        const buttonsEl = document.getElementById('custom-modal-buttons');
+        if (type === 'confirm') {
+            buttonsEl.innerHTML = `
+                <button id="modal-btn-cancel" class="px-5 py-2 bg-[#1a100d] text-[var(--gold)] border border-[var(--gold)] rounded font-bold hover:bg-black transition">Cancelar</button>
+                <button id="modal-btn-confirm" class="px-5 py-2 bg-[var(--gryffindor-red)] text-white border border-[var(--gold)] rounded font-bold hover:bg-red-900 transition shadow-md">Confirmar</button>
+            `;
+            document.getElementById('modal-btn-cancel').onclick = () => close(false);
+            document.getElementById('modal-btn-confirm').onclick = () => close(true);
+        } else {
+            buttonsEl.innerHTML = `
+                <button id="modal-btn-ok" class="px-5 py-2 bg-[var(--gryffindor-red)] text-white border border-[var(--gold)] rounded font-bold hover:bg-red-900 transition shadow-md">Aceptar</button>
+            `;
+            document.getElementById('modal-btn-ok').onclick = () => close(true);
+        }
+
+        overlay.classList.remove('hidden');
+        // Pequeño timeout para que el navegador aplique el display block antes de cambiar la opacidad (para la animación)
+        setTimeout(() => {
+            overlay.classList.add('opacity-100');
+            box.classList.add('scale-100');
+        }, 10);
+    });
+};
+
+// Funciones de uso rápido
+window.customConfirm = (title, message, icon = 'fa-question-circle') => showModal('confirm', title, message, icon);
+window.customAlert = (title, message, icon = 'fa-exclamation-triangle') => showModal('alert', title, message, icon);
