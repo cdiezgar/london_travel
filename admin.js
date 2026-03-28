@@ -120,11 +120,15 @@ async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = 'index.html'; return; }
     
-    // Obtenemos todos los viajes
-    const { data: viajes, error } = await sb.from('viajes').select('*').order('created_at', { ascending: true });
+    // 1. Obtenemos SOLO los viajes de los que este usuario es PROPIETARIO
+    const { data: viajes, error } = await sb.from('viajes')
+        .select('*')
+        .eq('user_id', session.user.id) // <--- ESTA ES LA CLAVE DE SEGURIDAD
+        .order('created_at', { ascending: true });
     
+    // Si no tiene viajes propios (es posible que solo sea invitado en otros)
     if (error || !viajes || viajes.length === 0) {
-        alert("Primero debes crear un viaje en la aplicación principal.");
+        alert("No tienes expediciones propias para administrar. ¡Crea una en el Andén principal!");
         window.location.href = 'index.html';
         return;
     }
@@ -134,12 +138,19 @@ async function init() {
     const urlParams = new URLSearchParams(window.location.search);
     const viajeDesdeApp = urlParams.get('viaje');
 
-    // Si venimos de la app con un viaje específico, entramos directo a administrarlo
-    if (viajeDesdeApp && viajes.some(v => v.id == viajeDesdeApp)) {
-        entrarAViaje(viajeDesdeApp);
-        window.history.replaceState({}, document.title, window.location.pathname);
+    if (viajeDesdeApp) {
+        // 2. Si hay ID en la URL, comprobamos que el viaje esté en SUS viajes
+        if (viajes.some(v => v.id == viajeDesdeApp)) {
+            entrarAViaje(viajeDesdeApp);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+            // 3. ¡ALERTA DE INTRUSO! Es un invitado intentando forzar la URL
+            alert("¡Acceso denegado! Magia oscura detectada. Solo el organizador jefe puede usar la Sala de Configuración.");
+            window.history.replaceState({}, document.title, window.location.pathname);
+            renderHome(); // Lo devolvemos al panel con sus viajes propios
+        }
     } else {
-        // Si no, mostramos el Lobby (Pantalla de inicio)
+        // Si no hay viaje en la URL, mostramos el Lobby (Pantalla de inicio)
         renderHome();
     }
 }
@@ -369,6 +380,9 @@ window.renderDashboardConfig = function(configData, isActivo) {
             <div class="mt-8 flex justify-end pt-4 border-t border-[var(--gold)]/30">
                 <button type="button" onclick="guardarDashboardConfig(${configData ? configData.id : 'null'})" class="bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-6 py-3 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">
                     <i class="fas fa-save mr-2"></i> Guardar Cambios
+                </button>
+                <button type="button" onclick="openShareModal()" class="bg-[#1a100d] hover:bg-black text-[var(--gold)] px-4 py-2 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font mr-3">
+                    <i class="fas fa-share-alt mr-2"></i> Compartir Viaje
                 </button>
             </div>
         </div>
@@ -1238,6 +1252,112 @@ window.showModal = function(type, title, message, icon) {
         }, 10);
     });
 };
+
+// --- LÓGICA COMPARTIR VIAJE ---
+let temporalEmails = []; // Memoria temporal para los correos
+
+window.openShareModal = function() {
+    document.getElementById('share-modal').classList.remove('hidden');
+    renderEmailsList();
+    validateShareEmail();
+}
+
+window.closeShareModal = function() {
+    document.getElementById('share-modal').classList.add('hidden');
+    document.getElementById('share-email-input').value = '';
+    // No vaciamos temporalEmails aquí, cumpliendo el requisito 5.1
+}
+
+window.validateShareEmail = function() {
+    const input = document.getElementById('share-email-input').value.trim();
+    const btn = document.getElementById('btn-add-email');
+    // Regex básico para validar a@a.*
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+    
+    if (isValid && !temporalEmails.includes(input)) {
+        btn.disabled = false;
+        btn.classList.remove('bg-stone-300', 'text-stone-500');
+        btn.classList.add('bg-[var(--gold)]', 'text-[var(--ink)]', 'hover:bg-yellow-600');
+    } else {
+        btn.disabled = true;
+        btn.classList.add('bg-stone-300', 'text-stone-500');
+        btn.classList.remove('bg-[var(--gold)]', 'text-[var(--ink)]', 'hover:bg-yellow-600');
+    }
+}
+
+window.addEmailToList = function() {
+    const inputEl = document.getElementById('share-email-input');
+    const email = inputEl.value.trim().toLowerCase();
+    
+    if (email && !temporalEmails.includes(email)) {
+        temporalEmails.push(email);
+        inputEl.value = '';
+        validateShareEmail();
+        renderEmailsList();
+    }
+}
+
+window.removeEmailFromList = function(email) {
+    temporalEmails = temporalEmails.filter(e => e !== email);
+    renderEmailsList();
+    validateShareEmail();
+}
+
+window.renderEmailsList = function() {
+    const container = document.getElementById('emails-list-container');
+    if (temporalEmails.length === 0) {
+        container.innerHTML = '<p class="text-sm italic text-stone-500 text-center py-2">Ningún mago añadido aún.</p>';
+        return;
+    }
+    
+    container.innerHTML = temporalEmails.map(email => `
+        <div class="flex justify-between items-center bg-white/60 p-2 rounded border border-[#e2d1aa] shadow-sm">
+            <span class="font-medium text-stone-800"><i class="fas fa-envelope text-[var(--gold)] mr-2"></i>${email}</span>
+            <button type="button" onclick="removeEmailFromList('${email}')" class="text-red-500 hover:text-red-700 p-1 rounded transition">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+window.sendInvitations = async function() {
+    if (temporalEmails.length === 0) {
+        customAlert("Atención", "No has añadido ningún correo electrónico.", "fa-exclamation-triangle");
+        return;
+    }
+
+    // Llamamos a nuestra función segura en el servidor de Supabase
+    const { data: resultado, error } = await sb.rpc('enviar_invitaciones', {
+        p_viaje_id: currentAdminViajeId, // Asegúrate de que esta variable tenga el ID de tu viaje
+        p_emails: temporalEmails
+    });
+
+    if (error) {
+        customAlert("Error", "No se pudo procesar la petición: " + error.message, "fa-times");
+        return;
+    }
+
+    const emailsEncontrados = resultado.exitos || [];
+    const emailsNoEncontrados = resultado.fallos || [];
+
+    // Evaluamos los resultados devueltos por el servidor
+    if (emailsNoEncontrados.length === 0) {
+        // 6.1 Todos existen
+        customAlert("¡Lechuzas Enviadas!", "Las invitaciones se han enviado correctamente a todos los magos.", "fa-check-circle");
+        temporalEmails = [];
+        closeShareModal();
+    } else if (emailsEncontrados.length > 0) {
+        // 6.2 Algunos existen, otros no
+        const msg = `Se han enviado invitaciones a los magos registrados.<br><br><b class="text-red-600">Advertencia:</b> No se ha podido invitar a los siguientes usuarios porque no existen en el sistema:<br> ${emailsNoEncontrados.join('<br>')}`;
+        customAlert("Envío Parcial", msg, "fa-exclamation-triangle");
+        // Dejamos en memoria los que fallaron por si quiere corregirlos
+        temporalEmails = emailsNoEncontrados; 
+        renderEmailsList();
+    } else {
+        // 6.3 Ninguno existe
+        customAlert("Error de Invocación", "No existe ninguno de los usuarios indicados en los registros del Ministerio.", "fa-skull-crossbones");
+    }
+}
 
 // Funciones de uso rápido
 window.customConfirm = (title, message, icon = 'fa-question-circle') => showModal('confirm', title, message, icon);

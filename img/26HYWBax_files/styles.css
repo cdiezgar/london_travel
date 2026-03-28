@@ -1,0 +1,185 @@
+/* --- ESTÉTICA HARRY POTTER & PERGAMINO --- */
+:root {
+    --gryffindor-red: #740001;
+    --gold: #d3a625;
+    --parchment: #fcf5e5;
+    --ink: #2c1a0b;
+}
+
+/* Ajustes básicos para móvil */
+body {
+    background-color: var(--parchment);
+    color: var(--ink);
+    font-family: 'Crimson Text', serif;
+    -webkit-tap-highlight-color: transparent; /* Quita el flash azul al tocar en móviles */
+}
+
+h1, h2, h3, .magic-font {
+    font-family: 'Cinzel', serif;
+}
+
+.handwritten {
+    font-family: 'Homemade Apple', cursive;
+    color: #5a0000;
+}
+
+/* Efecto Carta/Pergamino */
+.parchment-box {
+    background: #fffef0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2d1aa;
+    position: relative;
+}
+
+.parchment-box::before {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    border: 1px solid #d3a625;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Botones Mágicos */
+.btn-reveal {
+    background-color: transparent;
+    color: var(--gryffindor-red);
+    border: 1px dashed var(--gryffindor-red);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-reveal:active {
+    background-color: var(--gryffindor-red);
+    color: #fff;
+    transform: scale(0.98);
+}
+
+/* Navegación Inferior - Ajuste iPhone X+ */
+.bottom-nav {
+    background: #2b1b17;
+    border-top: 3px solid var(--gold);
+    padding-bottom: env(safe-area-inset-bottom); /* Respetar área segura de iPhone */
+}
+
+.nav-item {
+    touch-action: manipulation; /* Mejora respuesta táctil */
+}
+
+.nav-item.active {
+    color: var(--gold);
+    text-shadow: 0 0 8px rgba(211, 166, 37, 0.6);
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.timeline-line {
+    border-left: 2px dashed var(--gryffindor-red);
+}
+
+/* Estilos específicos para la vista de secretos */
+.secret-page-border {
+    border: 4px double var(--gold);
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+}
+
+#app-content {
+    padding-top: 4rem; /* Espacio para que el botón de salir no tape el título */
+}
+
+#global-logout:hover {
+    background-color: var(--gryffindor-red);
+    color: white;
+}
+
+/* --- ESTÉTICA MAPA DEL MERODEADOR (LEAFLET) --- */
+.leaflet-container {
+    background-color: var(--parchment) !important;
+    font-family: 'Crimson Text', serif;
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+}
+
+/* Filtro mágico para las "baldosas" del mapa */
+.leaflet-tile-pane {
+    filter: sepia(0.8) hue-rotate(340deg) contrast(1.1) brightness(0.9) opacity(0.9);
+}
+
+/* Iconos de los marcadores */
+.magic-pin {
+    background: transparent;
+    border: none;
+    text-align: center;
+}
+.magic-pin i {
+    color: var(--gryffindor-red);
+    font-size: 28px;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));
+}
+.magic-pin .pin-text {
+    font-family: 'Homemade Apple', cursive;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: -5px;
+    display: block;
+    width: 80px;
+    margin-left: -25px;
+    text-shadow: 1px 1px 0px #fffef0, -1px -1px 0px #fffef0, 1px -1px 0px #fffef0, -1px 1px 0px #fffef0;
+}
+
+/* --- SCROLL INVISIBLE PARA EL MENÚ INFERIOR --- */
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* Para Internet Explorer y Edge */
+    scrollbar-width: none;  /* Para Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Para Chrome, Safari y Opera */
+}
+
+/* --- ICONOS DE FOTO PARA EL MAPA --- */
+.pin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    margin-left: -25px; /* Para centrar el div de 80px sobre el punto exacto */
+    transition: all 0.3s ease;
+}
+
+.magic-photo-pin {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    object-fit: cover; /* Asegura que la imagen llene el círculo sin deformarse */
+    background-color: var(--parchment);
+}
+
+.pin-container .pin-text {
+    font-family: 'Homemade Apple', cursive;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+    text-shadow: 1px 1px 0px #fffef0, -1px -1px 0px #fffef0, 1px -1px 0px #fffef0, -1px 1px 0px #fffef0;
+    text-align: center;
+}

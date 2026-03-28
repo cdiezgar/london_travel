@@ -1334,44 +1334,24 @@ async function loadUserTrips() {
                 <i class="fas fa-chevron-right text-[var(--gryffindor-red)] opacity-50 group-hover:opacity-100 transition-opacity"></i>
             `;
             
-            btn.onclick = () => selectTrip(viaje.id, viaje.nombre, viaje.isReadOnly);
+            btn.onclick = () => selectTrip(viaje.id, viaje.nombre);
             tripList.appendChild(btn);
         });
     }
 }
 
-window.selectTrip = function(viajeId, viajeNombre, isReadOnly = false) {
-    // 1. Guardar el ID globalmente y su estado de lectura
+window.selectTrip = function(viajeId, viajeNombre) {
+    // 1. Guardar el ID globalmente para usarlo en los Inserts de la app (gastos, checklist, etc)
     currentViajeId = viajeId; 
+    
+    // (Opcional) Guardarlo en LocalStorage por si refresca la página
     localStorage.setItem('currentViajeId', viajeId);
-    
-    // Guardamos en una variable global si es invitado para usarlo en otras funciones
-    window.isCurrentTripReadOnly = isReadOnly; 
 
-    // ==========================================
-    // BLOQUEO VISUAL DE BOTONES DE ADMIN
-    // ==========================================
-    // Buscamos el botón de cabecera por su 'title' ya que no tiene ID
-    const btnAdminHeader = document.querySelector('button[title="Administración"]'); 
-    // Buscamos el botón del menú lateral
-    const btnAdminNav = document.getElementById('nav-admin'); 
-    
-    if (isReadOnly) {
-        // Es un invitado: Usamos style directo con !important para machacar el "md:flex" y "flex" de Tailwind
-        if (btnAdminHeader) btnAdminHeader.style.setProperty('display', 'none', 'important');
-        if (btnAdminNav) btnAdminNav.style.setProperty('display', 'none', 'important');
-    } else {
-        // Es el dueño: Eliminamos el estilo en línea para que Tailwind recupere el control y lo muestre
-        if (btnAdminHeader) btnAdminHeader.style.removeProperty('display');
-        if (btnAdminNav) btnAdminNav.style.removeProperty('display');
-    }
-    // ==========================================
-
-    // 2. Ocultar selector de viajes, mostrar el contenedor principal
+    // 2. Ocultar selector de viajes, mostrar el contenedor principal real (app-content)
     document.getElementById('trip-selection-container').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
 
-    // 3. Poner un spinner de carga bonito
+    // 3. Poner un spinner de carga bonito mientras se descargan los datos
     document.getElementById('app-content').innerHTML = `
         <div class="h-full flex flex-col items-center justify-center mt-20 fade-in">
             <i class="fas fa-spinner fa-spin text-5xl text-[var(--gold)] mb-4"></i>
@@ -1379,7 +1359,8 @@ window.selectTrip = function(viajeId, viajeNombre, isReadOnly = false) {
         </div>
     `;
 
-    // 4. Cargar los datos
+    // 4. Llamar a tu función original para cargar los datos del viaje
+    // (Asegúrate de que dentro de fetchTravelData estás usando .eq('viaje_id', currentViajeId))
     fetchTravelData(); 
 };
 
@@ -1435,13 +1416,8 @@ window.backToTrips = function() {
 };
 
 window.goToAdmin = function() {
-    // Si la variable que creamos arriba es true, bloqueamos la entrada
-    if (window.isCurrentTripReadOnly) {
-        alert("Magia oscura detectada: No tienes permiso para configurar este viaje.");
-        return;
-    }
-
     if (currentViajeId) {
+        // Mandamos al admin con el ID del viaje actual en la URL
         window.location.href = `admin.html?viaje=${currentViajeId}`;
     } else {
         window.location.href = 'admin.html';
