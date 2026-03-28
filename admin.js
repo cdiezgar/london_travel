@@ -384,6 +384,9 @@ window.renderDashboardConfig = function(configData, isActivo) {
                 <button type="button" onclick="openShareModal()" class="bg-[#1a100d] hover:bg-black text-[var(--gold)] px-4 py-2 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font mr-3">
                     <i class="fas fa-share-alt mr-2"></i> Compartir Viaje
                 </button>
+                <button type="button" onclick="openManageAccessModal()" class="bg-white/80 hover:bg-white text-[var(--ink)] px-4 py-2 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font mr-3">
+                    <i class="fas fa-users-cog mr-2"></i> Editar acceso
+                </button>
             </div>
         </div>
     `;
@@ -1356,6 +1359,67 @@ window.sendInvitations = async function() {
     } else {
         // 6.3 Ninguno existe
         customAlert("Error de Invocación", "No existe ninguno de los usuarios indicados en los registros del Ministerio.", "fa-skull-crossbones");
+    }
+}
+
+// ==========================================
+// --- LÓGICA DE GESTIÓN DE ACCESOS ---
+// ==========================================
+
+window.openManageAccessModal = async function() {
+    document.getElementById('manage-access-modal').classList.remove('hidden');
+    const container = document.getElementById('access-list-container');
+    container.innerHTML = '<p class="text-center italic text-stone-500 py-4"><i class="fas fa-spinner fa-spin mr-2"></i> Consultando el registro del Ministerio...</p>';
+
+    // Llamamos a la función segura que creamos en Supabase
+    const { data, error } = await sb.rpc('ver_invitados_viaje', { p_viaje_id: currentAdminViajeId });
+
+    if (error) {
+        container.innerHTML = `<p class="text-red-600 font-bold text-center py-4">Error al leer los accesos: ${error.message}</p>`;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p class="text-center text-stone-600 font-bold py-4">Ningún mago tiene acceso a este viaje aún.</p>';
+        return;
+    }
+
+    // Dibujamos la lista con las "chapas" de colores según su estado
+    container.innerHTML = data.map(inv => {
+        let badgeClass = inv.estado === 'aceptada' 
+            ? 'bg-green-100 text-green-800 border border-green-200' 
+            : (inv.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 'bg-red-100 text-red-800 border border-red-200');
+        
+        return `
+        <div class="flex justify-between items-center bg-white/60 p-3 rounded-lg border border-[#e2d1aa] shadow-sm">
+            <div>
+                <span class="font-bold text-stone-800 block text-lg">${inv.email}</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm inline-block mt-1 ${badgeClass}">${inv.estado}</span>
+            </div>
+            <button onclick="revokeAccess(${inv.invitacion_id})" title="Expulsar" class="text-red-500 hover:text-white hover:bg-red-600 border border-red-500 w-10 h-10 flex items-center justify-center rounded-lg transition active:scale-95 shadow-sm">
+                <i class="fas fa-user-times"></i>
+            </button>
+        </div>
+        `;
+    }).join('');
+}
+
+window.closeManageAccessModal = function() {
+    document.getElementById('manage-access-modal').classList.add('hidden');
+}
+
+window.revokeAccess = async function(invitacionId) {
+    if(!confirm("¿Estás seguro de que quieres expulsar a este mago de la expedición? Perderá el acceso de inmediato.")) return;
+
+    // Al borrar la fila de la tabla de invitaciones, el RLS de la app bloqueará automáticamente 
+    // su lectura al viaje principal la próxima vez que el invitado intente cargar.
+    const { error } = await sb.from('invitaciones_viaje').delete().eq('id', invitacionId);
+    
+    if (error) {
+        alert("Maldición rebotada: " + error.message);
+    } else {
+        // Recargamos la lista del modal para ver cómo desaparece
+        openManageAccessModal();
     }
 }
 

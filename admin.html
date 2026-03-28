@@ -325,6 +325,23 @@
         </div>
     </div>
 
+    <div id="manage-access-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4">
+        <div class="parchment-box rounded-lg shadow-2xl w-full max-w-lg flex flex-col border-2 border-[var(--gold)]">
+            <div class="p-5 border-b-2 border-[var(--gold)] flex justify-between items-center bg-[#fffef0] rounded-t-lg shrink-0">
+                <h3 class="text-xl font-bold text-[var(--gryffindor-red)] magic-font">
+                    <i class="fas fa-users-cog text-[var(--gold)]"></i> Accesos Concedidos
+                </h3>
+                <button onclick="closeManageAccessModal()" class="text-[var(--ink)] hover:text-[var(--gryffindor-red)] transition"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1">
+                <p class="text-sm text-stone-600 mb-4 font-bold">Estos son los magos que tienen o han tenido invitación a esta expedición.</p>
+                <div id="access-list-container" class="space-y-3 max-h-60 overflow-y-auto">
+                    </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="admin.js"></script>
 </body>
 </html>
