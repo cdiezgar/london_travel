@@ -84,14 +84,14 @@ const schemaMap = {
     },
 
     // 5. EXTRAS Y JUEGOS
-    checklist: {
+checklist: {
         label: "Checklist", icon: "fa-check-square",
         columns: [
             { key: 'id', label: 'ID', type: 'readonly' },
             { key: 'item', label: 'Elemento', type: 'text', required: true },
             { key: 'imagen_url', label: 'URL Imagen', type: 'text' },
-            { key: 'lat', label: 'Latitud', type: 'float' },
-            { key: 'long', label: 'Longitud', type: 'float' }
+            { key: 'lat', label: 'Latitud', type: 'float', required: true }, // <-- Añadido
+            { key: 'long', label: 'Longitud', type: 'float', required: true } // <-- Añadido
         ]
     },
     secretos: {
@@ -157,11 +157,27 @@ async function init() {
 
 // NUEVA FUNCIÓN: Dibuja la pantalla de inicio (Lobby)
 window.renderHome = function(mostrarArchivados = false) {
-    currentAdminViajeId = null;
+currentAdminViajeId = null;
     
-    // Ocultamos el sidebar de forma segura sin romper el layout Flex
+    // ==========================================
+    // SOLUCIÓN BUG: Matar el menú y el fondo oscuro
+    // ==========================================
     const sidebar = document.getElementById('admin-sidebar');
-    if (sidebar) sidebar.style.display = 'none'; 
+    if (sidebar) {
+        sidebar.style.display = 'none'; 
+        sidebar.classList.add('-translate-x-full'); // Obligamos al menú a cerrarse
+    }
+
+    // Buscamos el fondo oscuro (overlay) y lo destruimos sin animaciones
+    const overlay = document.getElementById('admin-overlay') || document.getElementById('sidebar-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden', 'opacity-0');
+    }
+    // ==========================================
+
+    // Ocultamos el botón hamburguesa en el Lobby
+    const btnHamburguesa = document.querySelector('header button[onclick="toggleAdminMenu()"]');
+    if (btnHamburguesa) btnHamburguesa.classList.add('!hidden');
 
     // Mantenemos la cabecera principal limpia y sin botones extra
     document.getElementById('view-title').textContent = "Panel de Expediciones";
@@ -181,14 +197,19 @@ window.renderHome = function(mostrarArchivados = false) {
 
     const viajesAMostrar = window.misViajes.filter(v => mostrarArchivados ? v.activo === false : v.activo !== false);
 
-    // Renderizamos el Lobby (Ya no hay h2 duplicado aquí)
+    // --- SOLUCIÓN BUG: Añadimos pb-24 al div principal para dejar espacio al scroll móvil ---
     container.innerHTML = `
-        <div class="max-w-5xl mx-auto mt-4">
+        <div class="max-w-5xl mx-auto mt-4 pb-24">
+            
             <div class="text-center mb-8">
-                <p class="text-stone-600 text-lg">Selecciona un viaje para administrar su contenido y configuración.</p>
+                <p class="text-stone-600 text-lg mb-5">Selecciona un viaje para administrar su contenido y configuración.</p>
+                
+                <button onclick="window.location.href='index.html'" class="bg-white/80 hover:bg-white text-[var(--gryffindor-red)] px-6 py-2.5 rounded-full shadow-md font-bold transition border border-[var(--gold)] magic-font active:scale-95">
+                    <i class="fas fa-door-open mr-2"></i> Volver al Andén 9 ¾
+                </button>
             </div>
 
-            <div class="flex justify-center gap-4 mb-8 border-b border-[var(--gold)]/30 pb-4">
+            <div class="flex justify-center gap-4 mb-8 border-b border-[var(--gold)]/30 pb-4 mt-6">
                 <button onclick="renderHome(false)" class="px-6 py-2 font-bold rounded transition ${!mostrarArchivados ? 'bg-[#1a100d] text-[var(--gold)] border border-[var(--gold)] shadow-md' : 'text-stone-500 hover:text-stone-800'}">
                     <i class="fas fa-plane-departure mr-2"></i> Viajes Activos
                 </button>
@@ -227,6 +248,11 @@ window.entrarAViaje = function(id) {
     // Restauramos el menú lateral con Flex
     const sidebar = document.getElementById('admin-sidebar');
     if (sidebar) sidebar.style.display = 'flex'; 
+
+    // --- SOLUCIÓN BUG: Volvemos a mostrar el botón hamburguesa ---
+    // (Tailwind se encargará de que solo se vea en móvil gracias a su clase md:hidden)
+    const btnHamburguesa = document.querySelector('header button[onclick="toggleAdminMenu()"]');
+    if (btnHamburguesa) btnHamburguesa.classList.remove('!hidden');
     
     renderSidebar();
     loadTable('configuracion'); 
@@ -556,10 +582,16 @@ window.saveData = async function() {
     const formData = new FormData(formElement);
     const payload = {};
     
-    schemaMap[currentTable].columns.forEach(col => {
+schemaMap[currentTable].columns.forEach(col => {
         if (formData.has(col.key)) {
             let val = formData.get(col.key);
-            if(col.type === 'number' && val === '') val = null; 
+            
+            // CORRECCIÓN: Si el campo es number o float y está vacío, lo convertimos a null
+            // para que Supabase no intente guardar un texto vacío en una columna numérica.
+            if ((col.type === 'number' || col.type === 'float') && val === '') {
+                val = null; 
+            }
+            
             payload[col.key] = val;
         }
     });

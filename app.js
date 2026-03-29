@@ -1268,6 +1268,23 @@ async function loadUserTrips() {
     document.getElementById('app-content').style.display = 'none';
     document.getElementById('trip-selection-container').style.display = 'flex'; 
     
+    // ==========================================
+    // SOLUCIÓN BUG: Ocultar botón Hamburguesa en el Lobby
+    // ==========================================
+    const btnHamburguesa = document.getElementById('hamburger-btn');
+    if (btnHamburguesa) btnHamburguesa.classList.add('hidden');
+    // ==========================================
+
+    // ==========================================
+    // NUEVO: OCULTAR BOTÓN ADMIN EN EL LOBBY
+    // ==========================================
+    const btnAdminHeader = document.querySelector('button[title="Administración"]'); 
+    const btnAdminNav = document.getElementById('nav-admin'); 
+    
+    if (btnAdminHeader) btnAdminHeader.style.setProperty('display', 'none', 'important');
+    if (btnAdminNav) btnAdminNav.style.setProperty('display', 'none', 'important');
+    // ==========================================
+
     const tripList = document.getElementById('trip-list');
     tripList.innerHTML = '<p class="text-stone-600 italic text-sm"><i class="fas fa-spinner fa-spin text-[var(--gold)] mr-2"></i>Consultando con Gringotts...</p>';
 
