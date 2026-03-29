@@ -128,7 +128,7 @@ async function init() {
     
     // Si no tiene viajes propios (es posible que solo sea invitado en otros)
     if (error || !viajes || viajes.length === 0) {
-        alert("No tienes expediciones propias para administrar. ¡Crea una en el Andén principal!");
+        await customAlert("Atención", "Primero debes crear un viaje en la aplicación principal.", "fa-exclamation-triangle");
         window.location.href = 'index.html';
         return;
     }
@@ -145,7 +145,7 @@ async function init() {
             window.history.replaceState({}, document.title, window.location.pathname);
         } else {
             // 3. ¡ALERTA DE INTRUSO! Es un invitado intentando forzar la URL
-            alert("¡Acceso denegado! Magia oscura detectada. Solo el organizador jefe puede usar la Sala de Configuración.");
+            customAlert("¡Acceso denegado!", "Magia oscura detectada. Solo el organizador jefe puede usar la Sala de Configuración", "fa-exclamation-triangle");
             window.history.replaceState({}, document.title, window.location.pathname);
             renderHome(); // Lo devolvemos al panel con sus viajes propios
         }
@@ -339,7 +339,7 @@ window.loadTable = async function(tableKey) {
         const { data: configData, error } = await sb.from(tableKey).select('*').eq('viaje_id', currentAdminViajeId).maybeSingle();
         
         document.getElementById('loading').classList.add('hidden');
-        if (error) { alert("Error cargando configuración: " + error.message); return; }
+        if (error) { customAlert("Error", "Error cargando configuración: " + error.message, "fa-times-circle"); return; }
         
         renderDashboardConfig(configData, viajeInfo?.activo !== false);
         return;
@@ -355,7 +355,7 @@ window.loadTable = async function(tableKey) {
     const { data, error } = await sb.from(tableKey).select('*').eq('viaje_id', currentAdminViajeId).order(orderBy, { ascending: true });
 
     document.getElementById('loading').classList.add('hidden');
-    if (error) { alert("Error cargando datos: " + error.message); return; }
+    if (error) { customAlert("Error", "Error cargando datos: " + error.message, "fa-times-circle"); return; }
     
     if (tableContainer) tableContainer.classList.remove('hidden'); 
     renderTable(data, tableKey);
@@ -553,7 +553,6 @@ window.openForm = function(rowData = null) {
         loadRestaurants(currentEditingId); 
     } else if (currentTable === 'dias') {
         document.getElementById('timeline-content').innerHTML = '<p class="text-lg handwritten text-center p-4">Guarda el día primero en el pergamino para poder añadirle actividades.</p>';
-        timelineContainer.classList.remove('hidden');
     }
 
     // NUEVO BLOQUE PARA PASES TURÍSTICOS
@@ -582,7 +581,7 @@ window.saveData = async function() {
     const formData = new FormData(formElement);
     const payload = {};
     
-schemaMap[currentTable].columns.forEach(col => {
+    schemaMap[currentTable].columns.forEach(col => {
         if (formData.has(col.key)) {
             let val = formData.get(col.key);
             
@@ -603,7 +602,7 @@ schemaMap[currentTable].columns.forEach(col => {
     if (currentEditingId) ({ error } = await sb.from(currentTable).update(payload).eq('id', currentEditingId));
     else ({ error } = await sb.from(currentTable).insert([payload]));
 
-    if (error) alert("Error de hechicería al guardar: " + error.message);
+    if (error) customAlert("Maldición rebotada", "Error al guardar: " + error.message, "fa-skull-crossbones")
     else {
         closeModal();
         loadTable(currentTable);
@@ -612,12 +611,12 @@ schemaMap[currentTable].columns.forEach(col => {
 }
 
 window.deleteData = async function(id) {
-    if (!confirm(`¿Borrar este registro definitivamente del mapa?`)) return;
+    if (!(await customConfirm("Borrar Registro", "¿Borrar este registro definitivamente del mapa?", "fa-trash"))) return;
     const { error } = await sb.from(currentTable).delete().eq('id', id);
     
     if (error) {
-        if(error.code === '23503') alert("Maldición detectada: No puedes borrar esto porque tiene actividades colgadas. Bórralas primero.");
-        else alert("Error al borrar: " + error.message);
+        if(error.code === '23503') customAlert("Maldición detectada", "No puedes borrar esto porque tiene actividades colgadas. Bórralas primero.", "fa-link");
+        else customAlert("Error", "Error al borrar: " + error.message, "fa-times-circle");
     } else {
         loadTable(currentTable);
         localStorage.removeItem('travel_data_cache');
@@ -695,6 +694,19 @@ html += `
 // --- GESTIÓN DE LA ACTIVIDAD INDIVIDUAL Y SUS ITEMS ---
 window.openActivityModal = async function(actData = null) {
 
+// ==========================================
+    // ESCUDO PROTECTOR: Bloquear si el padre no está guardado
+    // ==========================================
+    if (!currentEditingId) {
+        customAlert(
+            "¡Alto ahí, mago!", 
+            "Primero debes guardar este registro principal usando el botón <b>Guardar</b>. Una vez forjado en la base de datos, podrás añadirle todos los elementos extra que quieras.", 
+            "fa-save"
+        );
+        return;
+    }
+    // ==========================================
+    
     editingItemId = null;
     const btnItem = document.getElementById('btn-save-item');
     if(btnItem) btnItem.innerHTML = '<i class="fas fa-plus"></i> Añadir Elemento';
@@ -703,7 +715,10 @@ window.openActivityModal = async function(actData = null) {
     form.reset(); 
 
     // NUEVO: Cargar los elementos del checklist dinámicamente
-    const { data: checklistItems } = await sb.from('checklist').select('id, item').order('item', { ascending: true });
+   const { data: checklistItems } = await sb.from('checklist')
+        .select('id, item')
+        .eq('viaje_id', currentAdminViajeId) // <--- ¡AQUÍ ESTÁ LA SOLUCIÓN!
+        .order('item', { ascending: true });
     const checklistSelect = document.getElementById('act-checklist');
     
     let options = `<option value="">-- Sin vincular --</option>`;
@@ -718,8 +733,6 @@ window.openActivityModal = async function(actData = null) {
         editingLinkId = actData.linkId;
         editingActivityId = actData.actId;
 
-
-        
         document.getElementById('act-hora').value = actData.hora;
         document.getElementById('act-nombre').value = actData.nombre;
         document.getElementById('act-tipo').value = actData.tipo;
@@ -773,18 +786,18 @@ window.saveActivity = async function() {
 
     if (editingActivityId) {
         const { error: err1 } = await sb.from('actividades').update(actData).eq('id', editingActivityId);
-        if (err1) { alert("Error actualizando actividad: " + err1.message); return; }
+        if (err1) { customAlert("Error", "Error al guardar la actividad: " + err1.message, "fa-times-circle"); return; }
         
         const { error: err2 } = await sb.from('dia_actividad').update({ hora }).eq('id', editingLinkId);
-        if (err2) { alert("Error actualizando hora: " + err2.message); return; }
+        if (err2) { customAlert("Error", "Error actualizar la hora: " + err2.message, "fa-times-circle"); }
 
     } else {
         const { data: newAct, error: err1 } = await sb.from('actividades').insert([actData]).select();
-        if (err1) { alert("Error creando actividad: " + err1.message); return; }
+        if (err1) { customAlert("Error", "Error creando la actividad: " + err1.message, "fa-times-circle"); return; }
         
         const newActId = newAct[0].id;
         const { error: err2 } = await sb.from('dia_actividad').insert([{ dia_id: currentDiaIdForActivity, actividad_id: newActId, hora: hora }]);
-        if (err2) { alert("Error vinculando al día: " + err2.message); return; }
+        if (err2) { customAlert("Error", "Error vinculando el dia: " + err2.message, "fa-times-circle"); return; }
     }
 
     closeActivityModal();
@@ -793,9 +806,9 @@ window.saveActivity = async function() {
 }
 
 window.deleteActivity = async function(linkId, actId) {
-    if (!confirm("¿Desaparecer esta actividad mediante el encantamiento Evanesco?")) return;
+    if (!(await customConfirm("Desaparecer Actividad", "¿Desaparecer esta actividad mediante el encantamiento Evanesco?", "fa-wand-magic-sparkles"))) return;
     const { error: err1 } = await sb.from('dia_actividad').delete().eq('id', linkId);
-    if (err1) { alert("Error quitando del día: " + err1.message); return; }
+    if (err1) { customAlert("Error", "Error quitando del día: " + err1.message, "fa-times-circle"); return; }
 
     const { error: err2 } = await sb.from('actividades').delete().eq('id', actId);
     if (err2) console.warn("La actividad se desvinculó pero no se borró de la base.");
@@ -870,7 +883,7 @@ window.addActivityItem = async function() {
     }
     
     if (error) {
-        alert("Error al guardar el elemento: " + error.message);
+        customAlert("Error", "Error en el elemento: " + error.message, "fa-times-circle");
     } else {
         // Limpiamos los campos
         inputTxt.value = '';
@@ -891,7 +904,7 @@ window.deleteActivityItem = async function(itemId) {
     const { error } = await sb.from('actividad_items').delete().eq('id', itemId);
     
     if (error) {
-        alert("Error al borrar el elemento: " + error.message);
+        customAlert("Error", "Error al borrar el elemento: " + error.message, "fa-times-circle");
     } else {
         loadActivityItems(editingActivityId); // Recargar la lista
         localStorage.removeItem('travel_data_cache'); // Limpiar caché
@@ -953,6 +966,20 @@ container.innerHTML = rests.map(r => `
 };
 
 window.openRestaurantModal = function(rData = null) {
+
+// ==========================================
+    // ESCUDO PROTECTOR: Bloquear si el padre no está guardado
+    // ==========================================
+    if (!currentEditingId) {
+        customAlert(
+            "¡Alto ahí, mago!", 
+            "Primero debes guardar este registro principal usando el botón <b>Guardar</b>. Una vez forjado en la base de datos, podrás añadirle todos los elementos extra que quieras.", 
+            "fa-save"
+        );
+        return;
+    }
+    // ==========================================
+
     const form = document.getElementById('restaurant-form');
     form.reset();
     
@@ -996,7 +1023,7 @@ window.saveRestaurant = async function() {
     }
     
     if (error) {
-        alert("Maldición rebotada al guardar restaurante: " + error.message);
+       customAlert("Maldición rebotada", "Error al guardar restaurante: " + error.message, "fa-times-circle");
     } else {
         closeRestaurantModal();
         loadRestaurants(currentDiaIdForActivity);
@@ -1005,9 +1032,9 @@ window.saveRestaurant = async function() {
 };
 
 window.deleteRestaurant = async function(id) {
-    if (!confirm("¿Seguro que quieres borrar este restaurante de los planes del día?")) return;
+    if (!(await customConfirm("Borrar Restaurante", "¿Seguro que quieres borrar este restaurante de los planes del día?", "fa-utensils"))) return;
     const { error } = await sb.from('restaurantes_dia').delete().eq('id', id);
-    if (error) alert("Error al borrar: " + error.message);
+    if (error) customAlert("Error", "Error al borrar: " + error.message, "fa-times-circle");
     else {
         loadRestaurants(currentDiaIdForActivity);
         localStorage.removeItem('travel_data_cache');
@@ -1107,7 +1134,7 @@ window.savePassActivity = async function() {
     }
     
     if (error) {
-        alert("Maldición rebotada al guardar actividad: " + error.message);
+        customAlert("Error", "Error al guardar actividad: " + error.message, "fa-times-circle");
     } else {
         closePassActivityModal();
         loadPassActivities(currentPaseIdForActivity);
@@ -1116,9 +1143,9 @@ window.savePassActivity = async function() {
 };
 
 window.deletePassActivity = async function(id) {
-    if (!confirm("¿Seguro que quieres borrar esta actividad del pase turístico?")) return;
+   if (!(await customConfirm("Borrar Actividad", "¿Seguro que quieres borrar esta actividad del pase turístico?", "fa-ticket-alt"))) return;
     const { error } = await sb.from('actividades_pase').delete().eq('id', id);
-    if (error) alert("Error al borrar: " + error.message);
+    if (error) customAlert("Error", "Error al borrar: " + error.message, "fa-times-circle");
     else {
         loadPassActivities(currentPaseIdForActivity);
         localStorage.removeItem('travel_data_cache_' + currentAdminViajeId);
@@ -1153,7 +1180,7 @@ window.confirmarCambioEstado = async function(isChecking) {
 window.cambiarEstadoViaje = async function(nuevoEstado) {
     const { error } = await sb.from('viajes').update({ activo: nuevoEstado }).eq('id', currentAdminViajeId);
     if (error) {
-        alert("Maldición detectada: " + error.message);
+       customAlert("Error", "Maldición detectada: " + error.message, "fa-skull-crossbones");
         document.getElementById('toggle-activo').checked = !nuevoEstado;
     } else {
         document.getElementById('estado-text').innerText = nuevoEstado ? 'VIAJE ACTIVO' : 'ARCHIVADO';
@@ -1184,7 +1211,7 @@ window.loadHistorico = async function() {
     const { data, error } = await sb.from('viajes').select('*').eq('activo', false);
     
     document.getElementById('loading').classList.add('hidden');
-    if (error) { alert("Error: " + error.message); return; }
+    if (error) { customAlert("Error", "Error cargando archivo: " + error.message, "fa-times-circle"); }
 
     const table = document.getElementById('data-table');
     const thead = document.getElementById('table-head');
@@ -1216,9 +1243,9 @@ window.loadHistorico = async function() {
 }
 
 window.reactivarDesdeHistorico = async function(id) {
-    if (confirm("¿Deseas reactivar este viaje y devolverlo al menú principal de expediciones?")) {
+    if (await customConfirm("Reactivar Expedición", "¿Deseas reactivar este viaje y devolverlo al menú principal de expediciones?", "fa-undo-alt")) {
         const { error } = await sb.from('viajes').update({ activo: true }).eq('id', id);
-        if (error) alert("Error: " + error.message);
+        if (error) customAlert("Error", "Se ha producido un error inesperado al recuperar el viaje: " + error.message, "fa-times-circle");
         else {
             init(); 
             loadHistorico(); 
