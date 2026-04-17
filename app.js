@@ -15,16 +15,16 @@ async function checkAuthAndInit() {
     navItems = document.querySelectorAll('.nav-item');
 
     const { data: { session } } = await sb.auth.getSession();
-    
+
     if (session) {
         // ¿Venimos desde el botón del Admin?
         const urlParams = new URLSearchParams(window.location.search);
         const goToViaje = urlParams.get('viaje');
-        
+
         if (goToViaje) {
             // Limpiamos la URL para que quede bonita (index.html a secas)
             window.history.replaceState({}, document.title, window.location.pathname);
-            
+
             // Buscamos el nombre de ese viaje para ponerlo en el menú de carga
             const { data } = await sb.from('viajes').select('nombre').eq('id', goToViaje).single();
             if (data) {
@@ -32,7 +32,7 @@ async function checkAuthAndInit() {
                 return;
             }
         }
-        
+
         // Si no venimos del admin, cargamos la lista normal
         loadUserTrips();
     } else {
@@ -46,7 +46,7 @@ async function checkAuthAndInit() {
 sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT' || !session) {
         // Usuario no logueado: Ocultar selector de viajes, mostrar appContent y renderizar login
-        if(hamburgerBtn) hamburgerBtn.classList.add('hidden');
+        if (hamburgerBtn) hamburgerBtn.classList.add('hidden');
         document.getElementById('trip-selection-container').style.display = 'none';
         appContent.style.display = 'block'; // Aseguramos que el main es visible
         renderLogin();
@@ -54,8 +54,8 @@ sb.auth.onAuthStateChange((event, session) => {
 });
 
 function renderLogin() {
-    if(hamburgerBtn) hamburgerBtn.classList.add('hidden');
-    
+    if (hamburgerBtn) hamburgerBtn.classList.add('hidden');
+
     appContent.innerHTML = `
         <div class="fade-in h-full flex flex-col items-center justify-center mt-10">
             <i class="fas fa-lock text-5xl text-[var(--gryffindor-red)] mb-6 filter drop-shadow-md"></i>
@@ -95,7 +95,7 @@ async function handleLogin(e) {
     const passwordInput = document.getElementById('magic-password').value;
     const errorMsg = document.getElementById('login-error');
     const btn = document.getElementById('login-btn');
-    
+
     btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Revelando...`;
     btn.disabled = true;
 
@@ -113,7 +113,7 @@ async function handleLogin(e) {
         // AQUÍ ESTÁ LA CLAVE: 
         // En lugar de inyectar el spinner y llamar a fetchTravelData() directamente,
         // vaciamos el appContent y llamamos a loadUserTrips() para que el usuario elija su viaje.
-        appContent.innerHTML = ''; 
+        appContent.innerHTML = '';
         loadUserTrips();
     }
 }
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', checkAuthAndInit);
 async function fetchTravelData() {
     try {
 
-    // 1. Intentar cargar de caché primero
+        // 1. Intentar cargar de caché primero
         const cacheKey = 'travel_data_cache_' + currentViajeId;
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
@@ -149,7 +149,7 @@ async function fetchTravelData() {
         ] = await Promise.all([
             // Cambiamos .single() por .maybeSingle() para que no falle si está vacío
             sb.from('configuracion').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
-            
+
             sb.from('dias').select(`
                 *,
                 dia_actividad (
@@ -161,13 +161,13 @@ async function fetchTravelData() {
                 ),
                 restaurantes_dia (*)
             `).eq('viaje_id', currentViajeId).order('fecha', { ascending: true }),
-            
+
             sb.from('supermercados').select('*').eq('viaje_id', currentViajeId),
             sb.from('secretos').select('*').eq('viaje_id', currentViajeId),
             sb.from('restaurantes_top').select('*').eq('viaje_id', currentViajeId),
             sb.from('checklist').select('*').eq('viaje_id', currentViajeId).order('id', { ascending: true }),
             sb.from('gastos').select('*').eq('viaje_id', currentViajeId).order('created_at', { ascending: true }),
-            
+
             // --- NUEVAS CONSULTAS ---
             sb.from('transportes').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
             sb.from('pases_turisticos').select('*').eq('viaje_id', currentViajeId).maybeSingle(),
@@ -179,28 +179,28 @@ async function fetchTravelData() {
         // RECONSTRUCCIÓN (ADAPTADOR PATTERN)
         organizadorViaje = {
             config: {
-                titulo: configData?.titulo || '', 
+                titulo: configData?.titulo || '',
                 subtitulo: configData?.subtitulo || '',
-                presupuesto: configData?.presupuesto || '', 
+                presupuesto: configData?.presupuesto || '',
                 base: configData?.base || '',
                 tasa_cambio: configData?.tasa_cambio || 1, // Por defecto 1
                 lat_centro: configData?.lat_centro || 51.5074, // Londres por defecto
                 long_centro: configData?.long_centro || -0.1278
             },
             intro: {
-                texto: configData?.intro_texto || '', 
+                texto: configData?.intro_texto || '',
                 alojamiento: configData?.intro_alojamiento || ''
             },
             dias: (diasData || []).map(dia => ({
-                id: dia.id, 
+                id: dia.id,
                 fecha: formatearFecha(dia.fecha),
-                titulo: dia.titulo || '', 
+                titulo: dia.titulo || '',
                 icono: dia.icono || 'fa-circle',
-                resumen: dia.resumen || '', 
+                resumen: dia.resumen || '',
                 curiosidad_hp: dia.curiosidad_hp || null,
-                historia_dia: dia.historia_dia || null, 
+                historia_dia: dia.historia_dia || null,
                 nota_dia: dia.nota_dia || null,
-                
+
                 timeline: (dia.dia_actividad || []).map(relacion => {
                     const act = relacion.actividades || {};
                     const listaItems = act.actividad_items || [];
@@ -213,7 +213,7 @@ async function fetchTravelData() {
                         if (checklistAsociado && checklistAsociado.imagen_url) {
                             finalImgUrl = checklistAsociado.imagen_url; // Sobrescribimos con la del checklist
                         }
-                    }        
+                    }
 
                     // En app.js, dentro de fetchTravelData(), cambia esto:
                     let detallesObj = null;
@@ -239,7 +239,7 @@ async function fetchTravelData() {
                         detalles: detallesObj
                     };
                 }).sort((a, b) => (a.hora || "").localeCompare(b.hora || "")),
-                
+
                 restaurantes: (dia.restaurantes_dia || []).map(r => ({
                     nombre: r.nombre || '', desc: r.desc_texto || '', precio: r.precio || '', loc: r.loc || null
                 }))
@@ -248,7 +248,7 @@ async function fetchTravelData() {
             curiosidades_extra: secretosData || [],
             restaurantes_lista: restTopData || [],
             // NUEVO: Ahora guardamos el objeto completo del checklist y los gastos
-            checklist: checkData || [], 
+            checklist: checkData || [],
             gastos: gastosData || [],
             // Textos estáticos (no los pasamos a tabla porque son constantes)
             transporte: {
@@ -264,7 +264,7 @@ async function fetchTravelData() {
                 precio_total: pasesData?.precio_total || "-",
                 precio_pp: pasesData?.precio_pp || "-",
                 info: pasesData?.info || "Añade la información del pase en el panel de administración.",
-                
+
                 // Las actividades del pase las dejamos vacías por ahora para no sobrecomplicar la BBDD.
                 // Podrías crear una tabla 'actividades_pase' en el futuro si quieres.
                 actividades: actividadesPaseData || []
@@ -273,21 +273,21 @@ async function fetchTravelData() {
 
         // ACTUALIZAR EL TÍTULO DE LA PESTAÑA DEL NAVEGADOR
         document.title = organizadorViaje.config.titulo || "Expedición";
-        
+
         // Guardar en caché para la próxima vez
         localStorage.setItem(cacheKey, JSON.stringify(organizadorViaje));
 
         // MOSTRAMOS EL BOTÓN HAMBURGUESA EN VEZ DE LA ANTIGUA BARRA
-        if(hamburgerBtn) hamburgerBtn.classList.remove('hidden');
+        if (hamburgerBtn) hamburgerBtn.classList.remove('hidden');
         toggleLogoutButton(true);
-        if (!cached) renderHome();  
+        if (!cached) renderHome();
 
     } catch (error) {
         console.error("Error:", error);
         appContent.innerHTML = `...`;
         // Si el botón de login sigue ahí, hay que resetearlo
         const btn = document.getElementById('login-btn');
-        if(btn) btn.disabled = false;       
+        if (btn) btn.disabled = false;
     }
 }
 
@@ -297,7 +297,7 @@ function setActiveNav(id) {
         item.classList.add('text-gray-400');
     });
     const activeItem = document.getElementById(id);
-    if(activeItem) {
+    if (activeItem) {
         activeItem.classList.remove('text-gray-400');
         activeItem.classList.add('active', 'text-[var(--gold)]', 'bg-white/10');
     }
@@ -360,7 +360,7 @@ function renderHome() {
         </button>
     `;
 
-    
+
 }
 
 function renderItineraryList() {
@@ -399,7 +399,7 @@ function renderDayDetail(id) {
     const dia = organizadorViaje.dias.find(d => d.id === id);
     if (!dia) return;
 
-    document.getElementById('app-content').scrollTo(0,0);
+    document.getElementById('app-content').scrollTo(0, 0);
 
     let html = `
         <div class="fade-in">
@@ -446,13 +446,13 @@ function renderDayDetail(id) {
 
     dia.timeline.forEach((item, index) => {
         let icon = 'fa-circle';
-        if(item.tipo === 'transporte') icon = 'fa-train-subway';
-        if(item.tipo === 'comida') icon = 'fa-utensils';
-        if(item.tipo === 'visita') icon = 'fa-eye';
-        if(item.tipo === 'museo') icon = 'fa-building-columns';
-        if(item.tipo === 'check') icon = 'fa-check-double';
-        if(item.tipo === 'caminar') icon = 'fa-walking';
-        if(item.tipo === 'relax') icon = 'fa-leaf';
+        if (item.tipo === 'transporte') icon = 'fa-train-subway';
+        if (item.tipo === 'comida') icon = 'fa-utensils';
+        if (item.tipo === 'visita') icon = 'fa-eye';
+        if (item.tipo === 'museo') icon = 'fa-building-columns';
+        if (item.tipo === 'check') icon = 'fa-check-double';
+        if (item.tipo === 'caminar') icon = 'fa-walking';
+        if (item.tipo === 'relax') icon = 'fa-leaf';
 
         const hasDetails = item.detalles ? true : false;
 
@@ -526,7 +526,7 @@ function renderSecretDetails(diaId, itemIndex) {
     const item = dia.timeline[itemIndex];
     if (!item || !item.detalles) return;
 
-    document.getElementById('app-content').scrollTo(0,0);
+    document.getElementById('app-content').scrollTo(0, 0);
 
     // Si tiene imagen, le aplicamos un diseño tipo marco antiguo
     const imagenPortada = item.imagen_url ? `
@@ -571,9 +571,9 @@ function renderSecretDetails(diaId, itemIndex) {
                     </h3>
                     <ul class="space-y-3">
                         ${item.detalles.lista_ver.map(li => {
-                            if (li.desc || li.img) {
-                                // Si tiene descripción o imagen, creamos un acordeón desplegable
-                                return `
+        if (li.desc || li.img) {
+            // Si tiene descripción o imagen, creamos un acordeón desplegable
+            return `
                                 <li class="bg-white/80 rounded border border-[var(--gold)] overflow-hidden shadow-sm">
                                     <details class="group">
                                         <summary class="flex justify-between items-center p-3 cursor-pointer list-none hover:bg-white transition text-stone-800">
@@ -589,21 +589,21 @@ function renderSecretDetails(diaId, itemIndex) {
                                         </div>
                                     </details>
                                 </li>`;
-                            } else {
-                                // Si solo es texto, lo dejamos como una lista normal
-                                return `
+        } else {
+            // Si solo es texto, lo dejamos como una lista normal
+            return `
                                 <li class="flex items-start gap-3 p-3">
                                     <i class="fas fa-check-circle text-[var(--gold)] mt-1 shrink-0"></i>
                                     <span class="text-base text-stone-800 font-medium">${li.texto}</span>
                                 </li>`;
-                            }
-                        }).join('')}
+        }
+    }).join('')}
                     </ul>
                 </div>` : ''}
             </div>
         </div>
     `;
-    
+
     appContent.innerHTML = html;
 }
 
@@ -655,7 +655,7 @@ function renderFood() {
                 <h3 class="font-bold text-lg mb-3 px-3 border-l-4 border-green-600 bg-green-50 py-2 rounded-r">Supermercados (Base)</h3>
                 <div class="space-y-3">
     `;
-    
+
     organizadorViaje.supermercados.forEach(superm => {
         html += `
             <div class="bg-white p-4 rounded shadow-sm border-l-2 border-green-500">
@@ -700,7 +700,7 @@ function renderFood() {
 // En app.js
 function renderExtras() {
     setActiveNav('nav-extra');
-    
+
     let html = `
         <div class="fade-in pb-10">
             <h2 class="text-2xl font-bold text-center mb-6 text-[var(--gryffindor-red)]">
@@ -721,14 +721,14 @@ function renderExtras() {
                 <div class="bg-white p-5 rounded-lg shadow-md border border-stone-200">
                     <ul class="space-y-3" id="checklist-container">
                         ${organizadorViaje.checklist.map(item => {
-                            const isChecked = item.completado ? 'checked' : '';
-                            const textStyle = item.completado ? 'line-through text-gray-400' : 'text-stone-800';
-                            return `
+        const isChecked = item.completado ? 'checked' : '';
+        const textStyle = item.completado ? 'line-through text-gray-400' : 'text-stone-800';
+        return `
                                 <li class="flex items-start gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                                     <input type="checkbox" id="check-${item.id}" onchange="toggleChecklist(${item.id}, ${item.completado})" ${isChecked} class="w-6 h-6 mt-1 accent-[var(--gryffindor-red)] cursor-pointer shrink-0">
                                     <label for="check-${item.id}" class="text-lg handwritten leading-tight flex-1 cursor-pointer select-none transition-all ${textStyle}">${item.item}</label>
                                 </li>`;
-                        }).join('')}
+    }).join('')}
                     </ul>
                 </div>
             </div>
@@ -766,21 +766,21 @@ function renderExtras() {
     appContent.innerHTML = html;
 }
 
-window.openFullscreenMap = function() {
+window.openFullscreenMap = function () {
     const mapContainer = document.getElementById('fullscreen-map-container');
-    if(mapContainer) {
+    if (mapContainer) {
         // Mostramos el contenedor con flexbox
         mapContainer.classList.remove('hidden');
         mapContainer.classList.add('flex');
-        
+
         // Inicializamos el mapa con un pequeño retraso para que Leaflet detecte el alto y ancho de la pantalla completa
         setTimeout(initMapaDinamico, 150);
     }
 }
 
-window.closeFullscreenMap = function() {
+window.closeFullscreenMap = function () {
     const mapContainer = document.getElementById('fullscreen-map-container');
-    if(mapContainer) {
+    if (mapContainer) {
         // Ocultamos el contenedor
         mapContainer.classList.add('hidden');
         mapContainer.classList.remove('flex');
@@ -791,7 +791,7 @@ window.closeFullscreenMap = function() {
 function initMapaDinamico() {
     setTimeout(() => {
         if (window.londonMap) { window.londonMap.remove(); }
-        
+
         window.londonMap = L.map('london-map').setView([organizadorViaje.config.lat_centro, organizadorViaje.config.long_centro], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.londonMap);
 
@@ -799,7 +799,7 @@ function initMapaDinamico() {
             // Solo dibujamos marcadores que tengan latitud y longitud en la tabla checklist
             if (item.lat && item.long) {
                 const isDone = item.completado;
-                
+
                 const customIcon = L.divIcon({
                     className: 'clear-leaflet-style',
                     html: `
@@ -827,7 +827,7 @@ function initMapaDinamico() {
 }
 
 // --- ACTUALIZAR CHECKLIST SIN REFRESCO FEO ---
-window.toggleChecklist = async function(id, estadoActual) {
+window.toggleChecklist = async function (id, estadoActual) {
     // 1. Cambio visual instantáneo (Optimistic UI)
     const itemIndex = organizadorViaje.checklist.findIndex(item => item.id === id);
     if (itemIndex > -1) {
@@ -837,7 +837,7 @@ window.toggleChecklist = async function(id, estadoActual) {
 
     // 2. Guardamos en Supabase en segundo plano
     const { error } = await sb.from('checklist').update({ completado: !estadoActual }).eq('id', id);
-    
+
     if (error) {
         // Si hay error, deshacemos el cambio y avisamos
         customAlert("Maldición detectada", "Error al guardar en la nube: " + error.message, "fa-skull-crossbones")
@@ -845,7 +845,7 @@ window.toggleChecklist = async function(id, estadoActual) {
         renderExtras();
     } else {
         // Si va bien, actualizamos la caché local por si cierras la app de golpe
-       localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
+        localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
     }
 }
 
@@ -854,10 +854,10 @@ window.toggleChecklist = async function(id, estadoActual) {
 // ==========================================
 function renderGastos() {
     setActiveNav('nav-gastos');
-    
+
     const TASA_CAMBIO = organizadorViaje.config.tasa_cambio; // Modifica según el cambio actual
     let gastos = organizadorViaje.gastos || [];
-    
+
     let totalGBP = gastos.reduce((sum, g) => sum + parseFloat(g.cantidad), 0);
     let totalEUR = totalGBP * TASA_CAMBIO;
 
@@ -927,10 +927,10 @@ let londonMap = null; // Variable para guardar el mapa
 
 
 // --- AÑADIR GASTO SIN REFRESCO FEO ---
-window.addGasto = async function(event) {
+window.addGasto = async function (event) {
     const concepto = document.getElementById('gasto-concepto').value.trim();
     const cantidad = document.getElementById('gasto-cantidad').value;
-    if(!concepto || !cantidad || cantidad <= 0) return;
+    if (!concepto || !cantidad || cantidad <= 0) return;
 
     // Efecto de carga en el botón
     const btn = event.currentTarget;
@@ -938,8 +938,12 @@ window.addGasto = async function(event) {
     btn.disabled = true;
 
     // Mandamos a Supabase pidiendo que nos devuelva el registro creado (.select())
-    const { data, error } = await sb.from('gastos').insert([{ concepto: concepto, cantidad: parseFloat(cantidad) }]).select();
-    
+    const { data, error } = await sb.from('gastos').insert([{
+        concepto: concepto,
+        cantidad: parseFloat(cantidad),
+        viaje_id: currentViajeId
+    }]).select();
+
     if (error) {
         customAlert("Aviso de Gringotts", "Los duendes reportan un error: " + error.message, "fa-coins");
         btn.innerHTML = '<i class="fas fa-check"></i>';
@@ -948,26 +952,26 @@ window.addGasto = async function(event) {
         // Añadimos el nuevo gasto a nuestra lista local
         if (!organizadorViaje.gastos) organizadorViaje.gastos = [];
         organizadorViaje.gastos.push(data[0]); // Metemos el dato real de la BBDD (con su ID)
-        
+
         // Guardamos caché y redibujamos solo la pantalla de gastos
-       localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
+        localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
         renderGastos();
     }
 }
 // --- BORRAR GASTO SIN REFRESCO FEO ---
-window.deleteGasto = async function(id) {
+window.deleteGasto = async function (id) {
     if (await customConfirm("Borrar Gasto", "¿Seguro que quieres borrar este gasto de la bóveda?", "fa-trash")) {
         // Borramos de Supabase
         const { error } = await sb.from('gastos').delete().eq('id', id);
-        
+
         if (error) {
             customAlert("Error", "Error al borrar: " + error.message, "fa-times-circle");
         } else {
             // Filtramos la lista local para quitar el borrado
             organizadorViaje.gastos = organizadorViaje.gastos.filter(g => g.id !== id);
-            
+
             // Actualizamos caché y redibujamos
-           localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
+            localStorage.setItem('travel_data_cache_' + currentViajeId, JSON.stringify(organizadorViaje));
             renderGastos();
         }
     }
@@ -975,7 +979,7 @@ window.deleteGasto = async function(id) {
 
 function renderExplorerPass() {
     setActiveNav('nav-pass');
-    
+
     let html = `
         <div class="fade-in pb-8">
             <h2 class="text-2xl font-bold text-center mb-6 text-[var(--gryffindor-red)]">
@@ -1016,7 +1020,7 @@ function renderExplorerPass() {
 
 window.renderExplorerPass = renderExplorerPass;
 
-window.openMap = function(destination) {
+window.openMap = function (destination) {
     const query = encodeURIComponent(destination);
     // Usamos la URL oficial de búsqueda de Google Maps
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
@@ -1040,10 +1044,10 @@ function toggleLogoutButton(show) {
     }
 }
 
-window.toggleSecretos = function() {
+window.toggleSecretos = function () {
     const content = document.getElementById('secretos-content');
     const chevron = document.getElementById('secretos-chevron');
-    
+
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
         chevron.classList.add('rotate-180'); // Gira la flechita hacia arriba
@@ -1053,10 +1057,10 @@ window.toggleSecretos = function() {
     }
 }
 
-window.toggleMenu = function() {
+window.toggleMenu = function () {
     const sidebar = document.getElementById('sidebar-nav');
     const overlay = document.getElementById('sidebar-overlay');
-    
+
     if (sidebar.classList.contains('-translate-x-full')) {
         // Abrir menú
         sidebar.classList.remove('-translate-x-full');
@@ -1082,7 +1086,7 @@ function formatearFecha(fechaString) {
     return texto.charAt(0).toUpperCase() + texto.slice(1).replace(' de ', ' ');
 }
 
-window.generarGuiaPDF = function() {
+window.generarGuiaPDF = function () {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const data = organizadorViaje; // Basado en data.json
@@ -1090,7 +1094,7 @@ window.generarGuiaPDF = function() {
     const red = [116, 0, 1];
     const gold = [211, 166, 37];
     const darkInk = [40, 40, 40];
-    const textWidth = 175; 
+    const textWidth = 175;
 
     // Función para renderizar texto justificado manualmente
     const renderJustified = (text, x, y, maxWidth, fontSize, fontStyle = "normal") => {
@@ -1115,7 +1119,7 @@ window.generarGuiaPDF = function() {
             }
             if (currentY > 280) { doc.addPage(); currentY = 20; doc.setFont("times", fontStyle); doc.setFontSize(fontSize); }
             doc.text(line.join(' '), x, currentY);
-            currentY += (fontSize * 0.6); 
+            currentY += (fontSize * 0.6);
         });
         return currentY;
     };
@@ -1132,22 +1136,22 @@ window.generarGuiaPDF = function() {
     doc.setFontSize(18);
     doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
     doc.text(data.config.subtitulo, 105, 110, { align: "center" });
-    
+
     // --- 2. RESUMEN DE ITINERARIO (Sustituye al Índice) ---
     doc.addPage();
     doc.setFontSize(22);
     doc.setTextColor(red[0], red[1], red[2]);
     doc.text("RESUMEN DEL VIAJE", 20, 30);
-    
+
     let resumenY = 50;
     data.dias.forEach((dia) => {
         if (resumenY > 270) { doc.addPage(); resumenY = 30; }
-        
+
         doc.setFont("times", "bold");
         doc.setFontSize(12);
         doc.setTextColor(red[0], red[1], red[2]);
         doc.text(`${dia.fecha}: ${dia.titulo}`, 25, resumenY);
-        
+
         resumenY += 6;
         doc.setFont("times", "normal");
         doc.setFontSize(10);
@@ -1155,13 +1159,13 @@ window.generarGuiaPDF = function() {
         // Solo el resumen corto
         const resumenCorto = doc.splitTextToSize(dia.resumen || "Sin resumen disponible.", 160);
         doc.text(resumenCorto, 30, resumenY);
-        
+
         resumenY += (resumenCorto.length * 5) + 8;
     });
 
     // --- 3. CONTENIDO (Un Salto de Página por Día) ---
     data.dias.forEach((dia) => {
-        doc.addPage(); 
+        doc.addPage();
         let currentY = 20;
 
         // Título del Día
@@ -1213,7 +1217,7 @@ window.generarGuiaPDF = function() {
                     doc.setTextColor(gold[0], gold[1], gold[2]);
                     doc.text("Indispensable ver:", 18, currentY);
                     currentY += 5;
-                    
+
                     item.detalles.lista_ver.forEach(punto => {
                         const nombrePunto = typeof punto === 'object' ? punto.texto : punto;
                         if (currentY > 280) { doc.addPage(); currentY = 20; }
@@ -1221,7 +1225,7 @@ window.generarGuiaPDF = function() {
                         doc.setTextColor(darkInk[0], darkInk[1], darkInk[2]);
                         doc.text(`- ${nombrePunto}`, 22, currentY);
                         currentY += 5;
-                        
+
                         if (punto.desc) {
                             currentY = renderJustified(punto.desc, 27, currentY, textWidth - 12, 9) + 2;
                         }
@@ -1266,8 +1270,8 @@ window.generarGuiaPDF = function() {
 async function loadUserTrips() {
     // 1. Ocultar el contenido principal (appContent) y mostrar el selector como FLEX
     document.getElementById('app-content').style.display = 'none';
-    document.getElementById('trip-selection-container').style.display = 'flex'; 
-    
+    document.getElementById('trip-selection-container').style.display = 'flex';
+
     // ==========================================
     // SOLUCIÓN BUG: Ocultar botón Hamburguesa en el Lobby
     // ==========================================
@@ -1278,9 +1282,9 @@ async function loadUserTrips() {
     // ==========================================
     // NUEVO: OCULTAR BOTÓN ADMIN EN EL LOBBY
     // ==========================================
-    const btnAdminHeader = document.querySelector('button[title="Administración"]'); 
-    const btnAdminNav = document.getElementById('nav-admin'); 
-    
+    const btnAdminHeader = document.querySelector('button[title="Administración"]');
+    const btnAdminNav = document.getElementById('nav-admin');
+
     if (btnAdminHeader) btnAdminHeader.style.setProperty('display', 'none', 'important');
     if (btnAdminNav) btnAdminNav.style.setProperty('display', 'none', 'important');
     // ==========================================
@@ -1307,7 +1311,7 @@ async function loadUserTrips() {
     const { data: misViajes, error: errorMisViajes } = await sb.from('viajes')
         .select('*')
         .eq('activo', true) // Mantenemos tu filtro original
-        .eq('user_id', user.id) 
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
     if (errorMisViajes) {
@@ -1324,7 +1328,7 @@ async function loadUserTrips() {
 
     // --- 4. PREPARAR Y UNIR LOS DATOS ---
     const viajesPropios = (misViajes || []).map(v => ({ ...v, isReadOnly: false }));
-    
+
     const viajesCompartidos = (invitacionesAceptadas || [])
         // Filtramos por si la invitación apunta a un viaje que ya fue borrado o no está activo
         .filter(inv => inv.viajes !== null && inv.viajes.activo === true)
@@ -1332,7 +1336,7 @@ async function loadUserTrips() {
 
     const todosLosViajes = [...viajesPropios, ...viajesCompartidos];
 
-    tripList.innerHTML = ''; 
+    tripList.innerHTML = '';
 
     // --- 5. PINTAR EL HTML ORIGINAL (Con añadido de lectura) ---
     if (todosLosViajes.length === 0) {
@@ -1341,7 +1345,7 @@ async function loadUserTrips() {
         todosLosViajes.forEach(viaje => {
             const btn = document.createElement('button');
             btn.className = 'w-full mb-2 bg-white/80 p-3 rounded shadow-sm border border-[var(--gold)] text-[var(--ink)] font-bold active:scale-95 transition hover:bg-yellow-50 flex justify-between items-center group';
-            
+
             // Si es compartido, le ponemos una etiqueta visual pequeña
             const etiquetaInvitado = viaje.isReadOnly ? `<span class="text-xs font-bold bg-stone-200 text-stone-600 px-2 py-0.5 ml-2 rounded uppercase border border-stone-300">Invitado</span>` : '';
 
@@ -1350,29 +1354,29 @@ async function loadUserTrips() {
                 <span class="text-left flex-1 truncate pr-2 text-lg flex items-center">${viaje.nombre} ${etiquetaInvitado}</span> 
                 <i class="fas fa-chevron-right text-[var(--gryffindor-red)] opacity-50 group-hover:opacity-100 transition-opacity"></i>
             `;
-            
+
             btn.onclick = () => selectTrip(viaje.id, viaje.nombre, viaje.isReadOnly);
             tripList.appendChild(btn);
         });
     }
 }
 
-window.selectTrip = function(viajeId, viajeNombre, isReadOnly = false) {
+window.selectTrip = function (viajeId, viajeNombre, isReadOnly = false) {
     // 1. Guardar el ID globalmente y su estado de lectura
-    currentViajeId = viajeId; 
+    currentViajeId = viajeId;
     localStorage.setItem('currentViajeId', viajeId);
-    
+
     // Guardamos en una variable global si es invitado para usarlo en otras funciones
-    window.isCurrentTripReadOnly = isReadOnly; 
+    window.isCurrentTripReadOnly = isReadOnly;
 
     // ==========================================
     // BLOQUEO VISUAL DE BOTONES DE ADMIN
     // ==========================================
     // Buscamos el botón de cabecera por su 'title' ya que no tiene ID
-    const btnAdminHeader = document.querySelector('button[title="Administración"]'); 
+    const btnAdminHeader = document.querySelector('button[title="Administración"]');
     // Buscamos el botón del menú lateral
-    const btnAdminNav = document.getElementById('nav-admin'); 
-    
+    const btnAdminNav = document.getElementById('nav-admin');
+
     if (isReadOnly) {
         // Es un invitado: Usamos style directo con !important para machacar el "md:flex" y "flex" de Tailwind
         if (btnAdminHeader) btnAdminHeader.style.setProperty('display', 'none', 'important');
@@ -1397,10 +1401,10 @@ window.selectTrip = function(viajeId, viajeNombre, isReadOnly = false) {
     `;
 
     // 4. Cargar los datos
-    fetchTravelData(); 
+    fetchTravelData();
 };
 
-window.createNewTrip = async function() {
+window.createNewTrip = async function () {
     const inputName = document.getElementById('new-trip-name');
     const nombreViaje = inputName.value.trim();
 
@@ -1414,9 +1418,9 @@ window.createNewTrip = async function() {
 
     // Insertamos el nuevo viaje
     const { data, error } = await sb.from('viajes').insert([
-        { 
-            nombre: nombreViaje, 
-            user_id: user.id 
+        {
+            nombre: nombreViaje,
+            user_id: user.id
         }
     ]).select();
 
@@ -1431,27 +1435,27 @@ window.createNewTrip = async function() {
 
     // OPCIÓN A: Entrar automáticamente al viaje recién creado
     selectTrip(data[0].id, data[0].nombre);
-    
+
     // OPCIÓN B: Simplemente recargar la lista de viajes (descomenta la siguiente línea y comenta la de arriba)
     // loadUserTrips();
 };
 
-window.backToTrips = function() {
+window.backToTrips = function () {
     // 1. Opcional: Limpiar el ID del viaje actual en caché para evitar auto-cargas extrañas
     currentViajeId = null;
-    
+
     // 2. Vaciamos el contenido de la app para que no se quede "congelado" el viaje anterior de fondo
     document.getElementById('app-content').innerHTML = '';
-    
+
     // 3. Ocultamos la app y mostramos el selector de viajes
     document.getElementById('app-content').style.display = 'none';
     document.getElementById('trip-selection-container').style.display = 'flex';
-    
+
     // 5. Volvemos a cargar la lista para que se muestre actualizada
     loadUserTrips();
 };
 
-window.goToAdmin = function() {
+window.goToAdmin = function () {
     // Si la variable que creamos arriba es true, bloqueamos la entrada
     if (window.isCurrentTripReadOnly) {
         alert("Magia oscura detectada: No tienes permiso para configurar este viaje.");
@@ -1471,7 +1475,7 @@ async function handleSignUp(e) {
     const passwordInput = document.getElementById('magic-password').value;
     const errorMsg = document.getElementById('login-error');
     const btn = document.getElementById('signup-btn');
-    
+
     // Ocultar mensajes de error previos
     errorMsg.classList.add('hidden');
 
@@ -1516,7 +1520,7 @@ function mostrarModalExito(email, password) {
             </div>
         </div>
     `;
-    
+
     // Lo inyectamos al final del body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
@@ -1539,7 +1543,7 @@ function mostrarModalExito(email, password) {
             customAlert("Acceso Bloqueado", "Error al intentar cruzar el muro: " + error.message, "fa-lock");
         } else {
             // Entramos de lleno a la aplicación
-            appContent.innerHTML = ''; 
+            appContent.innerHTML = '';
             loadUserTrips();
         }
     });
@@ -1571,13 +1575,13 @@ function mostrarModalInvitacion(invitacion) {
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-window.responderInvitacion = async function(invitacionId, respuesta) {
+window.responderInvitacion = async function (invitacionId, respuesta) {
     document.getElementById('invitation-modal').remove();
-    
+
     await sb.from('invitaciones_viaje')
         .update({ estado: respuesta })
         .eq('id', invitacionId);
-        
+
     // Recargar para ver el viaje (si aceptó) o para seguir el flujo
     loadUserTrips();
 }
@@ -1585,7 +1589,7 @@ window.responderInvitacion = async function(invitacionId, respuesta) {
 // ==========================================
 // --- SISTEMA DE MODALES MÁGICOS (APP) ---
 // ==========================================
-window.initCustomModal = function() {
+window.initCustomModal = function () {
     if (document.getElementById('custom-modal-overlay')) return;
     const modalHTML = `
         <div id="custom-modal-overlay" class="fixed inset-0 bg-black/80 z-[300] hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
@@ -1602,12 +1606,12 @@ window.initCustomModal = function() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-window.showModal = function(type, title, message, icon) {
+window.showModal = function (type, title, message, icon) {
     return new Promise((resolve) => {
         initCustomModal();
         const overlay = document.getElementById('custom-modal-overlay');
         const box = document.getElementById('custom-modal-box');
-        
+
         document.getElementById('custom-modal-title').textContent = title;
         document.getElementById('custom-modal-message').innerHTML = message;
         document.getElementById('custom-modal-icon').className = `fas ${icon} text-[var(--gold)]`;
