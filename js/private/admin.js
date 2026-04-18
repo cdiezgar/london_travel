@@ -3,8 +3,8 @@ import { AdminDataService } from "../api/adminDataService.js";
 import { renderHome, entrarAViaje, reactivarDesdeHome, loadHistorico, reactivarDesdeHistorico } from "./features/lobby.js";
 import { customAlert, customConfirm } from "../ui/modals.js";
 import { renderDashboardConfig, guardarDashboardConfig, confirmarCambioEstado, cambiarEstadoViaje } from "./features/dashboardConfig.js";
-import { loadTable, openForm, closeModal, saveData, deleteData } from "./features/crud.js";
-import { loadTimeline, openActivityModal, closeActivityModal, saveActivity, deleteActivity, loadActivityItems, addActivityItem, deleteActivityItem, editActivityItem } from "./features/actividades.js";
+import { loadTable, openForm, closeModal, saveData, deleteData, searchMapLocation } from "./features/crud.js";
+import { loadTimeline, openActivityModal, closeActivityModal, saveActivity, deleteActivity, loadActivityItems, addActivityItem, deleteActivityItem, editActivityItem, openMoveActivityModal, closeMoveActivityModal, saveMoveActivity } from "./features/actividades.js";
 import { loadRestaurants, openRestaurantModal, closeRestaurantModal, saveRestaurant, deleteRestaurant } from "./features/restaurantesDia.js";
 import { loadPassActivities, openPassActivityModal, closePassActivityModal, savePassActivity, deletePassActivity } from "./features/pasesActividades.js";
 import { openShareModal, closeShareModal, validateShareEmail, addEmailToList, removeEmailFromList, sendInvitations, openManageAccessModal, closeManageAccessModal, revokeAccess } from "./features/invitaciones.js";
@@ -84,6 +84,123 @@ function setActiveMenu(tableKey) {
 document.addEventListener('DOMContentLoaded', init);
 
 // ==========================================
+// CENTRAL DE EVENTOS (EVENT DELEGATION)
+// ==========================================
+document.body.addEventListener('click', async (e) => {
+    const target = e.target.closest('[data-action]');
+    if (!target) return;
+
+    const action = target.getAttribute('data-action');
+    const id = target.getAttribute('data-id');
+    const payload = target.getAttribute('data-payload');
+
+    // --- CRUD GENÉRICO ---
+    if (action === 'delete-data') {
+        e.preventDefault();
+        await deleteData(id);
+    }
+    else if (action === 'open-form') {
+        e.preventDefault();
+        const data = payload ? JSON.parse(payload) : null;
+        openForm(data);
+    }
+    
+    // --- LOBBY / HISTÓRICO ---
+    else if (action === 'entrar-viaje') {
+        entrarAViaje(id);
+    }
+    else if (action === 'reactivar-viaje-home') {
+        await reactivarDesdeHome(id);
+    }
+    else if (action === 'reactivar-viaje-historico') {
+        await reactivarDesdeHistorico(id);
+    }
+
+    // --- ACTIVIDADES ---
+    else if (action === 'open-activity-modal') {
+        const data = payload ? JSON.parse(payload) : null;
+        openActivityModal(data);
+    }
+    else if (action === 'delete-activity') {
+        const linkId = target.getAttribute('data-link-id');
+        await deleteActivity(linkId, id);
+    }
+    else if (action === 'edit-item') {
+        const data = payload ? JSON.parse(payload) : null;
+        editActivityItem(data);
+    }
+    else if (action === 'delete-item') {
+        await deleteActivityItem(id);
+    }
+
+    // --- RESTAURANTES Y PASES ---
+    else if (action === 'open-restaurant-modal') {
+        const data = payload ? JSON.parse(payload) : null;
+        openRestaurantModal(data);
+    }
+    else if (action === 'delete-restaurant') {
+        await deleteRestaurant(id);
+    }
+    else if (action === 'open-pass-activity-modal') {
+        const data = payload ? JSON.parse(payload) : null;
+        openPassActivityModal(data);
+    }
+    else if (action === 'delete-pass-activity') {
+        await deletePassActivity(id);
+    }
+    
+    // --- ACCESOS E INVITACIONES ---
+    else if (action === 'revoke-access') {
+        await revokeAccess(id);
+    }
+    else if (action === 'remove-email') {
+        removeEmailFromList(target.getAttribute('data-email'));
+    }
+});
+
+// Evento separado para los inputs "change" (como el toggle de estado)
+document.body.addEventListener('change', (e) => {
+    const target = e.target.closest('[data-change]');
+    if (!target) return;
+
+    if (target.getAttribute('data-change') === 'toggle-estado') {
+        confirmarCambioEstado(target.checked);
+    }
+});
+
+// Previsualizador universal para Drag & Drop
+window.previewImage = function(input, imgId, contentId, btnClearId) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById(imgId);
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+            
+            const content = document.getElementById(contentId);
+            if(content) content.classList.add('bg-white/80', 'p-2', 'rounded', 'mt-12'); 
+
+            if(btnClearId) {
+                const btn = document.getElementById(btnClearId);
+                if(btn) btn.classList.remove('hidden');
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Función para vaciar el Drag & Drop si queremos eliminar la foto
+window.clearImagePreview = function(inputId, previewId, contentId, urlInputId, btnClearId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(previewId).src = '';
+    document.getElementById(previewId).classList.add('hidden');
+    document.getElementById(contentId).classList.remove('bg-white/80', 'p-2', 'rounded', 'mt-12');
+    
+    if (urlInputId) document.getElementById(urlInputId).value = ''; 
+    if (btnClearId) document.getElementById(btnClearId).classList.add('hidden');
+}
+
+// ==========================================
 // EXPOSICIÓN GLOBAL PARA HTML ONCLICKS
 // ==========================================
 window.init = init;
@@ -110,6 +227,8 @@ window.goToApp = function() {
     window.location.href = adminState.currentAdminViajeId ? `index.html?viaje=${adminState.currentAdminViajeId}` : 'index.html';
 };
 
+
+
 window.logoutAdmin = logout;
 
 // Dashboard
@@ -124,6 +243,7 @@ window.openForm = openForm;
 window.closeModal = closeModal;
 window.saveData = saveData;
 window.deleteData = deleteData;
+window.searchMapLocation = searchMapLocation;
 
 // Actividades
 window.loadTimeline = loadTimeline;
@@ -135,6 +255,9 @@ window.loadActivityItems = loadActivityItems;
 window.addActivityItem = addActivityItem;
 window.deleteActivityItem = deleteActivityItem;
 window.editActivityItem = editActivityItem;
+window.openMoveActivityModal = openMoveActivityModal;
+window.closeMoveActivityModal = closeMoveActivityModal;
+window.saveMoveActivity = saveMoveActivity;
 
 // Restaurantes
 window.loadRestaurants = loadRestaurants;

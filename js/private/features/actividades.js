@@ -50,6 +50,9 @@ export async function loadTimeline(diaId) {
                                 </div>
                             </div>
                             <div class="flex gap-1 sm:gap-2 shrink-0 opacity-100 md:opacity-80 group-hover:opacity-100 transition">
+                                <button onclick='openMoveActivityModal(${actJson})' class="text-blue-600 hover:bg-blue-100 p-1.5 sm:p-2 rounded transition" title="Mover a otro día">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
                                 <button onclick="deleteActivity(${link.id}, ${act.id})" class="text-[var(--gryffindor-red)] hover:bg-red-100 p-1.5 sm:p-2 rounded transition" title="Borrar Actividad"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
@@ -206,23 +209,55 @@ export async function loadActivityItems(actId) {
 export async function addActivityItem() {
     const inputTxt = document.getElementById('new-item-text');
     const inputDesc = document.getElementById('new-item-desc');
-    const inputImg = document.getElementById('new-item-img');
+    const inputFile = document.getElementById('new-item-img');
+    const inputUrl = document.getElementById('new-item-img-url');
+    const originalUrl = document.getElementById('original-item-img-url').value;
 
     const text = inputTxt.value.trim();
     if (!text || !adminState.editingActivityId) return;
+
+    let finalImageUrl = inputUrl.value || null; 
+    
+    if (inputFile.files && inputFile.files[0]) {
+        try {
+            const btn = document.getElementById('btn-save-item');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo foto...';
+            btn.disabled = true;
+
+            finalImageUrl = await AdminDataService.uploadImage(inputFile.files[0], `actividades_items/${adminState.currentAdminViajeId}`);
+            if (originalUrl) await AdminDataService.deleteImage(originalUrl); // Borramos vieja si se pisa
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        } catch (error) {
+            customAlert("Error", "Error al subir la imagen: " + error.message, "fa-camera");
+            return; 
+        }
+    } else if (!finalImageUrl && originalUrl) {
+        // Le dio al botón de papelera y eliminó la existente
+        await AdminDataService.deleteImage(originalUrl);
+    }
 
     const payload = {
         actividad_id: adminState.editingActivityId, 
         item_texto: text,
         descripcion: inputDesc.value.trim() || null,
-        imagen_url: inputImg.value.trim() || null
+        imagen_url: finalImageUrl
     };
 
     try {
         await AdminDataService.saveActivityItem(payload, adminState.editingItemId);
-        inputTxt.value = ''; inputDesc.value = ''; inputImg.value = '';
-        adminState.editingItemId = null; 
         
+        // Limpiarlo todo tras guardar
+        inputTxt.value = ''; inputDesc.value = ''; 
+        inputFile.value = ''; inputUrl.value = ''; document.getElementById('original-item-img-url').value = '';
+        document.getElementById('preview-item-img').classList.add('hidden');
+        document.getElementById('preview-item-img').src = '';
+        document.getElementById('item-img-content').classList.remove('bg-white/80', 'p-2', 'rounded', 'mt-12');
+        document.getElementById('btn-clear-item-img').classList.add('hidden');
+        
+        adminState.editingItemId = null; 
         const btn = document.getElementById('btn-save-item');
         if(btn) btn.innerHTML = '<i class="fas fa-plus"></i> Añadir Elemento';
 
@@ -231,6 +266,36 @@ export async function addActivityItem() {
     } catch (error) {
         customAlert("Error", "Error en el elemento: " + error.message, "fa-times-circle");
     }
+}
+
+export function editActivityItem(item) {
+    adminState.editingItemId = item.id;
+    document.getElementById('new-item-text').value = item.item_texto || '';
+    document.getElementById('new-item-desc').value = item.descripcion || '';
+    
+    document.getElementById('new-item-img').value = '';
+    document.getElementById('new-item-img-url').value = item.imagen_url || ''; 
+    document.getElementById('original-item-img-url').value = item.imagen_url || ''; // <--- NUEVO
+    
+    const imgPreview = document.getElementById('preview-item-img');
+    const content = document.getElementById('item-img-content');
+    const btnClear = document.getElementById('btn-clear-item-img'); // <--- NUEVO
+    
+    if (item.imagen_url) {
+        imgPreview.src = item.imagen_url;
+        imgPreview.classList.remove('hidden');
+        content.classList.add('bg-white/80', 'p-2', 'rounded', 'mt-12');
+        btnClear.classList.remove('hidden'); // <--- NUEVO
+    } else {
+        imgPreview.classList.add('hidden');
+        imgPreview.src = '';
+        content.classList.remove('bg-white/80', 'p-2', 'rounded', 'mt-12');
+        btnClear.classList.add('hidden'); // <--- NUEVO
+    }
+    
+    const btn = document.getElementById('btn-save-item');
+    if(btn) btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+    document.getElementById('new-item-text').focus();
 }
 
 export async function deleteActivityItem(itemId) {
@@ -243,13 +308,69 @@ export async function deleteActivityItem(itemId) {
     }
 }
 
-export function editActivityItem(item) {
-    adminState.editingItemId = item.id;
-    document.getElementById('new-item-text').value = item.item_texto || '';
-    document.getElementById('new-item-desc').value = item.descripcion || '';
-    document.getElementById('new-item-img').value = item.imagen_url || '';
+// --- MOVER ACTIVIDAD DE DÍA ---
+export async function openMoveActivityModal(actData) {
+    adminState.movingLinkId = actData.linkId;
+    document.getElementById('move-act-name').textContent = actData.nombre;
+    document.getElementById('move-act-hora').value = actData.hora;
     
-    const btn = document.getElementById('btn-save-item');
-    if(btn) btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
-    document.getElementById('new-item-text').focus();
+    const select = document.getElementById('move-act-dia');
+    select.innerHTML = '<option value="">Cargando días del pergamino...</option>';
+    document.getElementById('move-activity-modal').classList.remove('hidden');
+
+    try {
+        // Reutilizamos la consulta genérica para obtener todos los días de este viaje
+        const dias = await AdminDataService.getTableData('dias', adminState.currentAdminViajeId, 'fecha');
+        
+        if (dias && dias.length > 0) {
+            // Ocultamos el día actual de las opciones
+            const otrosDias = dias.filter(d => d.id !== adminState.currentDiaIdForActivity);
+            
+            if (otrosDias.length > 0) {
+                select.innerHTML = '<option value="">-- Selecciona el destino --</option>' + 
+                    otrosDias.map(d => {
+                        // Ponemos la fecha en formato ES para que sea visualmente agradable
+                        const fechaParts = d.fecha.split('-');
+                        const fechaFormat = fechaParts.length === 3 ? `${fechaParts[2]}/${fechaParts[1]}` : d.fecha;
+                        return `<option value="${d.id}">${d.titulo} (${fechaFormat})</option>`;
+                    }).join('');
+            } else {
+                select.innerHTML = '<option value="">No has creado otros días en el Itinerario</option>';
+            }
+        } else {
+            select.innerHTML = '<option value="">Aún no hay días en este viaje</option>';
+        }
+    } catch (error) {
+        select.innerHTML = '<option value="">Error cargando fechas</option>';
+        console.error(error);
+    }
+}
+
+export function closeMoveActivityModal() {
+    document.getElementById('move-activity-modal').classList.add('hidden');
+    adminState.movingLinkId = null;
+}
+export async function saveMoveActivity() {
+    const diaId = document.getElementById('move-act-dia').value;
+    const hora = document.getElementById('move-act-hora').value;
+
+    if (!diaId || !hora) {
+        customAlert("Datos incompletos", "Debes seleccionar un día de destino y una hora válida.", "fa-exclamation-triangle");
+        return;
+    }
+
+    try {
+        await AdminDataService.moveActivityToDay(adminState.movingLinkId, diaId, hora);
+        closeMoveActivityModal();
+        
+        // Modal mágica de OK
+        customAlert("¡Traslador completado!", "La actividad ha viajado en el tiempo y el espacio hasta su nuevo día.", "fa-check-circle");
+
+        // Magia visual: recargamos el timeline actual.
+        loadTimeline(adminState.currentDiaIdForActivity); 
+        localStorage.removeItem('travel_data_cache_' + adminState.currentAdminViajeId);
+        
+    } catch (error) {
+        customAlert("Error", "La lechuza se perdió moviendo la actividad: " + error.message, "fa-times-circle");
+    }
 }

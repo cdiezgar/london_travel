@@ -9,7 +9,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Homemade+Apple&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
+
     <style>
         .modal-active { overflow: hidden; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -201,8 +203,30 @@
                         
                         <textarea id="new-item-desc" rows="2" class="w-full p-2 border-b-2 border-[var(--gold)] bg-transparent focus:outline-none transition text-sm text-stone-700" placeholder="Explicación detallada (Opcional)"></textarea>
                         
-                        <input type="text" id="new-item-img" class="w-full p-2 border-b-2 border-[var(--gold)] bg-transparent focus:outline-none transition text-sm text-stone-700" placeholder="URL de la imagen representativa (Opcional)">
-                        
+                        <div class="col-span-2 mt-2">
+                            <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font tracking-wide">Imagen del Elemento (Opcional)</label>
+                            
+                        <div class="col-span-2 mt-2 relative">                            
+                            <div class="relative flex flex-col items-center justify-center w-full h-32 border-2 border-[var(--gold)] border-dashed rounded-lg bg-white/50 hover:bg-white transition overflow-hidden group shadow-sm">
+                                <div id="item-img-content" class="flex flex-col items-center justify-center z-10 transition-all pointer-events-none">
+                                    <i class="fas fa-camera text-3xl text-[var(--gold)] mb-2 group-hover:scale-110 transition"></i>
+                                    <p class="text-sm font-bold text-stone-600">Haz clic o arrastra la foto aquí</p>
+                                </div>
+                                <input id="new-item-img" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" accept=".jpg, .jpeg, .png, .webp" onchange="previewImage(this, 'preview-item-img', 'item-img-content', 'btn-clear-item-img')" />
+                                <img id="preview-item-img" src="" class="absolute inset-0 w-full h-full object-cover z-0 opacity-80 hidden" />
+                                
+                                <button type="button" id="btn-clear-item-img" onclick="clearImagePreview('new-item-img', 'preview-item-img', 'item-img-content', 'new-item-img-url', 'btn-clear-item-img')" class="absolute top-2 right-2 bg-red-600 text-white rounded-lg w-8 h-8 flex items-center justify-center z-30 hover:bg-red-800 transition shadow-md hidden" title="Quitar imagen">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <input type="hidden" id="new-item-img-url">
+                            <input type="hidden" id="original-item-img-url">
+                        </div>
+                            
+                            <input type="hidden" id="new-item-img-url">
+                        </div>
+                                                
                         <button type="button" id="btn-save-item" onclick="addActivityItem()" class="mt-2 bg-[var(--gold)] text-[var(--ink)] px-4 py-2 rounded font-bold shadow-sm hover:bg-yellow-600 transition border border-yellow-700 active:scale-95 w-full">
                             <i class="fas fa-plus"></i> Añadir Elemento
                         </button>
@@ -217,6 +241,37 @@
             <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
                 <button type="button" onclick="closeActivityModal()" class="w-full sm:w-auto bg-stone-300 hover:bg-stone-400 text-stone-800 px-5 py-2.5 rounded font-bold transition">Cancelar</button>
                 <button type="button" onclick="saveActivity()" class="w-full sm:w-auto bg-[var(--gryffindor-red)] hover:bg-red-900 text-white px-5 py-2.5 rounded shadow-md font-bold transition border border-[var(--gold)] magic-font">Guardar Actividad</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="move-activity-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 transition-opacity duration-300">
+        <div class="bg-[var(--parchment)] w-full max-w-md rounded-xl shadow-2xl border-2 border-[var(--gold)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-[#2b1b17] text-[var(--gold)] p-4 flex justify-between items-center shadow-md">
+                <h2 class="text-xl font-bold magic-font tracking-wide"><i class="fas fa-exchange-alt mr-2"></i> Mover Actividad</h2>
+                <button onclick="closeMoveActivityModal()" class="text-stone-300 hover:text-white hover:rotate-90 transition transform duration-200" title="Cerrar">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
+                <p class="text-stone-800 mb-4 font-medium text-lg">Vas a mover: <strong id="move-act-name" class="text-[var(--gryffindor-red)] magic-font"></strong></p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font tracking-wide">Nuevo Día</label>
+                        <select id="move-act-dia" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg font-medium">
+                            </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-[var(--gryffindor-red)] mb-1 magic-font tracking-wide">Nueva Hora</label>
+                        <input type="time" id="move-act-hora" class="w-full p-2 border-b-2 border-[var(--gold)] bg-white/50 focus:outline-none focus:bg-white transition text-lg font-medium">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-black/5 p-4 flex justify-end gap-3 border-t border-[var(--gold)]/30 shrink-0">
+                <button onclick="closeMoveActivityModal()" class="px-5 py-2 rounded text-stone-600 hover:bg-black/10 font-bold transition">Cancelar</button>
+                <button onclick="saveMoveActivity()" class="px-5 py-2 bg-[var(--gold)] text-[var(--ink)] font-bold rounded shadow-md hover:bg-yellow-600 hover:scale-105 transition transform flex items-center gap-2">
+                    <i class="fas fa-magic"></i> Mover
+                </button>
             </div>
         </div>
     </div>

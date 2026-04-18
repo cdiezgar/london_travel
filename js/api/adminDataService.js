@@ -188,4 +188,46 @@ export const AdminDataService = {
         if (error) throw error;
     },
 
+    // --- 9. STORAGE (IMÁGENES) ---
+    async uploadImage(file, folder = 'general') {
+        // Generamos un nombre único para no sobreescribir fotos con el mismo nombre
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+        const filePath = `${folder}/${fileName}`;
+
+        const { error } = await sb.storage
+            .from('imagenes_sitios')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) throw error;
+
+        // Recuperamos la URL pública para guardarla en la base de datos
+        const { data } = sb.storage.from('imagenes_sitios').getPublicUrl(filePath);
+        return data.publicUrl;
+    },
+
+    async deleteImage(imageUrl) {
+        if (!imageUrl) return;
+        try {
+            // Extraemos la ruta del archivo separando la URL base
+            const urlParts = imageUrl.split('/imagenes/');
+            if (urlParts.length === 2) {
+                const filePath = urlParts[1];
+                const { error } = await sb.storage.from('imagenes').remove([filePath]);
+                if (error) console.error("Error al borrar la foto del storage:", error);
+            }
+        } catch (err) {
+            console.error("Error procesando borrado de foto:", err);
+        }
+    },
+
+    async moveActivityToDay(linkId, newDiaId, newHora) {
+        const { error } = await sb.from('dia_actividad')
+            .update({ dia_id: newDiaId, hora: newHora })
+            .eq('id', linkId);
+        if (error) throw error;
+    },
 };
